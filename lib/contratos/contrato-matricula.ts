@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { replaceDocumentTags } from "@/lib/documentos/tags-documentos";
 import { lerDescontoPontualidade } from "@/lib/financeiro/desconto-pontualidade";
 import { montarDadosBolsaDocumento } from "@/lib/documentos/bolsa-documento";
+import { ErroContratoMatricula, validarVariaveisContrato } from "./validacao-contrato";
 
 type BancoContrato = any;
 
@@ -457,6 +458,7 @@ E por estarem de pleno acordo, firmam o presente contrato.
     );
 
   const dadosAnuidade = montarDadosAnuidadeContrato(template, matricula);
+  if (dadosAnuidade.pendencia) throw new ErroContratoMatricula(dadosAnuidade.pendencia);
 
   const valores = {
     ...dadosBolsaDocumento,
@@ -562,6 +564,8 @@ E por estarem de pleno acordo, firmam o presente contrato.
       disciplinasTexto,
 
     disciplinasContratadas:
+      disciplinasTexto,
+    disciplinasPorSemestre:
       disciplinasTexto,
 
     statusMatricula:
@@ -689,6 +693,7 @@ E por estarem de pleno acordo, firmam o presente contrato.
     );
 
   const conteudo = await anexarResumoModalidades(conteudoBase, matricula.contratacaoModalidades);
+  validarVariaveisContrato(conteudo, true);
 
   return {
     matricula,

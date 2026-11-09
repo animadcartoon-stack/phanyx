@@ -2058,6 +2058,7 @@ function AdminMatriculasPage() {
         }
         if (avisarSeConflito(data)) { setPreviaCombo(null); return; }
         const codigo = String(data?.codigo || "");
+        if (codigo === "CONTRATO_PENDENTE") throw new Error(data.error);
         if (codigo === "ANTECIPACAO_COMBO_INVALIDA") throw new Error(mensagemAntecipacaoComboInvalida);
         throw new Error(mensagensOptativas[codigo] || (codigo && tc.has("errors." + codigo) ? tc("errors." + codigo) : codigo || data?.error || "Não foi possível confirmar a contratação conjunta."));
       }

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { ErroContratoMatricula } from "@/lib/contratos/validacao-contrato";
 import { getUserFromToken } from "@/lib/server-auth";
 import { ErroModalidades } from "./combos";
 
@@ -11,6 +12,9 @@ export async function administradorCombos() {
 }
 
 export function erroCombos(error: unknown) {
+  if (error instanceof ErroContratoMatricula) {
+    return NextResponse.json({ codigo: error.codigo, error: error.message }, { status: error.status });
+  }
   if (error instanceof ErroModalidades) {
     return NextResponse.json(
       { codigo: error.codigo, detalhes: error.detalhes },

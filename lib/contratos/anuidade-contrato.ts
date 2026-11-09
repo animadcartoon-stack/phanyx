@@ -23,6 +23,7 @@ export const VARIAVEIS_ANUIDADE_CONTRATO = [
 
 const tagsAnuidade = new RegExp(`{{\\s*(?:${VARIAVEIS_ANUIDADE_CONTRATO.join("|")})\\s*}}`);
 
+const tagInicioAnuidade = /{{\s*inicioAnuidade\s*}}/;
 const tagsAntecipacaoLegadas = /{{\s*(?:antecipacaoAnuidade|vencimentoAntecipacaoAnuidade)\s*}}/;
 const tagsPontualidadeLegadas = /{{\s*(?:percentualPontualidade|descontoPontualidadeAnuidade|totalAnuidadePontual)\s*}}/;
 
@@ -83,14 +84,20 @@ export function montarDadosAnuidadeContrato(
 
   const inicio = dataCivil(matricula.dataInicioCurso);
   const fim = dataCivil(matricula.turmaPrincipal?.dataFim);
+  if (!inicio && tagInicioAnuidade.test(template)) {
+    return erroAnuidade("Preencha a Data de início do curso. O modelo de contrato usa essa data como início do atendimento.");
+  }
+  if (inicio && fim && fim < inicio) {
+    return erroAnuidade("Confira a Data de início do curso. Ela é posterior à data de término da turma.");
+  }
   const lancamentos = matricula.lancamentosFinanceiros ?? [];
   const vencimentos = lancamentos.filter(item => item.tipo === "MENSALIDADE")
     .map(item => dataCivil(item.vencimento)).filter((data): data is string => data !== null).sort();
   const primeiro = dataCivil(plano?.primeiroVencimento ?? matricula.primeiroVencimento ?? matricula.dataPrimeiroVencimento)
     ?? vencimentos[0];
   const quantidade = Number(plano?.quantidadeParcelas ?? matricula.quantidadeMensalidades ?? matricula.quantidadeParcelas);
-  if (!inicio || !primeiro || (fim && fim < inicio) || !Number.isInteger(quantidade) || quantidade < 1 || quantidade > 120) {
-    return erroAnuidade("Confira o início do atendimento e o cronograma de parcelas da matrícula antes de emitir o contrato.");
+  if (!primeiro || !Number.isInteger(quantidade) || quantidade < 1 || quantidade > 120) {
+    return erroAnuidade("Confira o primeiro vencimento e a quantidade de parcelas. O modelo de contrato precisa do cronograma da matrícula.");
   }
 
   let antecipacao = 0;
@@ -197,7 +204,7 @@ export function montarDadosAnuidadeContrato(
   return {
     pendencia: null,
     valores: {
-      inicioAnuidade: formatarData(inicio),
+      inicioAnuidade: inicio ? formatarData(inicio) : "",
       fimAnuidade: fim ? formatarData(fim) : "o indicado no Anexo I",
       baseAnuidade: moeda.format(base / 100),
       percentualDescontoConjunto: percentual.format(base ? descontoComercial / base : 0),

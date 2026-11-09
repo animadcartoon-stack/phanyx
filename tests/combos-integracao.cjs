@@ -681,16 +681,47 @@ if (!url) {
         assert.equal(atualizar.status, 200, JSON.stringify(await atualizar.clone().json()));
         const novoAluno = await aluno("AlunoComAntecipacao");
         const selecao = { ...base, alunoId: novoAluno.id };
+        const conteudo = "Início {{inicioAnuidade}}. {{textoMatriculaAnuidade}}. {{textoPontualidadeAnuidade}}";
+        const modelo = await prisma.documentoTemplate.create({
+          data: { instituicaoId, nome: "Contrato para validação", tipo: "CONTRATO", conteudo },
+        });
+        const chave = crypto.randomUUID();
+        const semInicio = { ...selecao, dataInicioCurso: null };
+        const previaSemInicio = await api.POST(req({ ...semInicio, acao: "PREVIA" }));
+        assert.equal(previaSemInicio.status, 200);
+        const bloqueada = await api.POST(req({
+          ...pedido, ...semInicio, chave, versao: (await previaSemInicio.json()).versao,
+        }));
+        assert.equal(bloqueada.status, 422);
+        const pendencia = await bloqueada.json();
+        assert.equal(pendencia.codigo, "CONTRATO_PENDENTE");
+        assert.match(pendencia.error, /Data de início do curso/);
+
         const consulta = await api.POST(req({ ...selecao, acao: "PREVIA" }));
         assert.equal(consulta.status, 200, JSON.stringify(await consulta.clone().json()));
         const p = await consulta.json();
         assert.equal(p.calculo.antecipacaoCentavos, 9850);
-        const resposta = await api.POST(req({ ...pedido, ...selecao, chave: crypto.randomUUID(), versao: p.versao }));
+        await prisma.documentoTemplate.update({
+          where: { id: modelo.id }, data: { conteudo: conteudo + " {{variavelInexistente}}" },
+        });
+        const modeloInvalido = await api.POST(req({ ...pedido, ...selecao, chave, versao: p.versao }));
+        assert.equal(modeloInvalido.status, 422);
+        assert.match((await modeloInvalido.json()).error, /variavelInexistente/);
+        const where = { instituicaoId, alunoId: novoAluno.id };
+        assert.equal(await prisma.matricula.count({ where }), 0);
+        assert.equal(await prisma.lancamentoFinanceiro.count({ where }), 0);
+        assert.equal(await prisma.contrato.count({ where }), 0);
+
+        await prisma.documentoTemplate.update({ where: { id: modelo.id }, data: { conteudo } });
+        const resposta = await api.POST(req({ ...pedido, ...selecao, chave, versao: p.versao }));
         assert.equal(resposta.status, 201, JSON.stringify(await resposta.clone().json()));
         const m = await prisma.matricula.findUnique({
           where: { id: (await resposta.json()).matricula.id },
-          include: { lancamentosFinanceiros: { orderBy: [{ vencimento: "asc" }, { id: "asc" }] } },
+          include: { contratos: true, lancamentosFinanceiros: { orderBy: [{ vencimento: "asc" }, { id: "asc" }] } },
         });
+        assert.equal(m.contratos.length, 1);
+        assert.match(m.contratos[0].conteudo, /98,50/);
+        assert.doesNotMatch(m.contratos[0].conteudo, /{{/);
         assert.equal(m.planoPagamentoContratado.antecipacaoCentavos, 9850);
         const taxas = m.lancamentosFinanceiros.filter(l => l.tipo === "MATRICULA");
         const mensais = m.lancamentosFinanceiros.filter(l => l.tipo === "MENSALIDADE");

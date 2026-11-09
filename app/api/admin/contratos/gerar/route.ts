@@ -1,4 +1,6 @@
 import { montarDadosAnuidadeContrato } from "@/lib/contratos/anuidade-contrato";
+import { ErroContratoMatricula, validarVariaveisContrato } from "@/lib/contratos/validacao-contrato";
+import { valoresEtapaDocumento } from "@/lib/academico/organizacao";
 import { resumoCursosDocumento } from "@/lib/documentos/cursos-contratados";
 import { anexarResumoModalidades } from "@/lib/contratos/resumo-modalidades";
 import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
@@ -704,7 +706,7 @@ E por estarem de pleno acordo, firmam o presente contrato.
 
     const dadosAnuidade = montarDadosAnuidadeContrato(template, matricula, localeDocumento);
     if (dadosAnuidade.pendencia) {
-      return NextResponse.json({ error: dadosAnuidade.pendencia }, { status: 422 });
+      throw new ErroContratoMatricula(dadosAnuidade.pendencia);
     }
 
     let numeroMatriculaOficial =
@@ -903,6 +905,7 @@ E por estarem de pleno acordo, firmam o presente contrato.
             )
             : "-",
 
+        ...valoresEtapaDocumento(matricula, localeDocumento),
         semestreAtual:
           matricula.semestre !==
             null &&
@@ -991,6 +994,7 @@ E por estarem de pleno acordo, firmam o presente contrato.
       });
 
     const contratoGerado = await anexarResumoModalidades(contratoBase, matricula.contratacaoModalidades, localeDocumento);
+    validarVariaveisContrato(contratoGerado, true);
 
     let contratoExistente = matricula.contratos?.[0] || null;
 
@@ -1110,6 +1114,9 @@ E por estarem de pleno acordo, firmam o presente contrato.
       observacoesContrato: config?.observacoesContrato || "",
     });
   } catch (error: any) {
+    if (error instanceof ErroContratoMatricula) {
+      return NextResponse.json({ codigo: error.codigo, error: error.message }, { status: error.status });
+    }
     console.error("Erro ao gerar contrato:", error);
     return NextResponse.json(
       { error: error?.message || "Erro ao gerar contrato" },
