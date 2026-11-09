@@ -3,7 +3,9 @@ import type { Prisma } from "@prisma/client";
 import { criarContratoPendenteMatricula } from "@/lib/contratos/contrato-matricula";
 import { ErroContratoMatricula } from "@/lib/contratos/validacao-contrato";
 import { administradorCombos, erroCombos } from "@/lib/matriculas/combos-api";
+import { encontrarConflitos, horarioValido, type HorarioModalidade } from "@/lib/matriculas/combos";
 import { validarDataInicioCurso } from "@/lib/matriculas/dataInicioCurso";
+import { carregarOfertasModalidades, horariosAtuaisAluno } from "@/lib/matriculas/modalidades-servidor";
 import { prisma } from "@/lib/prisma";
 
 function objetoJson(valor: Prisma.JsonValue | undefined): Prisma.JsonObject | null {
@@ -21,8 +23,15 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     }
     const dataInicioCurso = inicio.data;
     const dataCivil = dataInicioCurso.toISOString().slice(0, 10);
+    const agora = new Date();
+    const hoje = new Intl.DateTimeFormat("sv-SE", {
+      timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit",
+    }).format(agora);
 
     return await prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT a."id" FROM "Aluno" a JOIN "Matricula" m
+        ON m."alunoId" = a."id" AND m."instituicaoId" = a."instituicaoId"
+        WHERE m."id" = ${id} AND m."instituicaoId" = ${instituicaoId} FOR UPDATE OF a`;
       await tx.$queryRaw`SELECT "id" FROM "Matricula" WHERE "id" = ${id} AND "instituicaoId" = ${instituicaoId} FOR UPDATE`;
       const where = { id, instituicaoId, excluidaEm: null };
       const matricula = await tx.matricula.findFirst({
@@ -39,12 +48,15 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       }
       const snapshot = objetoJson(matricula.contratacaoModalidades);
       if (!snapshot || !["ATIVA", "A_INICIAR", "AGUARDANDO"].includes(matricula.status)) {
-        throw new ErroContratoMatricula("Essa matrícula não está disponível para completar a data de início.");
+        throw new ErroContratoMatricula("Essa matrícula não está disponível para editar a data de início.");
       }
-      if (matricula.dataInicioCurso) {
-        if (matricula.dataInicioCurso.toISOString().slice(0, 10) === dataCivil)
-          return NextResponse.json({ dataInicioCurso: dataCivil });
-        throw new ErroContratoMatricula("Já existe uma data de início registrada. A alteração exige revisão do contrato.");
+      const dataAnterior = matricula.dataInicioCurso?.toISOString().slice(0, 10) ?? null;
+      if (dataAnterior === dataCivil) return NextResponse.json({ dataInicioCurso: dataCivil });
+      if ((body.dataInicioAnterior ?? null) !== dataAnterior) {
+        throw new ErroContratoMatricula("A data foi atualizada por outra pessoa. Recarregue a lista antes de editar.");
+      }
+      if (dataAnterior && (dataAnterior <= hoje || dataCivil < hoje)) {
+        throw new ErroContratoMatricula("Datas de atendimento já iniciado exigem revisão da contratação.");
       }
       const turmas = [
         matricula.turmaPrincipal,
@@ -55,20 +67,54 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         throw new ErroContratoMatricula("A data de início é posterior ao término de uma das turmas da matrícula.");
       }
 
+      const anteciparInicio = dataAnterior !== null && dataCivil < dataAnterior;
+      const erroAgenda = () => new ErroContratoMatricula(
+        "Os horários atuais não conferem com a contratação. Revise a agenda antes de antecipar o início.",
+      );
+      if (anteciparInicio && (!Array.isArray(snapshot.ofertas) || !snapshot.ofertas.length)) throw erroAgenda();
+      const atuais = anteciparInicio ? await carregarOfertasModalidades(tx, instituicaoId) : [];
+      const novosHorarios: HorarioModalidade[] = [];
       const ofertas = Array.isArray(snapshot.ofertas) ? snapshot.ofertas.map(valor => {
         const oferta = objetoJson(valor);
-        if (!oferta || !Array.isArray(oferta.horarios)) return valor;
+        if (!oferta || !Array.isArray(oferta.horarios)) {
+          if (anteciparInicio) throw erroAgenda();
+          return valor;
+        }
+        const atual = anteciparInicio ? atuais.find(turma => turma.id === oferta.turmaId) : null;
+        if (anteciparInicio && (!atual || atual.horariosPendentes || atual.horarios.length !== oferta.horarios.length)) {
+          throw erroAgenda();
+        }
         return { ...oferta, horarios: oferta.horarios.map(item => {
           const horario = objetoJson(item);
-          if (!horario) return item;
-          const inicioAtual = typeof horario.dataInicio === "string" ? horario.dataInicio : "";
+          if (!horario) {
+            if (anteciparInicio) throw erroAgenda();
+            return item;
+          }
+          const registrado = typeof horario.dataInicio === "string" ? horario.dataInicio : "";
+          let inicioAtual = registrado;
+          const horarioAtual = atual?.horarios.find(h => h.disciplinaId === horario.disciplinaId &&
+            h.diaSemana === horario.diaSemana && h.horaInicio === horario.horaInicio &&
+            h.horaFim === horario.horaFim && h.dataFim === horario.dataFim);
+          if (anteciparInicio) {
+            if (!horarioAtual) throw erroAgenda();
+            inicioAtual = horarioAtual.dataInicio ?? "";
+            if (registrado !== (inicioAtual > dataAnterior ? inicioAtual : dataAnterior)) throw erroAgenda();
+          }
           const novoInicio = inicioAtual > dataCivil ? inicioAtual : dataCivil;
           if (typeof horario.dataFim === "string" && horario.dataFim < novoInicio) {
             throw new ErroContratoMatricula("A data de início é posterior ao término de uma atividade contratada.");
           }
+          if (horarioAtual) novosHorarios.push({ ...horarioAtual, dataInicio: novoInicio });
           return { ...horario, dataInicio: novoInicio };
         }) };
       }) : undefined;
+      if (anteciparInicio) {
+        const { horarios } = await horariosAtuaisAluno(tx, instituicaoId, matricula.alunoId, id);
+        if (novosHorarios.some(horario => !horarioValido(horario)) ||
+            encontrarConflitos(novosHorarios, horarios).length) {
+          throw new ErroContratoMatricula("A nova data cria um conflito com os horários do aluno. Confira a agenda.");
+        }
+      }
 
       const vinculo = { matriculaId: id, instituicaoId };
       const contratos = await tx.contrato.findMany({
@@ -87,7 +133,6 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         throw new ErroContratoMatricula(erroAssinado);
       }
 
-      const agora = new Date();
       if (contratos.length) {
         const antigos = await tx.contrato.updateMany({
           where: { ...vinculo, id: { in: contratos.map(contrato => contrato.id) }, status: "PENDENTE",
@@ -99,7 +144,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
           where: { ...vinculo, tipo: "CONTRATO", arquivado: false,
             conteudo: { in: contratos.map(contrato => contrato.conteudo) } },
           data: { arquivado: true, arquivadoEm: agora, arquivadoPorId: usuarioId,
-            motivoArquivamento: "Contrato substituído após complementar a data de início." },
+            motivoArquivamento: "Contrato substituído após corrigir a data de início." },
         });
       }
       await tx.matricula.update({
@@ -108,7 +153,12 @@ export async function PATCH(request: Request, { params }: { params: { id: string
           dataInicioCurso,
           contratacaoModalidades: {
             ...snapshot, ...(ofertas ? { ofertas } : {}), dataInicioCurso: dataCivil,
-            complementoInicio: { data: dataCivil, usuarioId, registradoEm: agora.toISOString() },
+            ...(dataAnterior ? {
+              revisoesInicio: [
+                ...(Array.isArray(snapshot.revisoesInicio) ? snapshot.revisoesInicio : []),
+                { anterior: dataAnterior, data: dataCivil, usuarioId, registradoEm: agora.toISOString() },
+              ],
+            } : { complementoInicio: { data: dataCivil, usuarioId, registradoEm: agora.toISOString() } }),
           } as Prisma.InputJsonObject,
         },
       });
@@ -118,7 +168,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
           titulo: "Contrato de matrícula", conteudo: contrato.conteudo },
       });
       return NextResponse.json({ dataInicioCurso: dataCivil });
-    });
+    }, { isolationLevel: "Serializable", maxWait: 5000, timeout: 30000 });
   } catch (error) {
     return erroCombos(error);
   }

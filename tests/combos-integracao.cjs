@@ -739,10 +739,10 @@ if (!url) {
         await prisma.matricula.update({ where: { id: m.id }, data: { dataInicioCurso: null } });
         const contratoAntigo = m.contratos[0];
         await prisma.contrato.update({ where: { id: contratoAntigo.id }, data: { assinaturaSecretariaEm: new Date() } });
-        const corrigirInicio = dataInicioCurso => inicioContratacao.PATCH(
+        const corrigirInicio = (dataInicioCurso, dataInicioAnterior = null) => inicioContratacao.PATCH(
           new Request(`http://localhost/api/admin/matriculas/${m.id}/inicio-contratacao`, {
             method: "PATCH", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ dataInicioCurso }),
+            body: JSON.stringify({ dataInicioCurso, dataInicioAnterior }),
           }),
           { params: { id: String(m.id) } },
         );
@@ -769,6 +769,27 @@ if (!url) {
         assert.equal(await prisma.documentoAluno.count({
           where: { matriculaId: m.id, instituicaoId, tipo: "CONTRATO", arquivado: false },
         }), 1);
+
+        const desatualizada = await corrigirInicio("2027-02-02", "2027-02-01");
+        assert.equal(desatualizada.status, 422);
+        assert.match((await desatualizada.json()).error, /Recarregue/);
+        const adiantada = await corrigirInicio("2027-02-02", "2027-02-08");
+        assert.equal(adiantada.status, 200, JSON.stringify(await adiantada.clone().json()));
+        const revisada = await prisma.matricula.findUniqueOrThrow({
+          where: { id: m.id }, include: { contratos: { where: { status: "PENDENTE" } }, lancamentosFinanceiros: true },
+        });
+        assert.equal(revisada.dataInicioCurso.toISOString().slice(0, 10), "2027-02-02");
+        assert.ok(revisada.contratacaoModalidades.ofertas.every(oferta =>
+          oferta.horarios.every(horario => horario.dataInicio === "2027-02-02")));
+        assert.equal(revisada.contratacaoModalidades.revisoesInicio.at(-1).anterior, "2027-02-08");
+        assert.deepEqual(revisada.planoPagamentoContratado, m.planoPagamentoContratado);
+        assert.deepEqual(revisada.lancamentosFinanceiros.map(l => l.id).sort(), m.lancamentosFinanceiros.map(l => l.id).sort());
+        assert.equal(revisada.contratos.length, 1);
+        assert.match(revisada.contratos[0].conteudo, /02\/02\/2027/);
+        await prisma.contrato.update({ where: { id: revisada.contratos[0].id }, data: { assinaturaSecretariaEm: new Date() } });
+        const alteracaoAssinada = await corrigirInicio("2027-02-03", "2027-02-02");
+        assert.equal(alteracaoAssinada.status, 422);
+        assert.match((await alteracaoAssinada.json()).error, /assinatura/);
       });
     } finally {
       // Apenas dados sintéticos do banco local reservado.
