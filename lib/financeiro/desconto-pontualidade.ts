@@ -90,6 +90,12 @@ export function descontoPontualidadeEmReais(base: number, percentual: number) {
   return desconto > 0 && desconto < centavos ? desconto / 100 : 0;
 }
 
+export function descontoPontualidadeAposCredito(saldo: number, percentual: number, credito = 0) {
+  const base = (Math.round(saldo * 100) + Math.round(credito * 100)) / 100;
+  const desconto = descontoPontualidadeEmReais(base, percentual);
+  return desconto < saldo ? desconto : 0;
+}
+
 /** Apenas uma faixa por pagamento, sempre com prioridade para antecipacao. */
 export function faixaAplicavelPontualidade(valor: unknown, vencimento: Date, diaPagamento: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(diaPagamento)) return null;
@@ -106,7 +112,7 @@ export function faixaAplicavelPontualidade(valor: unknown, vencimento: Date, dia
 }
 
 export function cotarDescontoPontualidade(
-  parcela: { tipo: string; status: string; vencimento: Date | null; valorPago?: number | null;
+  parcela: { tipo: string; status: string; vencimento: Date | null; valorPago?: number | null; valorAntecipacaoAbatida?: number;
     pagamentos: Array<{ valorPago: number }>; matricula?: { descontoPontualidade?: unknown } | null },
   valorBase: number,
   diaPagamento: string,
@@ -116,7 +122,9 @@ export function cotarDescontoPontualidade(
       Number(parcela.valorPago) > 0 || parcela.pagamentos.some(p => p.valorPago > 0)) return null;
   const regra = faixaAplicavelPontualidade(parcela.matricula?.descontoPontualidade, parcela.vencimento, diaPagamento);
   if (!regra) return null;
-  const desconto = descontoPontualidadeEmReais(valorBase, regra.percentual);
+  const credito = parcela.valorAntecipacaoAbatida ?? 0;
+  const desconto = descontoPontualidadeAposCredito(valorBase, regra.percentual, credito);
   if (desconto <= 0) return null;
-  return { ...regra, desconto, valorComDesconto: Math.round((valorBase - desconto) * 100) / 100 };
+  return { ...regra, desconto, ...(credito > 0 ? { descontoFixo: desconto } : {}),
+    valorComDesconto: Math.round((valorBase - desconto) * 100) / 100 };
 }

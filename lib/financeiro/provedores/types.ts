@@ -28,7 +28,7 @@ export type CriarBoletoFinanceiroInput = {
   clienteExternoId: string;
   valor: number;
   vencimento: string;
-  descontoPontualidade?: { percentual: number; diasAntecedencia: number };
+  descontoPontualidade?: { percentual: number; diasAntecedencia: number; descontoFixo?: number };
   descricao: string;
   referenciaExterna: string;
 };

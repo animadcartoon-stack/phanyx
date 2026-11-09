@@ -984,6 +984,7 @@ model Pagamento {
 }
 
 model LancamentoFinanceiro {
+  valorAntecipacaoAbatida Float               @default(0)
   periodoCursoLivre PeriodoCursoLivre?
   id              Int                        @id @default(autoincrement())
   tipo            TipoLancamentoFinanceiro
@@ -11756,6 +11757,7 @@ enum ModoPrecoCombo {
 }
 
 model ComboModalidades {
+  taxaComoAntecipacao Boolean                @default(false)
   id                 Int                     @id @default(autoincrement())
   instituicaoId      Int
   nome               String

@@ -493,7 +493,9 @@ if (!podeUsarFinanceiroCompleto(user.plano || "ESSENCIAL")) {
       ? (centavos(lancamento.valorOriginal) + centavos(lancamento.jurosValor ?? 0) +
         centavos(lancamento.multaValor ?? 0) - centavos(valorBase)) / 100 +
         (descontoInformado ?? 0) + (pontualidade?.desconto ?? 0)
-      : descontoInformado ?? Number(lancamento.descontoValor || 0);
+      : lancamento.valorAntecipacaoAbatida > 0
+        ? Math.max(lancamento.valorAntecipacaoAbatida, descontoInformado ?? Number(lancamento.descontoValor || 0))
+        : descontoInformado ?? Number(lancamento.descontoValor || 0);
 
     const jurosValor =
       jurosInformado !== null

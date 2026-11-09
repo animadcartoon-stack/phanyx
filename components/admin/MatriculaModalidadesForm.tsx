@@ -8,7 +8,7 @@ import { useSearchParams } from "next/navigation";
 import { idCursoPrincipal } from "@/lib/matriculas/cursos-adicionais";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { type HorarioModalidade } from "@/lib/matriculas/combos";
+import { mensagemAntecipacaoComboInvalida, type HorarioModalidade } from "@/lib/matriculas/combos";
 import type { OfertaModalidade } from "@/lib/matriculas/modalidades-servidor";
 import type { calcularContratacaoModalidades } from "@/lib/matriculas/combos";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
@@ -86,6 +86,7 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
   const chave = useRef("");
   const operacao = useRef(false);
   const traduzirErro = (codigo?: string) =>
+    codigo === "ANTECIPACAO_COMBO_INVALIDA" ? mensagemAntecipacaoComboInvalida :
     mensagensOptativas[codigo ?? ""] || (ta.has(`errors.${codigo}`) ? ta(`errors.${codigo}`) : t.has(`errors.${codigo}`)
       ? t(`errors.${codigo}`)
       : t("errors.ERRO_INTERNO"));
@@ -726,7 +727,9 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
                 <dd>{finais.parcelas}</dd>
                 <dt>{t("total")}</dt>
                 <dd className="font-bold">
-                  {moeda(finais.taxa + finais.mensalidade * finais.parcelas)}
+                  {moeda(finais.taxa - (previa?.calculo.antecipacaoCentavos
+                    ? Math.max(0, finais.taxa - previa.calculo.matriculaCentavos + previa.calculo.antecipacaoCentavos)
+                    : 0) + finais.mensalidade * finais.parcelas)}
                 </dd>
               </dl>
               <ResumoDescontoPontualidade mensalidade={finais.mensalidade / 100} />

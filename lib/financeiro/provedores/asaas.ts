@@ -566,8 +566,8 @@ export function criarProvedorAsaas(
       const regra = input.descontoPontualidade;
       const discount = regra && vencimento === input.vencimento &&
         hojeAsaas() <= limiteDescontoPontualidade(new Date(vencimento), regra.diasAntecedencia) ? {
-        type: "PERCENTAGE",
-        value: regra.percentual,
+        type: regra.descontoFixo === undefined ? "PERCENTAGE" : "FIXED",
+        value: regra.descontoFixo ?? regra.percentual,
         dueDateLimitDays: regra.diasAntecedencia,
       } : undefined;
 

@@ -18,7 +18,7 @@ export type PreviaComboMatricula = {
   optativaSessaoIds?: number[];
   disciplinasPrincipais: number[];
   cursosEscolhidos: number[];
-  calculo: { matriculaCentavos: number; mensalidadeCentavos: number; quantidadeParcelas: number; nome: string; quantidadeModalidades: number };
+  calculo: { matriculaCentavos: number; antecipacaoCentavos?: number; mensalidadeCentavos: number; quantidadeParcelas: number; nome: string; quantidadeModalidades: number };
 };
 type Props = {
   cursoPrincipalId: number;
@@ -196,6 +196,7 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, principal
         <strong>Prévia da contratação: {previa.calculo.nome}</strong>
         <p>Modalidades: {previa.calculo.quantidadeModalidades} · Taxa única: {moeda(previa.calculo.matriculaCentavos)}</p>
         <p>Mensalidade antes de bolsa adicional: {moeda(previa.calculo.mensalidadeCentavos)} · {previa.calculo.quantidadeParcelas} parcelas</p>
+        {Boolean(previa.calculo.antecipacaoCentavos) && <p>Crédito na primeira parcela: {moeda(previa.calculo.antecipacaoCentavos ?? 0)}</p>}
         <p className="mt-1 text-xs">A confirmação fará uma nova validação do preço, das vagas e dos horários no servidor.</p>
       </div>}
     </div>}
@@ -205,6 +206,7 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, principal
       <strong>Previa da contratacao: {previa.calculo.nome}</strong>
       <p>Modalidades: {previa.calculo.quantidadeModalidades} · Taxa unica: {moeda(previa.calculo.matriculaCentavos)}</p>
       <p>Mensalidade calculada: {moeda(previa.calculo.mensalidadeCentavos)} · {previa.calculo.quantidadeParcelas} parcelas</p>
+      {Boolean(previa.calculo.antecipacaoCentavos) && <p>Crédito na primeira parcela: {moeda(previa.calculo.antecipacaoCentavos ?? 0)}</p>}
       <p className="mt-1 text-xs">Valores do servidor e das regras oficiais de Pacotes e combos. Confirmacao ainda protegida.</p>
     </div>}
     {principalSemGrade && erroPrevia && <p role="alert" className="mt-3 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800">Previa indisponivel: {erroPrevia}. Nenhuma matricula foi gravada.</p>}

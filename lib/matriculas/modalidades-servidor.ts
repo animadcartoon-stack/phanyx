@@ -1,3 +1,4 @@
+import { descontoPontualidadeEmReais, faixasDescontoPontualidade } from "@/lib/financeiro/desconto-pontualidade";
 import { carregarOptativas } from "./optativas-avulsas-servidor";
 import { idsOptativas, selecionarOptativas } from "./optativas-avulsas";
 import { condicoesPontualidadeMatricula } from "@/lib/financeiro/desconto-pontualidade-servidor";
@@ -558,6 +559,16 @@ export async function confirmarContratacaoModalidades(
       Math.abs(Number(bolsaPercentual.toFixed(2)) - bolsaPercentual) > 1e-8)
     throw new ErroModalidades("AJUSTE_INVALIDO");
   const mensalidadeLiquida = Math.round(mensalidade * (100 - bolsaPercentual) / 100);
+  const taxaSeparada = Math.min(taxa, calculo.matriculaCentavos - (calculo.antecipacaoCentavos ?? 0));
+  const antecipacao = calculo.antecipacaoCentavos ? taxa - taxaSeparada : 0;
+  const condicoes = await condicoesPontualidadeMatricula(db, user.instituicaoId);
+  if (antecipacao > 0) {
+    const faixas = faixasDescontoPontualidade(condicoes.descontoPontualidade);
+    const maiorPercentual = Math.max(faixas.antecipado?.percentual ?? 0, faixas.vencimento?.percentual ?? 0);
+    const maiorDesconto = Math.round(descontoPontualidadeEmReais(mensalidadeLiquida / 100, maiorPercentual) * 100);
+    if (antecipacao >= mensalidadeLiquida - maiorDesconto)
+      throw new ErroModalidades("ANTECIPACAO_COMBO_INVALIDA", 400);
+  }
   const recebidoNoAto = Number(body.valorPagoMatricula ?? 0);
   if (!Number.isFinite(recebidoNoAto) || recebidoNoAto < 0) throw new ErroModalidades("AJUSTE_INVALIDO");
   const formaPagamentoAto = typeof body.formaPagamentoMatricula === "string"
@@ -575,6 +586,24 @@ export async function confirmarContratacaoModalidades(
   const numeroMatricula = `PHX-${user.instituicaoId}-${agora.getUTCFullYear()}-${String(instituicao.proximoNumeroMatricula - 1).padStart(6, "0")}`;
   const principalId = idCursoPrincipal(body.cursoPrincipalId);
   const principal = principalId !== null ? escolhidas.find(o => o.cursoId === principalId)! : escolhidas[0];
+  const planoAntecipacao = antecipacao > 0 ? {
+    versao: 1,
+    tipo: "ANTECIPACAO_COMBO",
+    id: `combo-${calculo.comboId}-antecipacao`,
+    nome: snapshot.nome,
+    cursoId: principal.cursoId,
+    quantidadeParcelas: parcelas,
+    valorParcela: (mensalidadeLiquida / 100).toFixed(2),
+    parcelasCentavos: Array.from({ length: parcelas }, () => mensalidadeLiquida),
+    parcelasExigiveisCentavos: Array.from({ length: parcelas }, (_, indice) =>
+      mensalidadeLiquida - (indice === 0 ? antecipacao : 0)),
+    antecipacaoCentavos: antecipacao,
+    taxaSeparadaCentavos: taxaSeparada,
+    totalCentavos: mensalidadeLiquida * parcelas,
+    precoIncluiPontualidade: false,
+    primeiroVencimento: vencimento,
+    contratadoEm: agora.toISOString(),
+  } : null;
   const ofertasDiretas = escolhidas.filter(o => o.curso.matriculaDiretaTurma);
   const disciplinas = escolhidas.filter(o => !o.curso.matriculaDiretaTurma)
     .flatMap((o) => o.disciplinas);
@@ -582,7 +611,8 @@ export async function confirmarContratacaoModalidades(
     throw new ErroModalidades("DISCIPLINA_DUPLICADA");
   const matricula = await db.matricula.create({
     data: {
-      ...await condicoesPontualidadeMatricula(db, user.instituicaoId),
+      ...condicoes,
+      ...(planoAntecipacao ? { planoPagamentoContratado: planoAntecipacao } : {}),
       instituicaoId: user.instituicaoId,
       alunoId: aluno.id,
       poloId: escolhidas[0].poloId,
@@ -604,6 +634,7 @@ export async function confirmarContratacaoModalidades(
         ajuste: auditoriaAjuste,
         finais: {
           matriculaCentavos: taxa,
+          ...(antecipacao > 0 ? { antecipacaoCentavos: antecipacao } : {}),
           mensalidadeCentavos: mensalidadeLiquida,
           quantidadeParcelas: parcelas,
         },
@@ -697,7 +728,8 @@ export async function confirmarContratacaoModalidades(
       data: {
         ...base,
         tipo: "MATRICULA",
-        descricao: `Taxa de matrícula - ${snapshot.nome}`,
+        descricao: `${antecipacao === 0 ? "Taxa de matrícula" :
+          taxaSeparada > 0 ? "Taxas avulsas e antecipação de matrícula" : "Antecipação de matrícula"} - ${snapshot.nome}`,
         vencimento: primeiroVencimento,
         valorOriginal: taxa / 100,
         valorFinal: taxa / 100,
@@ -714,7 +746,11 @@ export async function confirmarContratacaoModalidades(
         descricao: `${snapshot.nome} - ${i + 1}/${parcelas}`,
         vencimento: vencimentoMensal(vencimento, i),
         valorOriginal: mensalidade / 100,
-        valorFinal: mensalidadeLiquida / 100,
+        valorFinal: (planoAntecipacao?.parcelasExigiveisCentavos[i] ?? mensalidadeLiquida) / 100,
+        ...(planoAntecipacao ? {
+          descontoValor: (mensalidade - planoAntecipacao.parcelasExigiveisCentavos[i]) / 100,
+          ...(i === 0 ? { valorAntecipacaoAbatida: antecipacao / 100 } : {}),
+        } : {}),
       })),
     });
   const contrato = await criarContratoPendenteMatricula({

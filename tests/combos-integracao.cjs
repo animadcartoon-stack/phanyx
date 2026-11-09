@@ -672,6 +672,37 @@ if (!url) {
           );
         },
       );
+      await t.test("combo com antecipação grava entrada e somente a primeira parcela reduzida", async () => {
+        const combo = await prisma.comboModalidades.findUniqueOrThrow({ where: { id: pacote } });
+        const atualizar = await regras.PUT(req({
+          ...config, id: pacote, versao: combo.updatedAt.toISOString(), taxaComoAntecipacao: true,
+          valorMatricula: "98.50", valorMensalidade: "936.00",
+        }));
+        assert.equal(atualizar.status, 200, JSON.stringify(await atualizar.clone().json()));
+        const novoAluno = await aluno("AlunoComAntecipacao");
+        const selecao = { ...base, alunoId: novoAluno.id };
+        const consulta = await api.POST(req({ ...selecao, acao: "PREVIA" }));
+        assert.equal(consulta.status, 200, JSON.stringify(await consulta.clone().json()));
+        const p = await consulta.json();
+        assert.equal(p.calculo.antecipacaoCentavos, 9850);
+        const resposta = await api.POST(req({ ...pedido, ...selecao, chave: crypto.randomUUID(), versao: p.versao }));
+        assert.equal(resposta.status, 201, JSON.stringify(await resposta.clone().json()));
+        const m = await prisma.matricula.findUnique({
+          where: { id: (await resposta.json()).matricula.id },
+          include: { lancamentosFinanceiros: { orderBy: [{ vencimento: "asc" }, { id: "asc" }] } },
+        });
+        assert.equal(m.planoPagamentoContratado.antecipacaoCentavos, 9850);
+        const taxas = m.lancamentosFinanceiros.filter(l => l.tipo === "MATRICULA");
+        const mensais = m.lancamentosFinanceiros.filter(l => l.tipo === "MENSALIDADE");
+        assert.equal(taxas.length, 1);
+        assert.equal(taxas[0].valorFinal, 98.5);
+        assert.equal(mensais.length, 12);
+        assert.equal(mensais[0].valorOriginal, 936);
+        assert.equal(mensais[0].valorFinal, 837.5);
+        assert.equal(mensais[0].valorAntecipacaoAbatida, 98.5);
+        assert.ok(mensais.slice(1).every(l => l.valorFinal === 936 && l.valorAntecipacaoAbatida === 0));
+        assert.equal(m.lancamentosFinanceiros.reduce((soma, l) => soma + l.valorFinal, 0), 11232);
+      });
     } finally {
       // Apenas dados sintéticos do banco local reservado.
       if (instituicaoId) {

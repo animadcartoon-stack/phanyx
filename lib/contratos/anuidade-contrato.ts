@@ -1,4 +1,4 @@
-import { descontoPontualidadeEmReais, faixasDescontoPontualidade } from "@/lib/financeiro/desconto-pontualidade";
+import { descontoPontualidadeAposCredito, faixasDescontoPontualidade } from "@/lib/financeiro/desconto-pontualidade";
 import { vencimentoMensal } from "@/lib/matriculas/combos";
 
 export const VARIAVEIS_ANUIDADE_CONTRATO = [
@@ -71,10 +71,13 @@ export function montarDadosAnuidadeContrato(
   const calculo = registro(modalidades?.calculo);
   const avulso = registro(calculo?.avulso);
   const taxa = Math.round(Number(matricula.valorMatricula ?? 0) * 100);
-  if (!Number.isSafeInteger(taxa) || taxa < 0) {
+  const antecipacaoCombo = plano?.tipo === "ANTECIPACAO_COMBO";
+  const taxaSeparada = antecipacaoCombo ? Number(plano.taxaSeparadaCentavos) : plano ? 0 : taxa;
+  if (!Number.isSafeInteger(taxa) || taxa < 0 ||
+      !Number.isSafeInteger(taxaSeparada) || taxaSeparada < 0 || taxaSeparada > taxa) {
     return erroAnuidade("Confira o valor da taxa de matrícula registrado.");
   }
-  if (!plano && taxa > 0 && tagsAntecipacaoLegadas.test(template)) {
+  if (taxaSeparada > 0 && tagsAntecipacaoLegadas.test(template)) {
     return erroAnuidade("A matrícula tem taxa separada. No modelo do contrato, substitua a cláusula de antecipação pela variável {{textoMatriculaAnuidade}}.");
   }
 
@@ -101,7 +104,7 @@ export function montarDadosAnuidadeContrato(
     antecipacao = Number(plano.antecipacaoCentavos);
     if (plano.versao !== 1 || !Array.isArray(nominais) || !Array.isArray(exigiveis) ||
         nominais.length !== quantidade || exigiveis.length !== quantidade ||
-        !Number.isSafeInteger(antecipacao) || antecipacao < 0 || antecipacao !== taxa ||
+        !Number.isSafeInteger(antecipacao) || antecipacao < 0 || antecipacao !== taxa - taxaSeparada ||
         !nominais.every((nominal, indice) => Number.isSafeInteger(nominal) && nominal > 0 &&
           Number.isSafeInteger(exigiveis[indice]) && exigiveis[indice] > 0 &&
           exigiveis[indice] === nominal - (indice === 0 ? antecipacao : 0))) {
@@ -110,6 +113,16 @@ export function montarDadosAnuidadeContrato(
     base = nominais.reduce((total, valor) => total + valor, 0);
     if (base !== plano.totalCentavos) return erroAnuidade("O total do plano contratado diverge das parcelas registradas.");
     parcelas = exigiveis;
+    if (antecipacaoCombo) {
+      const mensalidade = Math.round(Number(matricula.valorMensalidade) * 100);
+      const avulsa = Number(avulso?.mensalidadeCentavos);
+      const baseMensal = Math.max(mensalidade, Number.isSafeInteger(avulsa) ? avulsa : mensalidade);
+      if (!Number.isSafeInteger(mensalidade) || mensalidade * quantidade < base)
+        return erroAnuidade("Confira a mensalidade e a bolsa registradas na contratação conjunta.");
+      bolsa = mensalidade * quantidade - base;
+      descontoComercial = (baseMensal - mensalidade) * quantidade;
+      base = baseMensal * quantidade;
+    }
   } else {
     const mensalidade = Math.round(Number(matricula.valorMensalidade ?? NaN) * 100);
     const percentualBolsa = Number(matricula.bolsaPercentual ?? 0);
@@ -137,8 +150,9 @@ export function montarDadosAnuidadeContrato(
     return erroAnuidade("A matrícula tem desconto por antecedência. No modelo do contrato, use {{textoPontualidadeAnuidade}} para descrever as condições de pontualidade registradas.");
   }
   const percentualPontualidade = faixas.vencimento?.percentual ?? 0;
-  const descontoPara = (percentual: number) => parcelas.reduce((total, parcela) =>
-    total + Math.round(descontoPontualidadeEmReais(parcela / 100, percentual) * 100), 0);
+  const descontoPara = (percentual: number) => parcelas.reduce((total, parcela, indice) =>
+    total + Math.round(descontoPontualidadeAposCredito(parcela / 100, percentual,
+      antecipacaoCombo && indice === 0 ? antecipacao / 100 : 0) * 100), 0);
   const descontoPontualidade = descontoPara(percentualPontualidade);
   const total = parcelas.reduce((soma, parcela) => soma + parcela, taxa);
   const moeda = new Intl.NumberFormat(locale, { style: "currency", currency: "BRL" });
@@ -147,15 +161,22 @@ export function montarDadosAnuidadeContrato(
   const formatarData = (civil: string) => data.format(new Date(civil + "T12:00:00.000Z"));
   const vencimentoMatricula = dataCivil(lancamentos.find(item => item.tipo === "MATRICULA")?.vencimento);
   const textoVencimento = vencimentoMatricula ? ` O vencimento é em ${formatarData(vencimentoMatricula)}.` : "";
-  const textoMatriculaAnuidade = taxa === 0
-    ? "Esta contratação não prevê taxa de matrícula nem antecipação."
-    : antecipacao > 0
-      ? `A antecipação de matrícula de ${moeda.format(taxa / 100)} integra o total contratado e é abatida da primeira parcela.${textoVencimento}`
-      : `A taxa de matrícula de ${moeda.format(taxa / 100)} é cobrada separadamente das mensalidades e está incluída no total contratual informado acima.${textoVencimento}`;
+  const cobrancasMatricula = [
+    antecipacao > 0 ? `A antecipação de matrícula de ${moeda.format(antecipacao / 100)} integra o total contratado e é abatida da primeira parcela.` : "",
+    taxaSeparada > 0 ? `A taxa de matrícula de ${moeda.format(taxaSeparada / 100)} é cobrada separadamente das mensalidades e está incluída no total contratual informado acima.` : "",
+  ].filter(Boolean);
+  const textoMatriculaAnuidade = cobrancasMatricula.length
+    ? cobrancasMatricula.join(" ") + textoVencimento
+    : "Esta contratação não prevê taxa de matrícula nem antecipação.";
 
   const textoFaixa = (percentualDaFaixa: number, condicao: string) => {
     const abatimento = descontoPara(percentualDaFaixa);
-    return `Cada parcela quitada integralmente ${condicao} recebe ${percentual.format(percentualDaFaixa / 100)} de desconto. Se todas as parcelas cumprirem essa condição, o abatimento total será de ${moeda.format(abatimento / 100)} e o valor total pago será de ${moeda.format((total - abatimento) / 100)}.`;
+    const primeiraPontual = antecipacaoCombo
+      ? parcelas[0] / 100 - descontoPontualidadeAposCredito(parcelas[0] / 100, percentualDaFaixa, antecipacao / 100)
+      : null;
+    const textoPrimeira = primeiraPontual === null ? "" :
+      ` Nessa condição, o saldo da primeira parcela, com o abatimento da antecipação, é de ${moeda.format(primeiraPontual)}.`;
+    return `Cada parcela quitada integralmente ${condicao} recebe ${percentual.format(percentualDaFaixa / 100)} de desconto.${textoPrimeira} Se todas as parcelas cumprirem essa condição, o abatimento total será de ${moeda.format(abatimento / 100)} e o valor total pago será de ${moeda.format((total - abatimento) / 100)}.`;
   };
   const regras: string[] = [];
   if (faixas.antecipado) {

@@ -17,6 +17,7 @@ const schema = z
     maximoModalidades: z.number().int().min(2).max(100).nullable(),
     modoPreco: z.enum(["FIXO", "SOMA", "PERCENTUAL"]),
     valorMatricula: z.union([z.string(), z.number()]),
+    taxaComoAntecipacao: z.boolean().optional(),
     valorMensalidade: z.union([z.string(), z.number()]).nullable(),
     descontoPercentual: z.union([z.string(), z.number()]).nullable().optional(),
     quantidadeParcelas: z.number().int().min(1).max(120),
@@ -90,6 +91,8 @@ async function salvar(req: Request, editar: boolean) {
       throw new ErroModalidades("REGRA_INVALIDA");
     }
     const valorMatricula = centavos(dados.valorMatricula) / 100;
+    if (dados.taxaComoAntecipacao && valorMatricula <= 0)
+      throw new ErroModalidades("VALOR_INVALIDO");
     const valorMensalidade =
       dados.modoPreco === "FIXO"
         ? centavos(dados.valorMensalidade) / 100
