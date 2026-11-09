@@ -178,6 +178,7 @@ async function gerarCodigoValidacaoUnico(
 }
 
 export async function GET(req: Request) {
+  const inicio = performance.now();
   try {
     const user = await getUserFromToken();
 
@@ -251,6 +252,7 @@ export async function GET(req: Request) {
       url = `${origem}/api/admin/contratos/gerar?alunoId=${alunoId}&locale=${encodeURIComponent(localeDocumento)}`;
     }
 
+    const inicioDados = performance.now();
     const contratoRes = await fetch(url, {
       headers: {
         cookie: req.headers.get("cookie") || "",
@@ -258,6 +260,7 @@ export async function GET(req: Request) {
     });
 
     const data = await contratoRes.json();
+    const fimDados = performance.now();
 
     if (!contratoRes.ok) {
       return NextResponse.json(
@@ -315,18 +318,28 @@ export async function GET(req: Request) {
     const margemX = 50;
     const larguraTexto = 495;
 
-    async function carregarImagem(urlImagem: string) {
+    async function baixarImagem(urlImagem: string) {
       if (!urlImagem) return null;
 
       try {
-        const logoResponse = await fetch(
+        const resposta = await fetch(
           urlImagem.startsWith("http") ? urlImagem : `${origem}${urlImagem}`,
           { signal: AbortSignal.timeout(20000) }
         );
 
-        if (!logoResponse.ok) return null;
+        if (!resposta.ok) return null;
 
-        const original = await lerImagemPdfLimitada(logoResponse);
+        return await lerImagemPdfLimitada(resposta);
+      } catch (error) {
+        console.error("Não foi possível baixar imagem do contrato:", error instanceof Error ? error.message : "Erro de imagem");
+        return null;
+      }
+    }
+
+    async function incorporarImagem(original: Buffer | null) {
+      if (!original) return null;
+
+      try {
         const imagem = await prepararImagemPdf(original);
         return imagem.formato === "jpeg"
           ? await pdfDoc.embedJpg(imagem.bytes)
@@ -337,14 +350,20 @@ export async function GET(req: Request) {
       }
     }
 
-    const imagemLogo = await carregarImagem(data?.instituicao?.logoUrl || "");
-
     const assinaturaDiretorUrl =
       data?.instituicao?.certificadoAssinaturaUrl ||
       data?.instituicao?.assinaturaDiretorUrl ||
       "";
 
-    const assinaturaDiretorDinamica = await carregarImagem(assinaturaDiretorUrl);
+    const inicioImagens = performance.now();
+    const [logoOriginal, assinaturaOriginal] = await Promise.all([
+      baixarImagem(data?.instituicao?.logoUrl || ""),
+      baixarImagem(assinaturaDiretorUrl),
+    ]);
+    // Sobrepõe a rede e mantém o processamento das imagens grandes em sequência.
+    const imagemLogo = await incorporarImagem(logoOriginal);
+    const assinaturaDiretorDinamica = await incorporarImagem(assinaturaOriginal);
+    const fimImagens = performance.now();
 
     if (assinaturaDiretorDinamica) {
       assinaturaDiretorEmbed = assinaturaDiretorDinamica;
@@ -1110,11 +1129,18 @@ export async function GET(req: Request) {
 
     const pdfBytes = await pdfDoc.save();
     const pdfBuffer = Buffer.from(pdfBytes);
+    const fim = performance.now();
 
     return new Response(pdfBuffer, {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": 'inline; filename="contrato.pdf"',
+        "Server-Timing": [
+          `dados;dur=${(fimDados - inicioDados).toFixed(1)}`,
+          `imagens;dur=${(fimImagens - inicioImagens).toFixed(1)}`,
+          `renderizacao;dur=${(fim - fimImagens).toFixed(1)}`,
+          `total;dur=${(fim - inicio).toFixed(1)}`,
+        ].join(", "),
       },
     });
   } catch (error: any) {
