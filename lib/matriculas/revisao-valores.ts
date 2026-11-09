@@ -7,11 +7,16 @@ export class ErroRevisaoValores extends Error {
   }
 }
 
-export function lerValoresRevisao(body: Record<string, unknown>) {
+export function lerMotivoRevisao(body: Record<string, unknown>) {
   const motivo = typeof body.motivo === "string" ? body.motivo.trim() : "";
   if (motivo.length < 3 || motivo.length > 1000) {
     throw new ErroRevisaoValores("Informe o motivo da alteração, com 3 a 1000 caracteres.", 400);
   }
+  return motivo;
+}
+
+export function lerValoresRevisao(body: Record<string, unknown>) {
+  const motivo = lerMotivoRevisao(body);
   try {
     const taxa = centavos(body.valorMatricula);
     const mensalidade = centavos(body.valorMensalidade);

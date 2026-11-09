@@ -11,6 +11,7 @@ type PhanyxConfirmModalProps = {
   textoCarregando?: string;
   carregando?: boolean;
   mostrarCancelar?: boolean;
+  mostrarConfirmar?: boolean;
   tipo?: "perigo" | "normal";
   onConfirmar: () => void;
   onCancelar: () => void;
@@ -26,6 +27,7 @@ export default function PhanyxConfirmModal({
   textoCarregando = "Processando...",
   carregando = false,
   mostrarCancelar = true,
+  mostrarConfirmar = true,
   tipo = "normal",
   onConfirmar,
   onCancelar,
@@ -66,19 +68,21 @@ export default function PhanyxConfirmModal({
             </button>
           )}
 
-          <button
-            type="button"
-            onClick={onConfirmar}
-            autoFocus={!mostrarCancelar}
-            disabled={carregando}
-            className={`rounded-xl px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 ${
-              tipo === "perigo"
-                ? "bg-red-600 hover:bg-red-700"
-                : "bg-blue-600 hover:bg-blue-700"
-            }`}
-          >
-            {carregando ? textoCarregando : textoConfirmar}
-          </button>
+          {mostrarConfirmar && (
+            <button
+              type="button"
+              onClick={onConfirmar}
+              autoFocus={!mostrarCancelar}
+              disabled={carregando}
+              className={`rounded-xl px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 ${
+                tipo === "perigo"
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
+            >
+              {carregando ? textoCarregando : textoConfirmar}
+            </button>
+          )}
         </div>
       </div>
     </div>

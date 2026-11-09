@@ -20,6 +20,7 @@ const titulos: Record<string, string> = {
   EDICAO: "Edição da matrícula",
   DATA_INICIO: "Alteração da data de início",
   VALORES: "Revisão de valores",
+  MODALIDADES: "Alteração de modalidades",
 };
 const campos: Record<string, string> = {
   alunoId: "Aluno",
@@ -47,6 +48,8 @@ const campos: Record<string, string> = {
   itens: "Itens da matrícula",
   disciplinasContratadas: "Disciplinas contratadas",
   contrato: "Contrato",
+  modalidades: "Modalidades",
+  optativas: "Optativas retiradas",
 };
 const camposMoeda = new Set(["valorMatricula", "valorMensalidade", "antecipacao", "valorTotal"]);
 const camposData = new Set(["dataInicioCurso", "primeiroVencimento", "dataPrimeiroVencimento"]);
@@ -87,6 +90,7 @@ export default function HistoricoEdicoesMatriculaModal({ matriculaId, onFechar }
     if (campo === "bolsaPercentual") return percentual.format(Number(valor) / 100);
     if (Array.isArray(valor)) return valor.map(item => {
       if (item && typeof item === "object") {
+        if (item.cursoNome && item.turmaNome) return `${item.cursoNome} · ${item.turmaNome}`;
         return [item.turmaId ? `Turma #${item.turmaId}` : "", item.disciplinaId ? `Disciplina #${item.disciplinaId}` : ""]
           .filter(Boolean).join(" / ");
       }

@@ -21,7 +21,7 @@ export async function ocupacoesOptativas(db: Prisma.TransactionClient, instituic
 }
 
 export async function carregarOptativas(
-  db: Prisma.TransactionClient, instituicaoId: number, turmaIds: number[], sessaoIds?: number[],
+  db: Prisma.TransactionClient, instituicaoId: number, turmaIds: number[], sessaoIds?: number[], ignorarMatriculaId?: number,
 ): Promise<SessaoOptativa[]> {
   if (!turmaIds.length || sessaoIds?.length === 0) return [];
   const sessoes = await db.sessaoOptativaAvulsa.findMany({
@@ -40,7 +40,7 @@ export async function carregarOptativas(
     },
     orderBy: [{ diaSemana: "asc" }, { horaInicio: "asc" }, { id: "asc" }],
   });
-  const ocupacoes = await ocupacoesOptativas(db, instituicaoId, sessoes.map(s => s.id));
+  const ocupacoes = await ocupacoesOptativas(db, instituicaoId, sessoes.map(s => s.id), ignorarMatriculaId);
   return sessoes.filter(s => s.disciplina.cursoId === s.cursoId).map(({ disciplina, capacidade, turmas, ...sessao }) => ({
     ...sessao,
     nome: disciplina.nome,

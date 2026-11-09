@@ -49,7 +49,7 @@ export function registrarEdicaoMatricula(
   db: Prisma.TransactionClient,
   vinculo: { matriculaId: number; instituicaoId: number },
   autor: AutorEdicao,
-  acao: "EDICAO" | "DATA_INICIO" | "VALORES",
+  acao: "EDICAO" | "DATA_INICIO" | "VALORES" | "MODALIDADES",
   alteracoes: Prisma.InputJsonObject,
   motivo?: string,
 ) {
