@@ -71,6 +71,7 @@ if (!url) {
   const regras = require("../app/api/admin/combos/route.ts");
   const inicioContratacao = require("../app/api/admin/matriculas/[id]/inicio-contratacao/route.ts");
   const revisaoValores = require("../app/api/admin/matriculas/[id]/revisao-valores/route.ts");
+  const alterarModalidades = require("../app/api/admin/matriculas/[id]/alterar-modalidades/route.ts");
   const historicoEdicoes = require("../app/api/admin/matriculas/[id]/historico-edicoes/route.ts");
   const edicaoLegada = require("../app/api/admin/matriculas/[id]/route.ts");
   const cursosApi = require("../app/api/admin/cursos/route.ts");
@@ -890,10 +891,171 @@ if (!url) {
         assert.equal(alteracaoAssinada.status, 422);
         assert.match((await alteracaoAssinada.json()).error, /assinatura/);
       });
+      await t.test("alterar modalidades reprecifica, libera as turmas retiradas e preserva a matrícula", async () => {
+        const novoAluno = await aluno("AlunoAlterarCombo");
+        const primeiro = new Date();
+        primeiro.setUTCFullYear(primeiro.getUTCFullYear() + 1);
+        const selecao = { ...base, alunoId: novoAluno.id, primeiroVencimento: primeiro.toISOString().slice(0, 10) };
+        const calculo = await api.POST(req({ ...selecao, acao: "PREVIA" }));
+        assert.equal(calculo.status, 200);
+        const criada = await api.POST(req({ ...pedido, ...selecao, chave: crypto.randomUUID(), versao: (await calculo.json()).versao }));
+        assert.equal(criada.status, 201, JSON.stringify(await criada.clone().json()));
+        const matriculaId = (await criada.json()).matricula.id;
+        const contexto = { params: { id: String(matriculaId) } };
+        const atual = await prisma.matricula.findUniqueOrThrow({ where: { id: matriculaId }, include: {
+          contratos: true, lancamentosFinanceiros: true, itens: true,
+        } });
+        const opcoes = await alterarModalidades.GET(req({}), contexto);
+        assert.equal(opcoes.status, 200);
+        assert.equal((await opcoes.json()).atuais.length, 3);
+        const body = { turmaIds: [turmas[0].id], motivo: "Família pediu para manter só a primeira modalidade" };
+        const semModalidade = await alterarModalidades.POST(req({ ...body, turmaIds: [] }), contexto);
+        assert.equal(semModalidade.status, 400);
+        assert.match((await semModalidade.json()).error, /Cancelar matrícula/);
+        const comConflito = await alterarModalidades.POST(req({ ...body, turmaIds: [turmas[0].id, turmas[1].id] }), contexto);
+        assert.equal(comConflito.status, 409);
+        assert.equal((await comConflito.json()).codigo, "CONFLITO_HORARIO");
+        const previa = await alterarModalidades.POST(req(body), contexto);
+        assert.equal(previa.status, 200, JSON.stringify(await previa.clone().json()));
+        const p = await previa.json();
+        assert.equal(p.comboAnterior, true);
+        assert.equal(p.comboNovo, false);
+        assert.equal(p.anterior.antecipacao, 9850);
+        assert.equal(p.nova.antecipacao, 0);
+        assert.equal(p.nova.taxa, 5000);
+        assert.equal(p.nova.liquida, 10000);
+        assert.equal(await prisma.edicaoMatricula.count({ where: { matriculaId } }), 0);
+        assert.equal((await alterarModalidades.PATCH(req({ ...body, versao: "desatualizada" }), contexto)).status, 409);
+        const confirmada = await alterarModalidades.PATCH(req({ ...body, versao: p.versao }), contexto);
+        assert.equal(confirmada.status, 200, JSON.stringify(await confirmada.clone().json()));
+        assert.notEqual((await alterarModalidades.PATCH(req({ ...body, versao: p.versao }), contexto)).status, 200);
+        const revista = await prisma.matricula.findUniqueOrThrow({ where: { id: matriculaId }, include: {
+          contratos: { orderBy: { id: "asc" } }, lancamentosFinanceiros: true, itens: true,
+          disciplinasContratadas: true, edicoes: true,
+        } });
+        assert.equal(revista.numeroMatricula, atual.numeroMatricula);
+        assert.equal(revista.alunoId, atual.alunoId);
+        assert.equal(revista.comboId, null);
+        assert.equal(revista.planoPagamentoContratado, null);
+        assert.deepEqual(revista.itens.filter(i => i.status === "A_CURSAR").map(i => i.turmaId), [turmas[0].id]);
+        assert.equal(revista.itens.filter(i => i.status === "CANCELADO").length, 2);
+        assert.equal(revista.disciplinasContratadas.length, 1);
+        assert.deepEqual(revista.lancamentosFinanceiros.map(l => l.id).sort(), atual.lancamentosFinanceiros.map(l => l.id).sort());
+        assert.ok(revista.lancamentosFinanceiros.filter(l => l.tipo === "MENSALIDADE")
+          .every(l => l.valorFinal === 100 && l.valorAntecipacaoAbatida === 0));
+        assert.equal(revista.contratos[0].status, "CANCELADO");
+        assert.equal(revista.contratos[0].tokenAssinatura, null);
+        assert.equal(revista.contratos[1].status, "PENDENTE");
+        assert.equal(revista.edicoes[0].acao, "MODALIDADES");
+        assert.equal(revista.edicoes[0].usuarioId, admin.id);
+        assert.equal(revista.edicoes[0].motivo, body.motivo);
+        assert.equal(revista.edicoes[0].alteracoes.modalidades.anterior.length, 3);
+        assert.equal(revista.edicoes[0].alteracoes.modalidades.novo.length, 1);
+        const voltar = { ...body, turmaIds: selecionadas, motivo: "Família decidiu recompor o combo" };
+        const voltarPrevia = await alterarModalidades.POST(req(voltar), contexto);
+        assert.equal(voltarPrevia.status, 200, JSON.stringify(await voltarPrevia.clone().json()));
+        const voltarDados = await voltarPrevia.json();
+        assert.equal(voltarDados.comboNovo, true);
+        const voltou = await alterarModalidades.PATCH(req({ ...voltar, versao: voltarDados.versao }), contexto);
+        assert.equal(voltou.status, 200, JSON.stringify(await voltou.clone().json()));
+        assert.equal(await prisma.itemMatricula.count({ where: { matriculaId, status: "A_CURSAR" } }), 3);
+        const { contratoId } = await voltou.json();
+        await prisma.contrato.update({ where: { id: contratoId }, data: { assinaturaSecretariaEm: new Date() } });
+        const assinada = await alterarModalidades.POST(req(body), contexto);
+        assert.equal(assinada.status, 409);
+        assert.match((await assinada.json()).error, /emitido ou assinado/);
+      });
+      await t.test("turma direta mantém o próprio lugar e retira a optativa vinculada à modalidade que saiu", async () => {
+        const novoAluno = await aluno("AlunoRevisaoDireta");
+        const flags = ["PHANYX_AVULSOS_INSTITUICOES_HABILITADAS", "PHANYX_MATRICULA_SEM_GRADE_HABILITADA"];
+        const anteriores = flags.map(chave => process.env[chave]);
+        process.env[flags[0]] = String(instituicaoId);
+        process.env[flags[1]] = "true";
+        try {
+          const criarTurma = async (n, diaSemana) => {
+            const curso = await prisma.curso.create({ data: {
+              nome: "Direta " + n, instituicaoId, matriculaDiretaTurma: true,
+              optativasAvulsasAtivas: true, organizacaoCurricular: "ANUAL",
+              valorMatricula: 50, valorMensalidade: 100, quantidadeParcelas: 12,
+            } });
+            const turma = await prisma.turma.create({ data: {
+              nome: "Turma direta " + n, instituicaoId, cursoId: curso.id, poloId: polo.id,
+              organizacaoCurricular: "ANUAL", etapaNumero: 1, semestre: "1", periodoLetivo: "2027",
+              statusTurma: "A_INICIAR", modalidade: "PRESENCIAL", capacidadeMaxima: 1,
+            } });
+            await prisma.turmaHorarioAvulso.create({ data: {
+              instituicaoId, turmaId: turma.id, diaSemana, horaInicio: "14:00", horaFim: "16:00",
+            } });
+            const disciplina = await prisma.disciplina.create({ data: { nome: "Optativa " + n, cursoId: curso.id, instituicaoId } });
+            const optativa = await prisma.sessaoOptativaAvulsa.create({ data: {
+              instituicaoId, cursoId: curso.id, disciplinaId: disciplina.id, diaSemana,
+              horaInicio: "14:30", horaFim: "15:30", capacidade: 1,
+            } });
+            await prisma.turmaSessaoOptativaAvulsa.create({ data: { instituicaoId, turmaId: turma.id, sessaoId: optativa.id } });
+            return { turma, optativa };
+          };
+          const manter = await criarTurma("A", 2);
+          const retirar = await criarTurma("B", 4);
+          const primeiro = new Date();
+          primeiro.setUTCFullYear(primeiro.getUTCFullYear() + 1);
+          const inicio = primeiro.toISOString().slice(0, 10);
+          const selecao = {
+            alunoId: novoAluno.id, turmaIds: [manter.turma.id, retirar.turma.id], dataInicioCurso: inicio,
+            optativaSessaoIds: [manter.optativa.id, retirar.optativa.id], primeiroVencimento: inicio,
+          };
+          const calculo = await api.POST(req({ ...selecao, acao: "PREVIA" }));
+          assert.equal(calculo.status, 200, JSON.stringify(await calculo.clone().json()));
+          const criada = await api.POST(req({ ...pedido, ...selecao, chave: crypto.randomUUID(), versao: (await calculo.json()).versao }));
+          assert.equal(criada.status, 201, JSON.stringify(await criada.clone().json()));
+          const matriculaId = (await criada.json()).matricula.id;
+          const contexto = { params: { id: String(matriculaId) } };
+          const body = { turmaIds: [manter.turma.id], motivo: "Família retirou a segunda modalidade" };
+          const previa = await alterarModalidades.POST(req(body), contexto);
+          assert.equal(previa.status, 200, JSON.stringify(await previa.clone().json()));
+          const p = await previa.json();
+          assert.equal(p.optativasRetiradas, 1);
+          const confirmada = await alterarModalidades.PATCH(req({ ...body, versao: p.versao }), contexto);
+          assert.equal(confirmada.status, 200, JSON.stringify(await confirmada.clone().json()));
+          const vinculos = await prisma.matriculaTurmaAvulsa.findMany({
+            where: { matriculaId }, include: { optativas: true }, orderBy: { turmaId: "asc" },
+          });
+          assert.equal(vinculos[0].status, "A_CURSAR");
+          assert.deepEqual(vinculos[0].optativas.map(o => o.sessaoId), [manter.optativa.id]);
+          assert.equal(vinculos[1].status, "CANCELADO");
+          assert.equal(vinculos[1].optativas.length, 0);
+          await prisma.curso.update({ where: { id: manter.turma.cursoId }, data: { valorMensalidade: 400 } });
+          const alternativa = await prisma.turma.create({ data: {
+            nome: "Turma direta alternativa", instituicaoId, cursoId: manter.turma.cursoId, poloId: polo.id,
+            organizacaoCurricular: "ANUAL", etapaNumero: 1, semestre: "1", periodoLetivo: "2027",
+            statusTurma: "A_INICIAR", modalidade: "PRESENCIAL", capacidadeMaxima: 1,
+          } });
+          await prisma.turmaHorarioAvulso.create({ data: {
+            instituicaoId, turmaId: alternativa.id, diaSemana: 3, horaInicio: "14:00", horaFim: "16:00",
+          } });
+          const troca = { ...body, turmaIds: [alternativa.id], motivo: "Família pediu outro horário" };
+          const previaTroca = await alterarModalidades.POST(req(troca), contexto);
+          assert.equal(previaTroca.status, 200, JSON.stringify(await previaTroca.clone().json()));
+          const trocaDados = await previaTroca.json();
+          assert.equal(trocaDados.preservarValores, true);
+          assert.equal(trocaDados.nova.liquida, 10000);
+          const trocaFeita = await alterarModalidades.PATCH(req({ ...troca, versao: trocaDados.versao }), contexto);
+          assert.equal(trocaFeita.status, 200, JSON.stringify(await trocaFeita.clone().json()));
+          const mesma = await prisma.matriculaTurmaAvulsa.findUniqueOrThrow({ where: { id: vinculos[0].id } });
+          assert.equal(mesma.turmaId, alternativa.id);
+          assert.equal(mesma.status, "A_CURSAR");
+        } finally {
+          flags.forEach((chave, i) => {
+            if (anteriores[i] === undefined) delete process.env[chave];
+            else process.env[chave] = anteriores[i];
+          });
+        }
+      });
     } finally {
       // Apenas dados sintéticos do banco local reservado.
       if (instituicaoId) {
         await prisma.matricula.deleteMany({ where: { instituicaoId } });
+        await prisma.turmaSessaoOptativaAvulsa.deleteMany({ where: { instituicaoId } });
+        await prisma.sessaoOptativaAvulsa.deleteMany({ where: { instituicaoId } });
         await prisma.instituicao.delete({ where: { id: instituicaoId } });
       }
       if (outraInstituicao)

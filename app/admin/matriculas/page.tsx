@@ -24,6 +24,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import withAuth from "@/lib/withAuth";
 import MultiSelectDisciplinas from "@/components/MultiSelectDisciplinas";
 import PhanyxToast from "@/components/ui/PhanyxToast";
+import AlterarModalidadesMatriculaModal from "@/components/admin/AlterarModalidadesMatriculaModal";
 import HistoricoEdicoesMatriculaModal from "@/components/admin/HistoricoEdicoesMatriculaModal";
 import RevisaoValoresMatriculaModal from "@/components/admin/RevisaoValoresMatriculaModal";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
@@ -476,6 +477,7 @@ function AdminMatriculasPage() {
   const [confirmTitulo, setConfirmTitulo] = useState("");
   const [confirmMensagem, setConfirmMensagem] = useState("");
   const [confirmAcao, setConfirmAcao] = useState<(() => void) | null>(null);
+  const [alterarModalidadesId, setAlterarModalidadesId] = useState<number | null>(null);
   const [historicoEdicoesId, setHistoricoEdicoesId] = useState<number | null>(null);
   const [revisaoValores, setRevisaoValores] = useState<MatriculaApi | null>(null);
   const [inicioContratacao, setInicioContratacao] = useState<{ id: number; data: string; anterior: string | null } | null>(null);
@@ -3931,6 +3933,17 @@ function AdminMatriculasPage() {
           onCancelar={() => setSucesso("")}
         />
       )}
+      {alterarModalidadesId !== null && (
+        <AlterarModalidadesMatriculaModal
+          matriculaId={alterarModalidadesId}
+          onCancelar={() => setAlterarModalidadesId(null)}
+          onSalvar={() => {
+            setAlterarModalidadesId(null);
+            setSucesso("Modalidades atualizadas e novo contrato pronto para assinatura.");
+            void carregarTudo();
+          }}
+        />
+      )}
       {historicoEdicoesId !== null && (
         <HistoricoEdicoesMatriculaModal
           matriculaId={historicoEdicoesId}
@@ -5295,6 +5308,15 @@ function AdminMatriculasPage() {
                               ✏️ Editar
 
                             </button>
+                            )}
+                            {Boolean(m.contratacaoModalidades) && ["ATIVA", "A_INICIAR", "AGUARDANDO"].includes(m.status || "") && (
+                              <button
+                                type="button"
+                                onClick={() => setAlterarModalidadesId(m.id)}
+                                className="rounded-xl border border-cyan-300 bg-cyan-50 px-3 py-2 text-sm font-semibold text-cyan-900 hover:bg-cyan-100 dark:border-cyan-800 dark:bg-cyan-950 dark:text-cyan-100"
+                              >
+                                Alterar modalidades
+                              </button>
                             )}
                             {m.organizacaoCurricular !== "LIVRE" && ["ATIVA", "A_INICIAR", "AGUARDANDO"].includes(m.status || "") && (
                               <button

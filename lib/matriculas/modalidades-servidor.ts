@@ -39,6 +39,7 @@ const civil = (data: Date | null) =>
 export async function carregarOfertasModalidades(
   db: Banco,
   instituicaoId: number,
+  ignorarMatriculaId?: number,
 ) {
   const turmas = await db.turma.findMany({
     where: {
@@ -134,6 +135,7 @@ export async function carregarOfertasModalidades(
         where: {
           instituicaoId,
           turmaId: { in: [...metas.keys()] },
+          ...(ignorarMatriculaId ? { matriculaId: { not: ignorarMatriculaId } } : {}),
           status: { in: [...itensOcupantes] },
           matricula: {
             instituicaoId,
@@ -150,6 +152,7 @@ export async function carregarOfertasModalidades(
   const idsDiretos = turmas.filter(t => t.curso.matriculaDiretaTurma).map(t => t.id);
   const ocupacoesDiretas = idsDiretos.length ? await db.matriculaTurmaAvulsa.findMany({
     where: { instituicaoId, turmaId: { in: idsDiretos }, status: { in: [...itensOcupantes] },
+      ...(ignorarMatriculaId ? { matriculaId: { not: ignorarMatriculaId } } : {}),
       matricula: { instituicaoId, excluidaEm: null, canceladaEm: null,
         status: { in: [...matriculasOcupantes] } } },
     select: { turmaId: true, matricula: { select: { alunoId: true } } },
@@ -329,6 +332,8 @@ export async function prepararContratacaoModalidades(
   db: Banco,
   instituicaoId: number,
   body: Record<string, unknown>,
+  ignorarMatriculaId?: number,
+  calculoPreservado?: ReturnType<typeof calcularContratacaoModalidades>,
 ) {
   const [alunoId] = idsPositivos([body.alunoId]);
   const turmaIds = idsPositivos(body.turmaIds);
@@ -339,7 +344,7 @@ export async function prepararContratacaoModalidades(
   if (!aluno) throw new ErroModalidades("ALUNO_NAO_ENCONTRADO", 404);
   const inicioCurso = validarDataInicioCurso(body.dataInicioCurso);
   if (!inicioCurso.valida) throw new ErroModalidades("DATA_INVALIDA");
-  const ofertas = await carregarOfertasModalidades(db, instituicaoId);
+  const ofertas = await carregarOfertasModalidades(db, instituicaoId, ignorarMatriculaId);
   const selecionadas = turmaIds.map((id) => ofertas.find((o) => o.id === id));
   if (selecionadas.some((o) => !o))
     throw new ErroModalidades("TURMA_INDISPONIVEL", 409);
@@ -354,7 +359,7 @@ export async function prepararContratacaoModalidades(
   if (new Set(escolhidas.map((o) => o.periodoLetivo || "")).size !== 1)
     throw new ErroModalidades("PERIODOS_DIFERENTES");
   const requisitosCursos = await validarRequisitosCursos(db, instituicaoId, {
-    alunoId, cursoIds: escolhidas.map(o => o.cursoId!), periodoLetivo: escolhidas[0].periodoLetivo,
+    alunoId, matriculaId: ignorarMatriculaId, cursoIds: escolhidas.map(o => o.cursoId!), periodoLetivo: escolhidas[0].periodoLetivo,
     inicio: inicioCurso.data,
   });
   if (escolhidas.some((o) => o.horariosPendentes))
@@ -363,7 +368,7 @@ export async function prepararContratacaoModalidades(
     throw new ErroModalidades("TURMA_SEM_VAGAS", 409);
   if (escolhidas.some((o) => o.vagas !== null && o.vagas <= 0))
     throw new ErroModalidades("TURMA_SEM_VAGAS", 409);
-  const existentes = await horariosAtuaisAluno(db, instituicaoId, alunoId);
+  const existentes = await horariosAtuaisAluno(db, instituicaoId, alunoId, ignorarMatriculaId);
   if (escolhidas.some((o) =>
     existentes.itens.some((i) => i.turmaId === o.id) ||
     existentes.turmasAvulsas.some((i) => i.turmaId === o.id || i.cursoId === o.cursoId)))
@@ -425,14 +430,14 @@ export async function prepararContratacaoModalidades(
   const sessaoIds = idsOptativas(body.optativaSessaoIds);
   const optativas = sessaoIds.length ? selecionarOptativas(
     sessaoIds,
-    await carregarOptativas(db, instituicaoId, turmaIds, sessaoIds),
+    await carregarOptativas(db, instituicaoId, turmaIds, sessaoIds, ignorarMatriculaId),
     escolhidas.filter(o => o.curso.matriculaDiretaTurma && o.curso.optativasAvulsasAtivas),
   ).map(({ vagas, turmaIds: turmasDisponiveis, ...sessao }) => sessao) : [];
-  const combos = await db.comboModalidades.findMany({
+  const combos = calculoPreservado ? [] : await db.comboModalidades.findMany({
     where: { instituicaoId, ativo: true },
     include: { cursos: true },
   });
-  const calculo = calcularContratacaoModalidades(
+  const calculo = calculoPreservado ?? calcularContratacaoModalidades(
     escolhidas.map((o) => o.curso),
     combos.map((c) => ({
       ...c,
