@@ -474,7 +474,7 @@ function AdminMatriculasPage() {
   const [confirmTitulo, setConfirmTitulo] = useState("");
   const [confirmMensagem, setConfirmMensagem] = useState("");
   const [confirmAcao, setConfirmAcao] = useState<(() => void) | null>(null);
-  const [inicioContratacao, setInicioContratacao] = useState<{ id: number; data: string } | null>(null);
+  const [inicioContratacao, setInicioContratacao] = useState<{ id: number; data: string; anterior: string | null } | null>(null);
   const [salvandoInicioContratacao, setSalvandoInicioContratacao] = useState(false);
   const [erroInicioContratacao, setErroInicioContratacao] = useState("");
   const canvasSecretariaRef = useRef<HTMLCanvasElement | null>(null);
@@ -2493,7 +2493,7 @@ function AdminMatriculasPage() {
         method: "PATCH",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dataInicioCurso: inicioContratacao.data }),
+        body: JSON.stringify({ dataInicioCurso: inicioContratacao.data, dataInicioAnterior: inicioContratacao.anterior }),
       });
       const dados = await resposta.json().catch(() => null);
       if (!resposta.ok) throw new Error(dados?.error || "Não foi possível salvar a data. Atualize a lista e tente novamente.");
@@ -2511,9 +2511,10 @@ function AdminMatriculasPage() {
     matricula: MatriculaApi
   ) {
     if (matricula.contratacaoModalidades) {
-      if (!matricula.dataInicioCurso && ["ATIVA", "A_INICIAR", "AGUARDANDO"].includes(matricula.status || "")) {
+      if (["ATIVA", "A_INICIAR", "AGUARDANDO"].includes(matricula.status || "")) {
         setErroInicioContratacao("");
-        setInicioContratacao({ id: matricula.id, data: "" });
+        const anterior = matricula.dataInicioCurso?.slice(0, 10) || null;
+        setInicioContratacao({ id: matricula.id, data: anterior || "", anterior });
       } else {
         setErro(tc("comboEditHelp"));
       }
@@ -3929,8 +3930,8 @@ function AdminMatriculasPage() {
       {inicioContratacao && (
         <PhanyxConfirmModal
           aberto
-          titulo="Completar data de início"
-          mensagem="Informe quando começa o atendimento. O PHANYX atualizará o contrato pendente e preservará as turmas e as cobranças."
+          titulo="Editar matrícula do combo"
+          mensagem="Você pode preencher a data de início em branco ou corrigir uma data antes do início do atendimento, enquanto o contrato estiver sem assinatura. Cursos, turmas e cobranças fazem parte da contratação."
           textoConfirmar="Salvar data"
           carregando={salvandoInicioContratacao}
           onConfirmar={() => void salvarInicioContratacao()}
