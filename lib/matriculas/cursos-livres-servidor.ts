@@ -1,4 +1,5 @@
 import { validarRequisitosCursos } from "@/lib/matriculas/requisitos-cursos";
+import { criarContratoPendenteMatricula } from "@/lib/contratos/contrato-matricula";
 import { mensalidadeComDesconto } from "./desconto-curso";
 import { createHash } from "node:crypto";
 import { Prisma } from "@prisma/client";
@@ -89,6 +90,7 @@ export async function contratarPeriodoCursoLivre(db: Banco, user: Operador, body
     }, select: { matricula: { select: { alunoId: true } } } });
     if (new Set(ocupantes.map(i => i.matricula.alunoId)).size >= turma.capacidadeMaxima) throw new ErroCursoLivre("SEM_VAGAS", 409);
   }
+  const novaMatricula = !matricula;
   if (!matricula) {
     if (!aluno.dataNascimento) throw new ErroCursoLivre("NASCIMENTO_NAO_INFORMADO");
     const idade = calcularIdade(aluno.dataNascimento);
@@ -127,5 +129,10 @@ export async function contratarPeriodoCursoLivre(db: Banco, user: Operador, body
     ip: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim().slice(0, 100) || null,
     userAgent: request.headers.get("user-agent")?.slice(0, 1000) || null,
   } });
+  if (novaMatricula) {
+    await criarContratoPendenteMatricula({
+      db, matriculaId: matricula.id, instituicaoId: user.instituicaoId,
+    });
+  }
   return { matriculaId: matricula.id, periodoId: contratado.id, lancamentoId: lancamento.id };
 }

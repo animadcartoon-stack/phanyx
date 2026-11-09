@@ -274,6 +274,10 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
       });
       const data = await res.json();
       if (!res.ok) {
+        if (data.codigo === "CONTRATO_PENDENTE") {
+          setErro(data.error);
+          return;
+        }
         if (data.codigo === "CONFIRMACAO_MENOR_NECESSARIA") {
           setConfirmacao({
             mensagem:

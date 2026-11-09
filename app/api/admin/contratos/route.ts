@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import { criarContratoPendenteMatricula } from "@/lib/contratos/contrato-matricula";
+import { ErroContratoMatricula } from "@/lib/contratos/validacao-contrato";
 
 
 export const dynamic = "force-dynamic";
@@ -119,6 +120,9 @@ export async function POST(req: Request) {
       jaExistia: false,
     });
   } catch (error: any) {
+    if (error instanceof ErroContratoMatricula) {
+      return NextResponse.json({ codigo: error.codigo, error: error.message }, { status: error.status });
+    }
     console.error("Erro ao criar contrato:", error);
     return NextResponse.json(
       { error: error?.message || "Erro ao criar contrato" },

@@ -15,6 +15,7 @@ Module._extensions[".ts"] = (mod, file) => mod._compile(ts.transpileModule(fs.re
 }).outputText, file);
 
 const { montarDadosAnuidadeContrato } = require("../lib/contratos/anuidade-contrato.ts");
+const { ErroContratoMatricula, validarVariaveisContrato } = require("../lib/contratos/validacao-contrato.ts");
 const { replaceDocumentTags } = require("../lib/documentos/tags-documentos.ts");
 
 const nomes = [
@@ -35,6 +36,27 @@ const matricula = {
 
 test("modelos sem variáveis de anuidade continuam independentes do cronograma", () => {
   assert.deepEqual(montarDadosAnuidadeContrato("{{nomeAluno}}", {}), { valores: {}, pendencia: null });
+});
+
+test("a data de início só é exigida se o modelo usa essa informação", () => {
+  const semInicio = { ...matricula, dataInicioCurso: null };
+  assert.match(montarDadosAnuidadeContrato(template, semInicio).pendencia, /Data de início do curso/);
+  const anualSemInicio = montarDadosAnuidadeContrato("{{totalAnuidadeContratual}}", semInicio);
+  assert.equal(anualSemInicio.pendencia, null);
+  assert.equal(anualSemInicio.valores.totalAnuidadeContratual, moeda(4320));
+  assert.match(montarDadosAnuidadeContrato(template, {
+    ...matricula, primeiroVencimento: null,
+  }).pendencia, /primeiro vencimento e a quantidade de parcelas/);
+});
+
+test("distingue variáveis desconhecidas das que são preenchidas no PDF", () => {
+  assert.doesNotThrow(() => validarVariaveisContrato("{{codigoValidacao}} {{urlValidacao}}", true));
+  assert.throws(
+    () => validarVariaveisContrato("{{codigoValidacao}} {{valorDigitadoErrado}}", true),
+    error => error instanceof ErroContratoMatricula && error.status === 422 &&
+      error.message.includes("{{valorDigitadoErrado}}") && !error.message.includes("codigoValidacao"),
+  );
+  assert.throws(() => validarVariaveisContrato("{{codigoValidacao}}"), ErroContratoMatricula);
 });
 
 test("preenche as 15 variáveis com o crédito congelado no plano e calendário no anexo", () => {

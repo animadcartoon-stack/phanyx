@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import crypto from "node:crypto";
 import { renderizarHtmlTipTapNoPdf } from "@/lib/pdf/renderizarHtmlTipTap";
 import { lerImagemPdfLimitada, prepararImagemPdf } from "@/lib/pdf/preparar-imagem-pdf";
+import { ErroContratoMatricula, validarVariaveisContrato } from "@/lib/contratos/validacao-contrato";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -93,27 +94,6 @@ function substituirTagsFinaisContrato(
   }
 
   return resultado;
-}
-
-function listarTagsRestantesContrato(
-  conteudo: string
-) {
-  return Array.from(
-    new Set(
-      Array.from(
-        String(
-          conteudo || ""
-        ).matchAll(
-          /{{\s*([^{}]+?)\s*}}/g
-        )
-      ).map(
-        (resultado) =>
-          String(
-            resultado[1] || ""
-          ).trim()
-      )
-    )
-  );
 }
 
 function normalizarEstilo(estilo?: string) {
@@ -709,23 +689,7 @@ export async function GET(req: Request) {
         }
       );
 
-    const tagsRestantesContrato =
-      listarTagsRestantesContrato(
-        contratoFinalCorrigido
-      );
-
-    if (
-      tagsRestantesContrato.length > 0
-    ) {
-      throw new Error(
-        `O contrato ainda possui variáveis não preenchidas: ${tagsRestantesContrato
-          .map(
-            (tag) =>
-              `{{${tag}}}`
-          )
-          .join(", ")}`
-      );
-    }
+    validarVariaveisContrato(contratoFinalCorrigido);
 
     const resultado = await renderizarHtmlTipTapNoPdf({
       html: contratoFinalCorrigido,
@@ -1144,6 +1108,9 @@ export async function GET(req: Request) {
       },
     });
   } catch (error: any) {
+    if (error instanceof ErroContratoMatricula) {
+      return NextResponse.json({ codigo: error.codigo, error: error.message }, { status: error.status });
+    }
     console.error("Erro ao gerar PDF do contrato:", error);
     return NextResponse.json(
       { error: error?.message || "Erro ao gerar PDF" },

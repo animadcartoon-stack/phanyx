@@ -1,4 +1,7 @@
 import { condicoesPontualidadeMatricula } from "@/lib/financeiro/desconto-pontualidade-servidor";
+import { criarContratoPendenteMatricula } from "@/lib/contratos/contrato-matricula";
+import { ErroContratoMatricula } from "@/lib/contratos/validacao-contrato";
+import { validarDataInicioCurso } from "@/lib/matriculas/dataInicioCurso";
 import { ErroSelecaoDisciplinas } from "@/lib/matriculas/selecao-disciplinas";
 import { respostaErroSelecao } from "@/lib/matriculas/selecao-disciplinas-servidor";
 import { validarRequisitosCursos } from "@/lib/matriculas/requisitos-cursos";
@@ -46,6 +49,9 @@ export async function POST(req: Request) {
 
     if (body.planoPagamentoId !== undefined && body.planoPagamentoId !== null && body.planoPagamentoId !== "")
       return NextResponse.json({ codigo: "USE_MATRICULA_PRINCIPAL", error: "Planos personalizados exigem a rota principal de matriculas." }, { status: 409 });
+
+    const inicioCurso = validarDataInicioCurso(body.dataInicioCurso);
+    if (!inicioCurso.valida) return NextResponse.json({ error: "Informe uma Data de início do curso válida." }, { status: 400 });
 
     const resultado = await prisma.$transaction(async (tx) => {
       await tx.$queryRaw`SELECT "id" FROM "Curso" WHERE "id"=${Number(cursoId)} AND "instituicaoId"=${user.instituicaoId} FOR SHARE`;
@@ -231,8 +237,9 @@ export async function POST(req: Request) {
 
       await validarRequisitosCursos(tx, user.instituicaoId, { alunoId: Number(alunoId), cursoIds: [Number(cursoId)],
         periodoLetivo: typeof body.periodoLetivo === "string" ? body.periodoLetivo : null,
-        inicio: body.dataInicioCurso ? new Date(body.dataInicioCurso) : null,
+        inicio: inicioCurso.data,
       });
+      const temMensalidades = Number(valorMensalidade) > 0 && Number(quantidadeParcelas) > 0 && Boolean(dataPrimeiroVencimento);
       const matricula = await tx.matricula.create({
         data: {
           ...await condicoesPontualidadeMatricula(tx, user.instituicaoId),
@@ -242,6 +249,13 @@ export async function POST(req: Request) {
           instituicaoId: user.instituicaoId,
           poloId,
           numeroMatricula,
+          dataInicioCurso: inicioCurso.data,
+          valorMatricula: Number(valorPagoMatricula) > 0 ? Number(valorPagoMatricula) : null,
+          ...(temMensalidades ? {
+            valorMensalidade: Number(valorMensalidade),
+            quantidadeParcelas: Number(quantidadeParcelas),
+            dataPrimeiroVencimento: new Date(dataPrimeiroVencimento),
+          } : {}),
           status: "ATIVA",
           confirmadaEm: new Date(),
         },
@@ -294,11 +308,7 @@ export async function POST(req: Request) {
         });
       }
 
-      if (
-        Number(valorMensalidade) > 0 &&
-        Number(quantidadeParcelas) > 0 &&
-        dataPrimeiroVencimento
-      ) {
+      if (temMensalidades) {
         const dataInicial = new Date(dataPrimeiroVencimento);
         const lancamentos = [];
 
@@ -324,6 +334,9 @@ export async function POST(req: Request) {
         });
       }
 
+      await criarContratoPendenteMatricula({
+        db: tx, matriculaId: matricula.id, instituicaoId: user.instituicaoId,
+      });
       return matricula;
     });
 
@@ -334,7 +347,7 @@ export async function POST(req: Request) {
   } catch (error: any) {
     const respostaSelecao = await respostaErroSelecao(error);
     if (respostaSelecao) return respostaSelecao;
-    if (error instanceof ErroModalidades) return erroCombos(error);
+    if (error instanceof ErroModalidades || error instanceof ErroContratoMatricula) return erroCombos(error);
     if (error?.message === "CURSO_PRECO_POR_DISCIPLINA") return NextResponse.json({ codigo: "CURSO_PRECO_POR_DISCIPLINA", error: "Use a página de Matrículas com seleção de disciplinas para esta contratação." }, { status: 400 });
     if (error?.message === "CURSO_LIVRE_FLUXO_PROPRIO") return NextResponse.json({ codigo: "CURSO_LIVRE_FLUXO_PROPRIO" }, { status: 400 });
     const erroAcademico = respostaErroAcademico(error);

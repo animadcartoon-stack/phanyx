@@ -34,6 +34,7 @@ import {
   processarComissaoAutomatica,
 } from "@/lib/comercial/processar-comissao";
 import { criarContratoPendenteMatricula } from "@/lib/contratos/contrato-matricula";
+import { ErroContratoMatricula } from "@/lib/contratos/validacao-contrato";
 import { montarEscopoContratado } from "@/lib/matriculas/escopo-contratado";
 import { enviarContratoParaAssinatura } from "@/lib/contratos/enviar-contrato-assinatura";
 
@@ -3395,6 +3396,9 @@ return NextResponse.json({
       },
     });
   } catch (error: any) {
+    if (error instanceof ErroContratoMatricula) {
+      return NextResponse.json({ codigo: error.codigo, error: error.message }, { status: error.status });
+    }
     const erroSelecao = await respostaErroSelecao(error);
     if (erroSelecao) return erroSelecao;
     if (error instanceof ErroPrecoDisciplinas) return NextResponse.json({ codigo: error.codigo, error: error.codigo }, { status: error.status });
