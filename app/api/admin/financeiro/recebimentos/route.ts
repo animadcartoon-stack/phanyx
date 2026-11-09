@@ -627,15 +627,11 @@ if (!caixaAberto) {
         status: novoStatus,
         observacao: lancamento.observacao,
       };
-      if (temPontualidade) {
-        const atualizado = await tx.lancamentoFinanceiro.updateMany({
-          where: { id: lancamento.id, instituicaoId: user.instituicaoId, updatedAt: lancamento.updatedAt },
-          data: dadosBaixa,
-        });
-        if (atualizado.count !== 1) throw new Error("LANCAMENTO_ALTERADO");
-      } else {
-        await tx.lancamentoFinanceiro.update({ where: { id: lancamento.id }, data: dadosBaixa });
-      }
+      const atualizado = await tx.lancamentoFinanceiro.updateMany({
+        where: { id: lancamento.id, instituicaoId: user.instituicaoId, updatedAt: lancamento.updatedAt },
+        data: dadosBaixa,
+      });
+      if (atualizado.count !== 1) throw new Error("LANCAMENTO_ALTERADO");
 
       if (
   novoStatus === "PAGO" &&

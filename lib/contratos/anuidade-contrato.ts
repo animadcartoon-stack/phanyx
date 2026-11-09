@@ -143,12 +143,16 @@ export function montarDadosAnuidadeContrato(
     bolsa = (mensalidade - liquida) * quantidade;
     if (calculo?.comboId != null || calculo?.tipoPreco === "QUANTIDADE") {
       const antes = Number(avulso?.mensalidadeCentavos);
-      if (!Number.isSafeInteger(antes) || antes < mensalidade || avulso?.quantidadeParcelas !== quantidade ||
-          calculo?.mensalidadeCentavos !== mensalidade) {
+      const finais = registro(modalidades?.finais);
+      const valoresRevisados = modalidades?.revisaoValores === true &&
+        finais?.mensalidadeCentavos === liquida && finais?.quantidadeParcelas === quantidade;
+      if (!Number.isSafeInteger(antes) || (!valoresRevisados && (antes < mensalidade ||
+          avulso?.quantidadeParcelas !== quantidade || calculo?.mensalidadeCentavos !== mensalidade))) {
         return erroAnuidade("Os valores registrados não permitem determinar o desconto conjunto deste contrato.");
       }
-      base = antes * quantidade;
-      descontoComercial = (antes - mensalidade) * quantidade;
+      const baseMensal = Math.max(antes, mensalidade);
+      base = baseMensal * quantidade;
+      descontoComercial = (baseMensal - mensalidade) * quantidade;
     }
   }
 

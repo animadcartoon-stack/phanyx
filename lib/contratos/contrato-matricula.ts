@@ -329,7 +329,7 @@ export async function montarContratoMatricula(
       0
     ) ||
     Number(
-      matricula.valorMensalidade ||
+      (Number(matricula.bolsaPercentual) === 100 ? 0 : matricula.valorMensalidade) ||
       0
     ) ||
     0;

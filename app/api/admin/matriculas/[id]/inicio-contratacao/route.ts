@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { Prisma } from "@prisma/client";
 import { criarContratoPendenteMatricula } from "@/lib/contratos/contrato-matricula";
 import { ErroContratoMatricula } from "@/lib/contratos/validacao-contrato";
+import { registrarEdicaoMatricula } from "@/lib/matriculas/auditoria-edicao";
 import { administradorCombos, erroCombos } from "@/lib/matriculas/combos-api";
 import { encontrarConflitos, horarioValido, type HorarioModalidade } from "@/lib/matriculas/combos";
 import { validarDataInicioCurso } from "@/lib/matriculas/dataInicioCurso";
@@ -14,7 +15,8 @@ function objetoJson(valor: Prisma.JsonValue | undefined): Prisma.JsonObject | nu
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   try {
-    const { instituicaoId, id: usuarioId } = await administradorCombos();
+    const user = await administradorCombos();
+    const { instituicaoId, id: usuarioId } = user;
     const id = Number(params.id);
     const body = await request.json().catch(() => null);
     const inicio = validarDataInicioCurso(body?.dataInicioCurso);
@@ -166,6 +168,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       await tx.documentoAluno.create({
         data: { ...vinculo, alunoId: matricula.alunoId, tipo: "CONTRATO",
           titulo: "Contrato de matrícula", conteudo: contrato.conteudo },
+      });
+      await registrarEdicaoMatricula(tx, vinculo, user, "DATA_INICIO", {
+        dataInicioCurso: { anterior: dataAnterior, novo: dataCivil },
       });
       return NextResponse.json({ dataInicioCurso: dataCivil });
     }, { isolationLevel: "Serializable", maxWait: 5000, timeout: 30000 });

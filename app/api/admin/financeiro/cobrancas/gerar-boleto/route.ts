@@ -652,53 +652,62 @@ export async function POST(
 
     if (!cobranca) {
       try {
-        cobranca =
-          await prisma
-            .cobrancaFinanceira
-            .create({
-              data: {
-                instituicaoId,
+        cobranca = await prisma.$transaction(async (tx) => {
+          await tx.$queryRaw`SELECT "id" FROM "LancamentoFinanceiro"
+            WHERE "id" = ${lancamento.id} AND "instituicaoId" = ${instituicaoId} FOR UPDATE`;
+          const atual = await tx.lancamentoFinanceiro.findFirst({
+            where: { id: lancamento.id, instituicaoId, updatedAt: lancamento.updatedAt },
+            select: { id: true },
+          });
+          if (!atual) return null;
+          return tx.cobrancaFinanceira.create({
+            data: {
+              instituicaoId,
 
-                contaFinanceiraId:
-                  conta.id,
+              contaFinanceiraId:
+                conta.id,
 
-                lancamentoFinanceiroId:
-                  lancamento.id,
+              lancamentoFinanceiroId:
+                lancamento.id,
 
-                alunoId:
-                  lancamento.alunoId,
+              alunoId:
+                lancamento.alunoId,
 
-                matriculaId:
-                  lancamento.matriculaId,
+              matriculaId:
+                lancamento.matriculaId,
 
-                provedor:
-                  String(
-                    conta.provedor
-                  )
-                    .trim()
-                    .toUpperCase(),
+              provedor:
+                String(
+                  conta.provedor
+                )
+                  .trim()
+                  .toUpperCase(),
 
-                tipo:
-                  "BOLETO",
+              tipo:
+                "BOLETO",
 
-                referenciaInterna:
-                  referenciaCobranca,
+              referenciaInterna:
+                referenciaCobranca,
 
-                statusBancario:
-                  "EM_PROCESSAMENTO",
+              statusBancario:
+                "EM_PROCESSAMENTO",
 
-                statusOperacional:
-                  "AGUARDANDO_PAGAMENTO",
+              statusOperacional:
+                "AGUARDANDO_PAGAMENTO",
 
-                valorCobrado:
-                  saldo,
+              valorCobrado:
+                saldo,
 
-                ...(pontualidade ? { metadata: { pontualidade } } : {}),
+              ...(pontualidade ? { metadata: { pontualidade } } : {}),
 
-                vencimento:
-                  lancamento.vencimento,
-              },
-            });
+              vencimento:
+                lancamento.vencimento,
+            },
+          });
+        });
+        if (!cobranca) {
+          return NextResponse.json({ error: "O lançamento mudou. Atualize a lista antes de gerar o boleto." }, { status: 409 });
+        }
 
         reservaCriadaAgora =
           true;
@@ -857,6 +866,7 @@ export async function POST(
         include: { lancamentoFinanceiro: { include: { matricula: { select: { status: true, canceladaEm: true } } } } } });
       if (!atual || cancelamentoBancarioPendente(atual.metadata) || atual.statusBancario === "CANCELADO" ||
           atual.statusBancario === "EM_PROCESSAMENTO" || atual.statusOperacional === "CANCELADO" ||
+          atual.lancamentoFinanceiro.updatedAt.getTime() !== lancamento.updatedAt.getTime() ||
           atual.lancamentoFinanceiro.status === "CANCELADO" || matriculaCancelada(atual.lancamentoFinanceiro.matricula)) return null;
       return tx.cobrancaFinanceira.update({ where: { id: atual.id }, data: {
         statusBancario: "EM_PROCESSAMENTO", erroIntegracao: null, valorCobrado: saldo, vencimento: lancamento.vencimento,

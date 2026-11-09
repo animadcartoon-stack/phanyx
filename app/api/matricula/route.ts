@@ -1,3 +1,4 @@
+import { dadosEdicaoMatricula, diferencasEdicao, registrarEdicaoMatricula } from "@/lib/matriculas/auditoria-edicao";
 import { possuiOptativasContratadas, verificarVagasOptativasParaRetorno, vinculoOptativaOcupante } from "@/lib/matriculas/optativas-avulsas-servidor";
 import { mensagensOptativas } from "@/lib/matriculas/optativas-avulsas";
 import { condicoesPontualidadeMatricula } from "@/lib/financeiro/desconto-pontualidade-servidor";
@@ -4794,6 +4795,15 @@ export async function PUT(request: Request) {
             matriculaIdIgnorada: id,
           });
         }
+        const escopoAuditoria = { id, instituicaoId: user.instituicaoId };
+        await tx.$queryRaw`SELECT "id" FROM "Matricula" WHERE "id" = ${id} AND "instituicaoId" = ${user.instituicaoId} FOR UPDATE`;
+        const { updatedAt, ...dadosAnteriores } = await tx.matricula.findUniqueOrThrow({
+          where: escopoAuditoria,
+          select: { ...dadosEdicaoMatricula, updatedAt: true },
+        });
+        if (updatedAt.getTime() !== matriculaExistente.updatedAt.getTime()) {
+          throw new Error("MATRICULA_ALTERADA_DURANTE_EDICAO");
+        }
         await tx.matricula.update({
           where: {
             id,
@@ -5039,6 +5049,11 @@ export async function PUT(request: Request) {
           });
         }
 
+        const dadosAtualizados = await tx.matricula.findUniqueOrThrow({
+          where: escopoAuditoria, select: dadosEdicaoMatricula,
+        });
+        await registrarEdicaoMatricula(tx, { matriculaId: id, instituicaoId: user.instituicaoId },
+          user, "EDICAO", diferencasEdicao(dadosAnteriores, dadosAtualizados));
       },
       {
         maxWait: 5000,
@@ -5111,6 +5126,9 @@ export async function PUT(request: Request) {
     if (error instanceof ErroModalidades) {
       const t = await getTranslations("EnrollmentCombos");
       return NextResponse.json({ error: t(`errors.${error.codigo}`), codigo: error.codigo, detalhes: error.detalhes }, { status: error.status });
+    }
+    if (error?.message === "MATRICULA_ALTERADA_DURANTE_EDICAO") {
+      return NextResponse.json({ error: "A matrícula mudou durante a edição. Recarregue os dados antes de salvar." }, { status: 409 });
     }
     console.error("ERRO AO ATUALIZAR MATRÍCULA:", error);
     return NextResponse.json(
