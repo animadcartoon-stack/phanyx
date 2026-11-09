@@ -69,6 +69,7 @@ if (!url) {
   const { prisma } = require("../lib/prisma.ts");
   const api = require("../app/api/admin/matriculas/modalidades/route.ts");
   const regras = require("../app/api/admin/combos/route.ts");
+  const inicioContratacao = require("../app/api/admin/matriculas/[id]/inicio-contratacao/route.ts");
   const cursosApi = require("../app/api/admin/cursos/route.ts");
   const {
     validarAgendaMatricula,
@@ -733,6 +734,41 @@ if (!url) {
         assert.equal(mensais[0].valorAntecipacaoAbatida, 98.5);
         assert.ok(mensais.slice(1).every(l => l.valorFinal === 936 && l.valorAntecipacaoAbatida === 0));
         assert.equal(m.lancamentosFinanceiros.reduce((soma, l) => soma + l.valorFinal, 0), 11232);
+
+        // Recria a condição de um combo legado confirmado sem a data no contrato.
+        await prisma.matricula.update({ where: { id: m.id }, data: { dataInicioCurso: null } });
+        const contratoAntigo = m.contratos[0];
+        await prisma.contrato.update({ where: { id: contratoAntigo.id }, data: { assinaturaSecretariaEm: new Date() } });
+        const corrigirInicio = dataInicioCurso => inicioContratacao.PATCH(
+          new Request(`http://localhost/api/admin/matriculas/${m.id}/inicio-contratacao`, {
+            method: "PATCH", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ dataInicioCurso }),
+          }),
+          { params: { id: String(m.id) } },
+        );
+        const comAssinatura = await corrigirInicio("2027-02-08");
+        assert.equal(comAssinatura.status, 422);
+        assert.match((await comAssinatura.json()).error, /assinatura/);
+        assert.equal((await prisma.matricula.findUniqueOrThrow({ where: { id: m.id } })).dataInicioCurso, null);
+
+        await prisma.contrato.update({ where: { id: contratoAntigo.id }, data: { assinaturaSecretariaEm: null } });
+        const corrigida = await corrigirInicio("2027-02-08");
+        assert.equal(corrigida.status, 200, JSON.stringify(await corrigida.clone().json()));
+        assert.equal((await corrigirInicio("2027-02-08")).status, 200);
+        const depois = await prisma.matricula.findUniqueOrThrow({
+          where: { id: m.id }, include: { contratos: { orderBy: { id: "asc" } }, lancamentosFinanceiros: true },
+        });
+        assert.equal(depois.dataInicioCurso.toISOString().slice(0, 10), "2027-02-08");
+        assert.deepEqual(depois.planoPagamentoContratado, m.planoPagamentoContratado);
+        assert.deepEqual(depois.lancamentosFinanceiros.map(l => l.id).sort(), m.lancamentosFinanceiros.map(l => l.id).sort());
+        assert.equal(depois.contratos.length, 2);
+        assert.equal(depois.contratos[0].status, "CANCELADO");
+        assert.equal(depois.contratos[0].tokenAssinatura, null);
+        assert.equal(depois.contratos[1].status, "PENDENTE");
+        assert.match(depois.contratos[1].conteudo, /08\/02\/2027/);
+        assert.equal(await prisma.documentoAluno.count({
+          where: { matriculaId: m.id, instituicaoId, tipo: "CONTRATO", arquivado: false },
+        }), 1);
       });
     } finally {
       // Apenas dados sintéticos do banco local reservado.

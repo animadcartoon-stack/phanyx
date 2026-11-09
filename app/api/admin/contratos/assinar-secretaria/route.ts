@@ -50,9 +50,11 @@ export async function POST(req: Request) {
 
     const userAgent = req.headers.get("user-agent") || "";
 
-    const atualizado = await prisma.contrato.update({
+    const atualizado = await prisma.contrato.updateMany({
       where: {
         id: contratoId,
+        instituicaoId: user.instituicaoId,
+        status: { not: "CANCELADO" },
       },
       data: {
         assinaturaSecretariaImagem:
@@ -64,10 +66,13 @@ export async function POST(req: Request) {
         assinaturaSecretariaUserAgent: userAgent,
       },
     });
+    if (!atualizado.count) {
+      return NextResponse.json({ error: "O contrato foi substituído ou cancelado. Abra a versão atual." }, { status: 409 });
+    }
 
     return NextResponse.json({
       ok: true,
-      contratoId: atualizado.id,
+      contratoId,
     });
   } catch (error: any) {
     console.error("Erro ao assinar como secretaria:", error);
