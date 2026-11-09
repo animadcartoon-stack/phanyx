@@ -88,9 +88,9 @@ export async function POST(req: Request) {
       }
     }
 
-    if (contrato.status === "ASSINADO") {
+    if (contrato.status !== "PENDENTE") {
       return NextResponse.json(
-        { error: "Este contrato já foi assinado" },
+        { error: contrato.status === "ASSINADO" ? "Este contrato já foi assinado" : "Este contrato não está disponível para assinatura." },
         { status: 400 }
       );
     }
@@ -103,7 +103,12 @@ export async function POST(req: Request) {
     const ipAssinatura = ipBruto.split(",")[0]?.trim() || null;
     const userAgent = req.headers.get("user-agent") || null;
 
-    await prisma.$transaction(async (tx) => {
+    const assinado = await prisma.$transaction(async (tx) => {
+      const atualizado = await tx.contrato.updateMany({
+        where: { id: contrato.id, tokenAssinatura: token, status: "PENDENTE", dataAssinatura: null },
+        data: { status: "ASSINADO", dataAssinatura: new Date(), ipAssinatura, userAgent },
+      });
+      if (!atualizado.count) return false;
       await tx.assinatura.upsert({
         where: {
           contratoId: contrato.id,
@@ -122,18 +127,11 @@ export async function POST(req: Request) {
         },
       });
 
-      await tx.contrato.update({
-        where: {
-          id: contrato.id,
-        },
-        data: {
-          status: "ASSINADO",
-          dataAssinatura: new Date(),
-          ipAssinatura,
-          userAgent,
-        },
-      });
+      return true;
     });
+    if (!assinado) {
+      return NextResponse.json({ error: "O contrato foi atualizado. Abra o link de assinatura mais recente." }, { status: 409 });
+    }
 
     return NextResponse.json({
       ok: true,

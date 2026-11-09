@@ -474,6 +474,9 @@ function AdminMatriculasPage() {
   const [confirmTitulo, setConfirmTitulo] = useState("");
   const [confirmMensagem, setConfirmMensagem] = useState("");
   const [confirmAcao, setConfirmAcao] = useState<(() => void) | null>(null);
+  const [inicioContratacao, setInicioContratacao] = useState<{ id: number; data: string } | null>(null);
+  const [salvandoInicioContratacao, setSalvandoInicioContratacao] = useState(false);
+  const [erroInicioContratacao, setErroInicioContratacao] = useState("");
   const canvasSecretariaRef = useRef<HTMLCanvasElement | null>(null);
   const [modalSecretariaAberto, setModalSecretariaAberto] = useState(false);
   const [contratoSecretariaId, setContratoSecretariaId] = useState<number | null>(null);
@@ -2477,10 +2480,45 @@ function AdminMatriculasPage() {
     }
   }
 
+  async function salvarInicioContratacao() {
+    if (!inicioContratacao || salvandoInicioContratacao) return;
+    setErroInicioContratacao("");
+    if (!inicioContratacao.data) {
+      setErroInicioContratacao("Informe a data de início do curso.");
+      return;
+    }
+    setSalvandoInicioContratacao(true);
+    try {
+      const resposta = await fetch(`/api/admin/matriculas/${inicioContratacao.id}/inicio-contratacao`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dataInicioCurso: inicioContratacao.data }),
+      });
+      const dados = await resposta.json().catch(() => null);
+      if (!resposta.ok) throw new Error(dados?.error || "Não foi possível salvar a data. Atualize a lista e tente novamente.");
+      setInicioContratacao(null);
+      setSucesso("Data de início registrada e contrato pendente atualizado.");
+      await carregarTudo();
+    } catch (error) {
+      setErroInicioContratacao(error instanceof Error ? error.message : "Não foi possível salvar a data.");
+    } finally {
+      setSalvandoInicioContratacao(false);
+    }
+  }
+
   async function abrirEdicao(
     matricula: MatriculaApi
   ) {
-    if (matricula.contratacaoModalidades) { setErro(tc("comboEditHelp")); return; }
+    if (matricula.contratacaoModalidades) {
+      if (!matricula.dataInicioCurso && ["ATIVA", "A_INICIAR", "AGUARDANDO"].includes(matricula.status || "")) {
+        setErroInicioContratacao("");
+        setInicioContratacao({ id: matricula.id, data: "" });
+      } else {
+        setErro(tc("comboEditHelp"));
+      }
+      return;
+    }
     const cursoIdAtual =
       matricula.curso?.id
         ? String(
@@ -3887,6 +3925,31 @@ function AdminMatriculasPage() {
           onConfirmar={() => setSucesso("")}
           onCancelar={() => setSucesso("")}
         />
+      )}
+      {inicioContratacao && (
+        <PhanyxConfirmModal
+          aberto
+          titulo="Completar data de início"
+          mensagem="Informe quando começa o atendimento. O PHANYX atualizará o contrato pendente e preservará as turmas e as cobranças."
+          textoConfirmar="Salvar data"
+          carregando={salvandoInicioContratacao}
+          onConfirmar={() => void salvarInicioContratacao()}
+          onCancelar={() => setInicioContratacao(null)}
+        >
+          <label htmlFor="inicio-contratacao-modalidades" className="block text-sm font-medium">
+            Data de início do curso
+          </label>
+          <input
+            id="inicio-contratacao-modalidades"
+            type="date"
+            required
+            value={inicioContratacao.data}
+            disabled={salvandoInicioContratacao}
+            onChange={e => setInicioContratacao({ ...inicioContratacao, data: e.target.value })}
+            className={`w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 ${contraste.dataCalendario}`}
+          />
+          {erroInicioContratacao && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{erroInicioContratacao}</p>}
+        </PhanyxConfirmModal>
       )}
       <div className="matriculas-form-light-fix bg-white border rounded-2xl p-5 shadow-sm">
         <h2 className="text-lg font-semibold">Nova matrícula</h2>
