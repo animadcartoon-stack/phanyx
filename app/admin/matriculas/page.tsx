@@ -11,7 +11,7 @@ import contraste from "@/components/admin/ContrasteAcademico.module.css";
 
 import ResumoPrecoDisciplinas from "@/components/admin/ResumoPrecoDisciplinas";
 import { calcularPrecoDisciplinas, lerContratacaoDisciplinas, type ContratacaoDisciplinas } from "@/lib/matriculas/preco-disciplinas";
-import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
+import { mensagemAntecipacaoComboInvalida, nomeContratacaoModalidades } from "@/lib/matriculas/combos";
 import { mensagensOptativas } from "@/lib/matriculas/optativas-avulsas";
 import SeletorAdicionaisMatricula, { type PreviaComboMatricula } from "@/components/admin/SeletorAdicionaisMatricula";
 
@@ -2058,6 +2058,7 @@ function AdminMatriculasPage() {
         }
         if (avisarSeConflito(data)) { setPreviaCombo(null); return; }
         const codigo = String(data?.codigo || "");
+        if (codigo === "ANTECIPACAO_COMBO_INVALIDA") throw new Error(mensagemAntecipacaoComboInvalida);
         throw new Error(mensagensOptativas[codigo] || (codigo && tc.has("errors." + codigo) ? tc("errors." + codigo) : codigo || data?.error || "Não foi possível confirmar a contratação conjunta."));
       }
       setSucesso(previaCombo.optativaSessaoIds?.length

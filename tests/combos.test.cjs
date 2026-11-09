@@ -423,3 +423,14 @@ test("dois cursos na mesma manhã são permitidos quando as aulas não se sobrep
  assert.equal(encontrarConflitos([pevi,simultaneo]).length,1);
  assert.equal(encontrarConflitos([{...simultaneo,diaSemana:3}],[pevi]).length,0);
 });
+
+test("antecipação é optativa e não abate a taxa de um curso adicional", () => {
+  const selecionados = [curso(1), curso(2), curso(3), curso(9)];
+  const tradicional = calcular(selecionados, [combo()]);
+  const comCredito = calcular(selecionados, [combo({ taxaComoAntecipacao: true })]);
+  assert.equal(tradicional.antecipacaoCentavos, undefined);
+  assert.equal(comCredito.antecipacaoCentavos, 9000);
+  assert.equal(comCredito.matriculaCentavos, 14000);
+  assert.equal(comCredito.mensalidadeCentavos, tradicional.mensalidadeCentavos);
+  assert.deepEqual(comCredito.cursoIdsAvulsos, [9]);
+});

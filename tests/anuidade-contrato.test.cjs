@@ -124,3 +124,24 @@ test("as duas faixas configuradas na matrícula aparecem com condições e totai
   assert.ok(valores.textoPontualidadeAnuidade.includes(moeda(3888)));
   assert.ok(valores.textoPontualidadeAnuidade.includes(moeda(4104)));
 });
+
+test("a antecipação do combo reduz a primeira parcela sem reduzir a base da pontualidade", () => {
+  const { valores, pendencia } = montarDadosAnuidadeContrato(templateConfiguravel, {
+    ...matricula,
+    valorMatricula: 98.5,
+    valorMensalidade: 936,
+    contratacaoModalidades: { calculo: { avulso: { mensalidadeCentavos: 104000 } } },
+    planoPagamentoContratado: {
+      versao: 1, tipo: "ANTECIPACAO_COMBO", primeiroVencimento: "2026-12-05", quantidadeParcelas: 12,
+      antecipacaoCentavos: 9850, taxaSeparadaCentavos: 0, totalCentavos: 1123200,
+      parcelasCentavos: Array(12).fill(93600),
+      parcelasExigiveisCentavos: [83750, ...Array(11).fill(93600)],
+    },
+  });
+  assert.equal(pendencia, null);
+  assert.equal(valores.baseAnuidade, moeda(12480));
+  assert.equal(valores.descontoComercialAnuidade, moeda(1248));
+  assert.equal(valores.totalAnuidadeContratual, moeda(11232));
+  assert.equal(valores.totalAnuidadePontual, moeda(10108.8));
+  assert.ok(valores.textoPontualidadeAnuidade.includes(moeda(743.9)));
+});

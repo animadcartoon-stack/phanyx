@@ -23,6 +23,7 @@ type Combo = {
   modoPreco: "FIXO" | "SOMA" | "PERCENTUAL";
   descontoPercentual: string | null;
   valorMatricula: string;
+  taxaComoAntecipacao: boolean;
   valorMensalidade: string | null;
   quantidadeParcelas: number;
   cursoIds: number[];
@@ -39,6 +40,7 @@ const novo = () => ({
   modoPreco: "FIXO" as "FIXO" | "SOMA" | "PERCENTUAL",
   descontoPercentual: "",
   valorMatricula: "",
+  taxaComoAntecipacao: false,
   valorMensalidade: "",
   quantidadeParcelas: "12",
   cursoIds: [] as number[],
@@ -184,6 +186,7 @@ function CombosPage() {
           ? ""
           : String(combo.descontoPercentual),
       valorMatricula: String(combo.valorMatricula),
+      taxaComoAntecipacao: combo.taxaComoAntecipacao === true,
       valorMensalidade:
         combo.valorMensalidade === null ? "" : String(combo.valorMensalidade),
       quantidadeParcelas: String(combo.quantidadeParcelas),
@@ -305,6 +308,14 @@ function CombosPage() {
                 setForm({ ...form, valorMatricula: e.target.value })
               }
             />
+          </label>
+          <label>
+            Tratamento da taxa de matrícula
+            <select className={input} value={form.taxaComoAntecipacao ? "antecipacao" : "separada"}
+              onChange={e => setForm({ ...form, taxaComoAntecipacao: e.target.value === "antecipacao" })}>
+              <option value="separada">Taxa separada</option>
+              <option value="antecipacao">Antecipação abatida da primeira parcela</option>
+            </select>
           </label>
           {form.modoPreco === "PERCENTUAL" && (
             <label>
@@ -466,7 +477,7 @@ function CombosPage() {
                   {c.quantidadeParcelas}
                 </p>
                 <p className="mt-1 text-sm">
-                  {t("enrollmentFee")}: {moeda(c.valorMatricula)} ·{" "}
+                  {c.taxaComoAntecipacao ? "Antecipação" : t("enrollmentFee")}: {moeda(c.valorMatricula)} ·{" "}
                   {c.modoPreco === "FIXO"
                     ? `${t("monthly")}: ${moeda(c.valorMensalidade)}`
                     : c.modoPreco === "PERCENTUAL"

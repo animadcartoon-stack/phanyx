@@ -33,6 +33,7 @@ export async function anexarResumoModalidades(
     }>;
     finais?: {
       matriculaCentavos: number;
+      antecipacaoCentavos?: number;
       mensalidadeCentavos: number;
       quantidadeParcelas: number;
     };
@@ -54,7 +55,11 @@ export async function anexarResumoModalidades(
         `<tr><td style="border:1px solid #cbd5e1;padding:6px">${escapar(o.cursoNome)}</td><td style="border:1px solid #cbd5e1;padding:6px">${escapar(o.turmaNome)}</td><td style="border:1px solid #cbd5e1;padding:6px">${o.horarios.length ? o.horarios.map((h) => escapar(`${dia(h.diaSemana)} ${h.horaInicio}–${h.horaFim || ""}${h.dataInicio ? ` (${h.dataInicio} – ${h.dataFim || "…"})` : ""}`)).join("<br>") : escapar(t("freeEad"))}</td></tr>`,
     )
     .join("");
-  const quadro = `<section data-phanyx-modalidades="1" style="margin-top:20px;color:#0f172a"><h2>${escapar(t("summary"))}: ${escapar(nome)}</h2><table style="width:100%;border-collapse:collapse"><thead><tr><th>${escapar(t("courses"))}</th><th>${escapar(t("class"))}</th><th>${escapar(t("selectedSchedule"))}</th></tr></thead><tbody>${linhas}</tbody></table>${s.finais ? `<p>${escapar(t("enrollmentFee"))}: ${escapar(moeda(s.finais.matriculaCentavos))}<br>${escapar(t("monthly"))}: ${escapar(moeda(s.finais.mensalidadeCentavos))}<br>${escapar(t("installments"))}: ${s.finais.quantidadeParcelas}<br>${escapar(t("total"))}: ${escapar(moeda(s.finais.matriculaCentavos + s.finais.mensalidadeCentavos * s.finais.quantidadeParcelas))}</p>` : ""}</section>`;
+  const antecipacao = s.finais?.antecipacaoCentavos ?? 0;
+  const primeira = s.finais && antecipacao > 0
+    ? `<br>Antecipação abatida: ${escapar(moeda(antecipacao))}<br>Saldo nominal da primeira parcela: ${escapar(moeda(s.finais.mensalidadeCentavos - antecipacao))}`
+    : "";
+  const quadro = `<section data-phanyx-modalidades="1" style="margin-top:20px;color:#0f172a"><h2>${escapar(t("summary"))}: ${escapar(nome)}</h2><table style="width:100%;border-collapse:collapse"><thead><tr><th>${escapar(t("courses"))}</th><th>${escapar(t("class"))}</th><th>${escapar(t("selectedSchedule"))}</th></tr></thead><tbody>${linhas}</tbody></table>${s.finais ? `<p>${escapar(t("enrollmentFee"))}: ${escapar(moeda(s.finais.matriculaCentavos))}<br>${escapar(t("monthly"))}: ${escapar(moeda(s.finais.mensalidadeCentavos))}<br>${escapar(t("installments"))}: ${s.finais.quantidadeParcelas}<br>${escapar(t("total"))}: ${escapar(moeda(s.finais.matriculaCentavos - antecipacao + s.finais.mensalidadeCentavos * s.finais.quantidadeParcelas))}${primeira}</p>` : ""}</section>`;
   return /<\/body>/i.test(html)
     ? html.replace(/<\/body>/i, `${quadro}</body>`)
     : html + quadro;

@@ -112,6 +112,11 @@ test("envia ao Asaas valor nominal e desconto condicionado, inclusive no vencime
     assert.deepEqual(body.discount, { type: "PERCENTAGE", value: 5, dueDateLimitDays: diasAntecedencia });
     assert.equal(resultado.metadata.descontoAsaas.value, 5);
   }
+  await provedor.criarBoleto({
+    ...base, valor: 837.5, descontoPontualidade: { percentual: 10, diasAntecedencia: 0, descontoFixo: 93.6 },
+  });
+  assert.equal(requisicoes.at(-2).body.value, 837.5);
+  assert.deepEqual(requisicoes.at(-2).body.discount, { type: "FIXED", value: 93.6, dueDateLimitDays: 0 });
   await provedor.criarBoleto(base);
   assert.equal(requisicoes.at(-2).body.value, 300);
   assert.equal(Object.hasOwn(requisicoes.at(-2).body, "discount"), false);
@@ -198,6 +203,16 @@ test("baixa manual grava valor recebido, desconto e status de quitação no caix
   assert.equal(Object.hasOwn(historico[1].metadata, "pontualidade"), false);
   assert.equal(baixasComPontualidade, 1);
   assert.equal(baixasTradicionais, 1);
+
+  Object.assign(dados, {
+    status: "PENDENTE", valorOriginal: 936, valorFinal: 837.5, valorPago: 0,
+    descontoValor: 98.5, valorAntecipacaoAbatida: 98.5,
+    matricula: { descontoPontualidade: { percentual: 10, diasAntecedencia: 0 } },
+  });
+  const primeira = { json: async () => ({ lancamentoId: 42, valorPago: 743.9, formaPagamento: "PIX", aplicarPontualidade: true }) };
+  assert.equal((await PATCH(primeira)).status, 200);
+  assert.equal(dados.valorFinal, 743.9);
+  assert.equal(movimentos[2].valor, 743.9);
 });
 
 
@@ -246,4 +261,30 @@ test("contrato apresenta as duas faixas e as novas variaveis", () => {
   assert.equal(dados.percentualDescontoAteVencimento, "5");
   assert.match(dados.valorMensalidadeComDescontoAntecipado, /243,00/);
   assert.match(dados.valorMensalidadeComDescontoAteVencimento, /256,50/);
+});
+
+test("crédito de matrícula preserva desconto sobre o valor anterior ao abatimento", () => {
+  const primeira = { ...parcela, valorOriginal: 936, valorFinal: 837.5, valorAntecipacaoAbatida: 98.5,
+    matricula: { ...parcela.matricula, descontoPontualidade: { percentual: 10, diasAntecedencia: 0 } } };
+  const dia = primeira.vencimento.toISOString().slice(0, 10);
+  const cotacao = cotarDescontoPontualidade(primeira, 837.5, dia);
+  assert.equal(cotacao.desconto, 93.6);
+  assert.equal(cotacao.valorComDesconto, 743.9);
+  assert.equal(cotarDescontoPontualidade(primeira, 837.5, "2027-03-11"), null);
+  const cobranca = {
+    instituicaoId: primeira.instituicaoId, alunoId: primeira.alunoId, matriculaId: primeira.matriculaId,
+    lancamentoFinanceiroId: primeira.id, statusBancario: "COMPENSADO", statusOperacional: "AGUARDANDO_BAIXA",
+    valorCobrado: 837.5, valorCompensado: 743.9,
+    metadata: { pontualidade: { ...cotacao, lancamentoId: primeira.id }, diaPagamentoPontualidade: dia,
+      provedor: { descontoAsaas: { type: "FIXED", value: 93.6, dueDateLimitDays: 0 } } },
+  };
+  const baixa = analisarDivergencia(cobranca, primeira, false);
+  assert.equal(baixa.descontoPontualidade, 93.6);
+  assert.equal(baixa.motivos.length, 0);
+  const atrasada = { ...cobranca, valorCompensado: 837.5,
+    metadata: { ...cobranca.metadata, diaPagamentoPontualidade: "2027-03-11" } };
+  const baixaAtrasada = analisarDivergencia(atrasada, primeira, false);
+  assert.equal(baixaAtrasada.descontoPontualidade, 0);
+  assert.equal(baixaAtrasada.valorFinal, 837.5);
+  assert.equal(baixaAtrasada.motivos.length, 0);
 });

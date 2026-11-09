@@ -1,4 +1,6 @@
 // Funções compartilhadas pelo cálculo do servidor, pela interface e pelos testes.
+export const mensagemAntecipacaoComboInvalida = "A antecipação deve ser menor que a primeira parcela após a bolsa e o maior desconto de pontualidade.";
+
 export class ErroModalidades extends Error {
   constructor(
     public codigo: string,
@@ -55,6 +57,7 @@ type CalculoPreco = {
   cursoIdsCombo: number[];
   cursoIdsAvulsos: number[];
   matriculaCentavos: number;
+  antecipacaoCentavos?: number;
   mensalidadeCentavos: number;
   quantidadeParcelas: number;
   precosPorCurso: { cursoId: number; cursoNome: string; mensalidadeCentavos: number; quantidadeAtividades: number | null }[];
@@ -68,6 +71,7 @@ export type RegraCombo = {
   modoPreco: "FIXO" | "SOMA" | "PERCENTUAL";
   descontoPercentual?: number | string | null;
   valorMatricula: number | string;
+  taxaComoAntecipacao?: boolean;
   valorMensalidade: number | string | null;
   quantidadeParcelas: number;
   cursoIds: number[];
@@ -182,6 +186,7 @@ export function calcularContratacaoModalidades(
       );
       if (extras.some((c) => c.quantidadeParcelas !== combo.quantidadeParcelas))
         return [];
+      const taxaCombo = centavos(combo.valorMatricula);
       return [
         {
           tipoPreco: "COMBO",
@@ -193,8 +198,9 @@ export function calcularContratacaoModalidades(
               : null,
           cursoIdsCombo: elegiveis.map((c) => c.id),
           cursoIdsAvulsos: extras.map((c) => c.id),
+          ...(combo.taxaComoAntecipacao && taxaCombo > 0 ? { antecipacaoCentavos: taxaCombo } : {}),
           matriculaCentavos:
-            centavos(combo.valorMatricula) +
+            taxaCombo +
             extras.reduce((s, c) => s + centavos(c.valorMatricula), 0),
           mensalidadeCentavos:
             (combo.modoPreco === "FIXO"
@@ -245,9 +251,9 @@ export function calcularContratacaoModalidades(
   // total contratual, com desempate estável, independente da ordem dos cliques.
   candidatos.sort(
     (a, b) =>
-      a.matriculaCentavos +
+      a.matriculaCentavos - (a.antecipacaoCentavos ?? 0) +
         a.mensalidadeCentavos * a.quantidadeParcelas -
-        (b.matriculaCentavos + b.mensalidadeCentavos * b.quantidadeParcelas) ||
+        (b.matriculaCentavos - (b.antecipacaoCentavos ?? 0) + b.mensalidadeCentavos * b.quantidadeParcelas) ||
       (a.comboId ?? Number.MAX_SAFE_INTEGER) - (b.comboId ?? Number.MAX_SAFE_INTEGER),
   );
   if (

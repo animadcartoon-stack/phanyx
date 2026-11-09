@@ -1,4 +1,4 @@
-import { descontoPontualidadeEmReais, lerFaixaDescontoPontualidade, limiteDescontoPontualidade } from "./desconto-pontualidade";
+import { descontoPontualidadeAposCredito, lerFaixaDescontoPontualidade, limiteDescontoPontualidade } from "./desconto-pontualidade";
 
 type Valor = number | { toString(): string } | null;
 
@@ -26,6 +26,7 @@ export type ParcelaConferencia = {
   valorOriginal: number;
   valorFinal: number | null;
   valorPago: number | null;
+  valorAntecipacaoAbatida?: number;
   descontoValor: number | null;
   jurosValor: number | null;
   multaValor: number | null;
@@ -74,12 +75,17 @@ export function analisarDivergencia(
   const regra = lerFaixaDescontoPontualidade(cotacao);
   const descontoAsaas = objetoJson(objetoJson(metadata.provedor).descontoAsaas);
   const diaPagamento = metadata.diaPagamentoPontualidade;
-  const desconto = regra ? descontoPontualidadeEmReais(valorCobrado, regra.percentual) : 0;
+  const credito = parcela.valorAntecipacaoAbatida ?? 0;
+  const desconto = regra ? descontoPontualidadeAposCredito(valorCobrado, regra.percentual, credito) : 0;
+  const descontoConfere = credito > 0
+    ? descontoAsaas.type === "FIXED" && typeof descontoAsaas.value === "number" &&
+      centavos(descontoAsaas.value) === centavos(desconto) && cotacao.descontoFixo === desconto
+    : descontoAsaas.type === "PERCENTAGE" && descontoAsaas.value === regra?.percentual;
   const descontoPontualidade = regra && desconto > 0 &&
     cotacao.lancamentoId === parcela.id && cobranca.lancamentoFinanceiroId === parcela.id &&
     valores.totalPagoAnterior === 0 && parcela.vencimento &&
     cotacao.limite === limiteDescontoPontualidade(parcela.vencimento, regra.diasAntecedencia) &&
-    descontoAsaas.type === "PERCENTAGE" && descontoAsaas.value === regra.percentual &&
+    descontoConfere &&
     descontoAsaas.dueDateLimitDays === regra.diasAntecedencia &&
     typeof diaPagamento === "string" && /^\d{4}-\d{2}-\d{2}$/.test(diaPagamento) &&
     typeof cotacao.limite === "string" && diaPagamento <= cotacao.limite &&
