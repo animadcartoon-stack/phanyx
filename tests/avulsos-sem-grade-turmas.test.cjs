@@ -31,11 +31,18 @@ test('API permite apenas admin da mesma instituicao, cria inativa e sem discipli
  assert.match(s,/horariosAvulsos: \{ create:/);
  assert.doesNotMatch(s,/turmaDisciplina\.create|itemMatricula\.create|matricula\.create|lancamentoFinanceiro\.create/);
 });
-test('edicao nao altera turma ativa nem com matriculas existentes',()=>{
+test('edicao preserva estado ativo e historico e troca professor responsavel',()=>{
  const s=read('app/api/admin/turmas/avulsas/route.ts');
- assert.match(s,/if \(atual\.ativa\)/);assert.match(s,/tx\.itemMatricula\.count/);
- assert.match(s,/tx\.matriculaTurmaAvulsa\.count/);
+ assert.match(s,/if \(temHistorico && alterouEstrutura\)/);
+ assert.match(s,/matriculasAvulsas: true/);
+ assert.match(s,/contratacaoModalidades/);
  assert.match(s,/tx\.turmaHorarioAvulso\.deleteMany/);
+ assert.match(s,/data: \{ professorId \}/);
+ const ui=read('components/admin/TurmasAvulsasSemGrade.tsx');
+ assert.match(ui,/Trocar professor/);
+ assert.match(ui,/preservarHistorico/);
+ assert.match(ui,/Confirmar exclusão da turma avulsa/);
+ assert.match(ui,/\/api\/turma\/\$\{turmaId\}/);
 });
 test('cadastro avulso e independente da grade tradicional',()=>{
  const p=read('app/admin/turmas/page.tsx');
