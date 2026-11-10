@@ -67,11 +67,18 @@ export async function GET() {
       where: { instituicaoId: user.instituicaoId, cursoId: { in: ativos }, horariosAvulsos: { some: {} } },
       select: { id: true, nome: true, cursoId: true, codigo: true, turno: true, periodoLetivo: true,
         capacidadeMaxima: true, ativa: true, professorId: true, poloId: true,
+        _count: { select: { itensMatricula: true, matriculasAvulsas: true, matriculasComoPrincipal: true,
+          atividades: true, aulas: true, modulos: true, notas: true, provas: true,
+          sessoesVideoAluno: true, eventosAprendizagemAluno: true, resultadosFinais: true,
+          periodosMatriculaParticipantes: true, reunioes: true, substituicoesDocentes: true,
+          destinosRecomendacoesBiblioteca: true, atividadesExternas: true } },
         horariosAvulsos: { where: { ativo: true }, select: { diaSemana: true, horaInicio: true, horaFim: true },
           orderBy: [{ diaSemana: "asc" }, { horaInicio: "asc" }] } },
       orderBy: [{ cursoId: "asc" }, { nome: "asc" }],
     }) : [];
-    return json({ cursos, professores, polos, turmas, ativacaoHabilitada: ativacaoHabilitada(user.instituicaoId) });
+    return json({ cursos, professores, polos, turmas: turmas.map(({ _count, ...turma }) =>
+      ({ ...turma, temHistorico: Object.values(_count).some(valor => Number(valor) > 0) })),
+      ativacaoHabilitada: ativacaoHabilitada(user.instituicaoId) });
   } catch (error) { return erroResposta(error); }
 }
 
@@ -189,24 +196,49 @@ export async function PATCH(request: Request) {
     if (!turmaId) throw new ErroCadastroTurmaAvulsa("TURMA_INVALIDA", "Selecione uma turma.");
     const form = dados(body);
     const turma = await prisma.$transaction(async tx => {
+      await tx.$queryRaw`SELECT "id" FROM "Turma" WHERE "id" = ${turmaId} AND "instituicaoId" = ${user.instituicaoId} FOR UPDATE`;
       const atual = await tx.turma.findFirst({ where: { id: turmaId, instituicaoId: user.instituicaoId,
-        curso: { matriculaDiretaTurma: true }, horariosAvulsos: { some: {} } },
-        select: { id: true, ativa: true, cursoId: true } });
+        curso: { matriculaDiretaTurma: true }, horariosAvulsos: { some: {} } }, select: {
+        id: true, ativa: true, cursoId: true, nome: true, codigo: true, periodoLetivo: true,
+        turno: true, professorId: true, poloId: true, capacidadeMaxima: true,
+        horariosAvulsos: { where: { instituicaoId: user.instituicaoId, ativo: true },
+          select: { diaSemana: true, horaInicio: true, horaFim: true } },
+        _count: { select: { itensMatricula: true, matriculasAvulsas: true, matriculasComoPrincipal: true,
+          atividades: true, aulas: true, modulos: true, notas: true, provas: true,
+          sessoesVideoAluno: true, eventosAprendizagemAluno: true, resultadosFinais: true,
+          periodosMatriculaParticipantes: true, reunioes: true, substituicoesDocentes: true,
+          destinosRecomendacoesBiblioteca: true, atividadesExternas: true } },
+      } });
       if (!atual) throw new ErroCadastroTurmaAvulsa("TURMA_INDISPONIVEL", "Turma sem grade não encontrada.");
-      if (atual.ativa) throw new ErroCadastroTurmaAvulsa("TURMA_ATIVA", "Desative a oferta antes de alterar horários.");
-      const [comItens, comDiretos] = await Promise.all([
-        tx.itemMatricula.count({ where: { turmaId, instituicaoId: user.instituicaoId } }),
-        tx.matriculaTurmaAvulsa.count({ where: { turmaId, instituicaoId: user.instituicaoId } }),
-      ]);
-      if (comItens || comDiretos) throw new ErroCadastroTurmaAvulsa("TURMA_COM_ALUNOS", "Turma com histórico de matrícula: preserve os horários e faça uma nova oferta.");
+      const snapshots = await tx.$queryRaw<{ total: number }[]>`SELECT count(*)::int AS total FROM "Matricula"
+        WHERE "instituicaoId" = ${user.instituicaoId} AND "contratacaoModalidades" @> ${JSON.stringify({ ofertas: [{ turmaId }] })}::jsonb`;
+      const temHistorico = Object.values(atual._count).some(valor => Number(valor) > 0) || Number(snapshots[0]?.total || 0) > 0;
+      const ordenar = (v: { diaSemana: number; horaInicio: string; horaFim: string }[]) =>
+        [...v].sort((a,b) => a.diaSemana-b.diaSemana || a.horaInicio.localeCompare(b.horaInicio) || a.horaFim.localeCompare(b.horaFim));
+      const mesmosHorarios = JSON.stringify(ordenar(atual.horariosAvulsos)) === JSON.stringify(ordenar(form.horarios));
+      const alterouEstrutura = atual.nome !== form.nome || (atual.codigo || null) !== form.codigo ||
+        (atual.periodoLetivo || "") !== form.periodoLetivo || (atual.turno || "") !== form.turno ||
+        atual.poloId !== form.poloId || atual.capacidadeMaxima !== form.capacidadeMaxima || !mesmosHorarios;
+      if (temHistorico && alterouEstrutura)
+        throw new ErroCadastroTurmaAvulsa("TURMA_COM_HISTORICO", "Turma com vínculos acadêmicos: somente o professor pode ser alterado; histórico preservado.");
+      if (temHistorico && atual.professorId && !form.professorId)
+        throw new ErroCadastroTurmaAvulsa("PROFESSOR_OBRIGATORIO", "Uma turma com histórico não pode ficar sem professor. Selecione o substituto.");
       await referenciasValidas(tx, user.instituicaoId, form.professorId, form.poloId);
-      const atualizada = await tx.turma.update({ where: { id: turmaId }, data: {
+      if (form.professorId && form.professorId !== atual.professorId &&
+          !(await tx.professor.findFirst({ where: { id: form.professorId, instituicaoId: user.instituicaoId, ativo: true }, select: { id: true } })))
+        throw new ErroCadastroTurmaAvulsa("PROFESSOR_INVALIDO", "Selecione um professor ativo da instituição.");
+      if ((atual.nome !== form.nome || atual.periodoLetivo !== form.periodoLetivo) &&
+        await tx.turma.findFirst({ where: { instituicaoId: user.instituicaoId, cursoId: atual.cursoId,
+          nome: form.nome, periodoLetivo: form.periodoLetivo, id: { not: turmaId } }, select: { id: true } }))
+        throw new ErroCadastroTurmaAvulsa("TURMA_DUPLICADA", "Já existe turma com esse nome no mesmo curso e ano.");
+      const atualizada = await tx.turma.update({ where: { id: turmaId, instituicaoId: user.instituicaoId }, data: {
         nome: form.nome, codigo: form.codigo, periodoLetivo: form.periodoLetivo, turno: form.turno,
         professorId: form.professorId, poloId: form.poloId, capacidadeMaxima: form.capacidadeMaxima,
-        ativa: false,
       }, select: { id: true, nome: true, ativa: true } });
-      await tx.turmaHorarioAvulso.deleteMany({ where: { turmaId, instituicaoId: user.instituicaoId } });
-      await tx.turmaHorarioAvulso.createMany({ data: form.horarios.map(h => ({ ...h, turmaId, instituicaoId: user.instituicaoId, ativo: true })) });
+      if (!temHistorico && !mesmosHorarios) {
+        await tx.turmaHorarioAvulso.deleteMany({ where: { turmaId, instituicaoId: user.instituicaoId } });
+        await tx.turmaHorarioAvulso.createMany({ data: form.horarios.map(h => ({ ...h, turmaId, instituicaoId: user.instituicaoId, ativo: true })) });
+      }
       return atualizada;
     }, { isolationLevel: "Serializable", timeout: 20000 });
     return json({ turma });
@@ -223,10 +255,10 @@ async function vincularProfessorTurmaAvulsa(instituicaoId: number, turmaId: numb
       throw new ErroCadastroTurmaAvulsa("PROFESSOR_INVALIDO", "Selecione um professor ativo da instituição.");
     }
 
-    // O vínculo inicial é a única alteração permitida aqui, inclusive após receber matrículas.
+    // Permite definir ou trocar professor, inclusive após matrícula, sem alterar registros históricos.
     const atualizada = await tx.turma.updateMany({
       where: {
-        id: turmaId, instituicaoId, ativa: true, professorId: null,
+        id: turmaId, instituicaoId, ativa: true,
         statusTurma: { in: ["ATIVA", "A_INICIAR", "AGUARDANDO"] },
         curso: { instituicaoId, matriculaDiretaTurma: true, ativo: true, excluidoEm: null },
         horariosAvulsos: { some: { instituicaoId, ativo: true } },
@@ -234,7 +266,7 @@ async function vincularProfessorTurmaAvulsa(instituicaoId: number, turmaId: numb
       data: { professorId },
     });
     if (atualizada.count !== 1) {
-      throw new ErroCadastroTurmaAvulsa("TURMA_ALTERADA", "A turma não está disponível para atribuição inicial. Recarregue a página.");
+      throw new ErroCadastroTurmaAvulsa("TURMA_ALTERADA", "A turma não está disponível para atualizar o professor. Recarregue a página.");
     }
   }, { isolationLevel: "Serializable", timeout: 20000 });
 }
