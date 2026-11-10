@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
-import { paginaVisivel } from "@/lib/portal-config";
+import { paginaProfessorVisivel } from "@/lib/portal-professor-permissoes";
+import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import ProfessorDashboardClient from "./ProfessorDashboardClient";
 
@@ -9,8 +10,9 @@ export default async function ProfessorPage() {
     redirect("/login?portal=professor");
   }
 
-  if (!(await paginaVisivel(user.instituicaoId, "PROFESSOR", "professor.painel"))) {
-    redirect("/professor/turmas");
+  const professor = await prisma.professor.findFirst({ where: { userId: user.id, instituicaoId: user.instituicaoId }, select: { id: true } });
+  if (!professor || !(await paginaProfessorVisivel(user.instituicaoId, "PROFESSOR", "professor.painel", professor.id))) {
+    redirect("/professor/sem-acesso");
   }
 
   return <ProfessorDashboardClient />;

@@ -13,6 +13,7 @@ type VisibilidadeAluno = {
   rematricula?: boolean;
   disciplinas?: boolean;
   progresso?: boolean;
+  desenvolvimento?: boolean;
   trabalhos?: boolean;
   presenca?: boolean;
   boletim?: boolean;
@@ -65,6 +66,7 @@ export default function AlunoSidebar({
     progresso:
       visibilidade?.progresso ??
       true,
+    desenvolvimento: visibilidade?.desenvolvimento ?? false,
 
     trabalhos:
       visibilidade?.trabalhos ??
@@ -128,6 +130,7 @@ export default function AlunoSidebar({
       icon: "📚",
     },
 
+    podeVer.desenvolvimento && {label:"Meu desenvolvimento",href:"/aluno/desenvolvimento",icon:"📈"},
     podeVer.progresso && {
       label: t("progress"),
       href: "/aluno/progresso",

@@ -1396,6 +1396,9 @@ export default function AdminShell({
                         👨‍🏫 {tNav("teachers")}
                       </Link>
 
+                      <Link href="/admin/professores/acessos" className={getLinkClass("/admin/professores/acessos")}>🔐 Acesso individual dos professores</Link>
+                      <Link href="/admin/acompanhamento-aulas" className={getLinkClass("/admin/acompanhamento-aulas")}>🗓️ Acompanhamento de aulas</Link>
+
                       <Link
                         href="/admin/substituicoes-docentes"
                         className={getLinkClass(

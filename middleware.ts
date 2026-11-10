@@ -9,6 +9,10 @@ export function middleware(request: NextRequest) {
   // Nunca confiar em marcadores enviados pelo navegador.
   headers.delete(HEADER_CAMINHO_EDITOR);
   headers.delete(HEADER_METODO_EDITOR);
+  headers.delete("x-phanyx-rota-professor");
+  if (path === "/professor" || path.startsWith("/professor/")) headers.set("x-phanyx-rota-professor", path);
+  headers.delete("x-phanyx-rota-aluno");
+  if (path === "/aluno" || path.startsWith("/aluno/")) headers.set("x-phanyx-rota-aluno", path);
   const tokenAdmin = request.cookies.get("token")?.value;
   const tokenEditor = request.cookies.get(COOKIE_SESSAO_EDITOR_CERTIFICADO)?.value;
   const rotaEditor = requisicaoPermitidaAoEditorCertificado(path, request.method);

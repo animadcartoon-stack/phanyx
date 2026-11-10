@@ -91,11 +91,17 @@ const PAGINAS_PADRAO: PaginaPadraoPortal[] = [
     nome: "Atualizar meus dados",
   },
 
+  { portal: "ALUNO", chavePagina: "aluno.desenvolvimento", nome: "Meu desenvolvimento", visivelPadrao: false },
+
   {
     portal: "PROFESSOR",
     chavePagina: "professor.painel",
     nome: "Painel",
   },
+  { portal: "PROFESSOR", chavePagina: "professor.turmas", nome: "Turmas" },
+  { portal: "PROFESSOR", chavePagina: "professor.planejamento", nome: "Planejamento de aulas", visivelPadrao: false },
+  { portal: "PROFESSOR", chavePagina: "professor.relatorios", nome: "Relatórios de aulas", visivelPadrao: false },
+  { portal: "PROFESSOR", chavePagina: "professor.desenvolvimento", nome: "Desenvolvimento dos alunos", visivelPadrao: false },
   {
     portal: "PROFESSOR",
     chavePagina: "professor.biblioteca",

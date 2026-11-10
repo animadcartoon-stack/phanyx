@@ -219,6 +219,7 @@ export default function ConfiguracaoPortaisPage() {
           <p className="phanyx-config-muted mt-2 text-sm leading-6">
             {t("page.description")}
           </p>
+          <a href="/admin/professores/acessos" className="mt-3 inline-block text-sm font-bold text-blue-700 underline dark:text-blue-300">Configurar acesso individual de cada professor</a>
           {instituicaoNome && (
             <p className="phanyx-config-muted mt-2 text-sm font-semibold">
               {t("page.institutionScope", { nome: instituicaoNome })}

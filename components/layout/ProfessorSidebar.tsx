@@ -20,6 +20,9 @@ type VisibilidadeProfessor = {
   ouvidoria?: boolean;
   mobilidade?: boolean;
   materiais?: boolean;
+  planejamento?: boolean;
+  relatorios?: boolean;
+  desenvolvimento?: boolean;
 };
 
 export default function ProfessorSidebar({
@@ -50,6 +53,9 @@ export default function ProfessorSidebar({
     reunioes: visibilidade?.reunioes ?? true,
     ouvidoria: visibilidade?.ouvidoria ?? true,
     materiais: visibilidade?.materiais ?? true,
+    planejamento: visibilidade?.planejamento ?? false,
+    relatorios: visibilidade?.relatorios ?? false,
+    desenvolvimento: visibilidade?.desenvolvimento ?? false,
   };
 
   const menu = [
@@ -73,6 +79,9 @@ export default function ProfessorSidebar({
       label: t("menu.materials"),
       href: "/professor/aulas",
     },
+    podeVer.planejamento && { label: "Planejamento de aulas", href: "/professor/planejamento" },
+    podeVer.relatorios && { label: "Relatórios de aulas", href: "/professor/relatorios" },
+    podeVer.desenvolvimento && { label: "Desenvolvimento dos alunos", href: "/professor/desenvolvimento" },
     podeVer.biblioteca && {
       label: t("menu.library"),
       href: "/professor/biblioteca",
