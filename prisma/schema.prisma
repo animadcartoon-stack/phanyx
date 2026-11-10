@@ -9,6 +9,7 @@ datasource db {
 }
 
 model Instituicao {
+  documentosDocentes DocumentoDocente[]
   permissoesPaginasProfessor ProfessorPaginaPortal[]
   historicosPermissaoProfessor HistoricoPermissaoProfessor[]
   regrasPlanejamentoAula RegraPlanejamentoAula[]
@@ -777,6 +778,7 @@ model Aluno {
 }
 
 model Professor {
+  documentosDocentes DocumentoDocente[]
   permissoesPaginasPortal ProfessorPaginaPortal[]
   historicosPermissaoProfessor HistoricoPermissaoProfessor[]
   planosRelatoriosAula PlanoRelatorioAula[]
@@ -2803,6 +2805,7 @@ model Assinatura {
 }
 
 model DocumentoTemplate {
+  documentosDocentes DocumentoDocente[]
   id            Int                   @id @default(autoincrement())
   nome          String
   descricao     String?
@@ -11977,4 +11980,106 @@ model HistoricoPermissaoProfessor {
   instituicao   Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   professor     Professor @relation(fields: [professorId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
   @@index([instituicaoId, professorId, alteradoEm], map: "HistPermProf_inst_prof_data_idx")
+}
+
+model DocumentoDocente {
+  id                Int       @id @default(autoincrement())
+  instituicaoId     Int
+  professorId       Int
+  templateId        Int?
+  turmaId           Int?
+  origem            String
+  tipo              String
+  titulo            String
+  status            String    @default("RASCUNHO")
+  versaoAtual       Int       @default(1)
+  criadoPorId       Int
+  enviadoEm         DateTime?
+  concluidoEm       DateTime?
+  criadoEm          DateTime  @default(now())
+  atualizadoEm      DateTime  @updatedAt
+
+  instituicao       Instituicao         @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  professor         Professor           @relation(fields: [professorId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  template          DocumentoTemplate?  @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  versoes           DocumentoDocenteVersao[]
+  mensagens         DocumentoDocenteMensagem[]
+  anexos            DocumentoDocenteAnexo[]
+  assinaturas       DocumentoDocenteAssinatura[]
+  eventos           DocumentoDocenteEvento[]
+
+  @@index([instituicaoId, professorId, atualizadoEm])
+  @@index([instituicaoId, status, atualizadoEm])
+  @@index([templateId])
+}
+
+model DocumentoDocenteVersao {
+  id              Int      @id @default(autoincrement())
+  documentoId     Int
+  numero          Int
+  modeloSnapshot  String   @db.Text
+  campos          Json
+  criadoPorId     Int
+  criadoEm        DateTime @default(now())
+  documento       DocumentoDocente @relation(fields: [documentoId], references: [id], onDelete: Cascade)
+  @@unique([documentoId, numero])
+  @@index([documentoId, criadoEm])
+}
+
+model DocumentoDocenteMensagem {
+  id              Int      @id @default(autoincrement())
+  documentoId     Int
+  autorId         Int
+  papel           String
+  texto           String   @db.Text
+  criadoEm        DateTime @default(now())
+  documento       DocumentoDocente @relation(fields: [documentoId], references: [id], onDelete: Cascade)
+  @@index([documentoId, criadoEm])
+}
+
+model DocumentoDocenteAnexo {
+  id              Int      @id @default(autoincrement())
+  documentoId     Int
+  mensagemId      Int?
+  enviadoPorId    Int
+  nomeOriginal    String
+  chaveR2         String   @unique
+  mime            String
+  tamanho         Int
+  versao          Int      @default(1)
+  sha256          String?
+  criadoEm        DateTime @default(now())
+  documento       DocumentoDocente @relation(fields: [documentoId], references: [id], onDelete: Cascade)
+  @@index([documentoId, criadoEm])
+  @@index([documentoId, versao])
+}
+
+model DocumentoDocenteAssinatura {
+  id              Int      @id @default(autoincrement())
+  documentoId     Int
+  versao          Int
+  papel           String
+  assinanteId     Int
+  nomeAssinante   String
+  tipo            String
+  imagem          String   @db.Text
+  hashConteudo    String
+  ip              String?
+  userAgent       String?
+  assinadoEm      DateTime @default(now())
+  documento       DocumentoDocente @relation(fields: [documentoId], references: [id], onDelete: Cascade)
+  @@unique([documentoId, versao, papel])
+  @@index([documentoId, assinadoEm])
+}
+
+model DocumentoDocenteEvento {
+  id              Int      @id @default(autoincrement())
+  documentoId     Int
+  usuarioId       Int
+  tipo            String
+  descricao       String?
+  versao          Int
+  criadoEm        DateTime @default(now())
+  documento       DocumentoDocente @relation(fields: [documentoId], references: [id], onDelete: Cascade)
+  @@index([documentoId, criadoEm])
 }

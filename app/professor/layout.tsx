@@ -16,7 +16,8 @@ import { chavePaginaProfessorPorRota } from "@/lib/rota-portal-professor";
 import { headers } from "next/headers";
 import { CHAVE_MOBILIDADE_DOCENTE } from "@/lib/mobilidade-docente-config";
 import ImpersonacaoBanner from "@/components/suporte/ImpersonacaoBanner";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
+import { traduzirDocumentoDocente } from "@/lib/documentos-docentes/i18n";
 import { bibliotecaDisponivel } from "@/lib/biblioteca-catalogo-leitor";
 
 export default async function ProfessorLayout({
@@ -30,6 +31,7 @@ export default async function ProfessorLayout({
     );
 
   const tPlanning = await getTranslations("PlanningTracking");
+  const tituloDocumentosDocentes = traduzirDocumentoDocente(await getLocale(), "menuProfessor");
   const cookieStore =
     await cookies();
 
@@ -153,6 +155,7 @@ export default async function ProfessorLayout({
       planejamento: await paginaProfessorVisivel(professor.instituicaoId,"PROFESSOR","professor.planejamento",professor.id,false),
       relatorios: await paginaProfessorVisivel(professor.instituicaoId,"PROFESSOR","professor.relatorios",professor.id,false),
       desenvolvimento: await paginaProfessorVisivel(professor.instituicaoId,"PROFESSOR","professor.desenvolvimento",professor.id,false),
+      documentos: await paginaProfessorVisivel(professor.instituicaoId,"PROFESSOR","professor.documentos",professor.id,false),
     };
 
   const classeItemMobile =
@@ -191,6 +194,7 @@ export default async function ProfessorLayout({
                   {visibilidadeProfessor.planejamento && <a href="/professor/planejamento" className={classeItemMobile}><span aria-hidden="true" className="text-lg">🗓️</span><span className="mt-0.5 max-w-full truncate">{tPlanning("planningShort")}</span></a>}
                   {visibilidadeProfessor.relatorios && <a href="/professor/relatorios" className={classeItemMobile}><span aria-hidden="true" className="text-lg">📋</span><span className="mt-0.5 max-w-full truncate">{tPlanning("reportsShort")}</span></a>}
                   {visibilidadeProfessor.desenvolvimento && <a href="/professor/desenvolvimento" className={classeItemMobile}><span aria-hidden="true" className="text-lg">📈</span><span className="mt-0.5 max-w-full truncate">{tPlanning("developmentShort")}</span></a>}
+                  {visibilidadeProfessor.documentos && <a href="/professor/documentos" className={classeItemMobile}><span aria-hidden="true" className="text-lg">📄</span><span className="mt-0.5 max-w-full truncate">{tituloDocumentosDocentes}</span></a>}
                   {visibilidadeProfessor.biblioteca && <a href="/professor/biblioteca" className={classeItemMobile}><span aria-hidden="true" className="text-lg">📚</span><span className="mt-0.5 max-w-full truncate">{t("mobileNav.library")}</span></a>}
                   {visibilidadeProfessor.painel && (
                     <a

@@ -1,6 +1,7 @@
 // Somente páginas mapeadas participam do controle individual.
 // O middleware define x-phanyx-rota-professor; cabeçalhos externos são descartados.
 const rotas: ReadonlyArray<[string,string]> = [
+  ["/professor/documentos","professor.documentos"],
   ["/professor/planejamento","professor.planejamento"],
   ["/professor/relatorios","professor.relatorios"],
   ["/professor/desenvolvimento","professor.desenvolvimento"],

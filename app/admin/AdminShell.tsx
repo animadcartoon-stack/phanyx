@@ -8,7 +8,8 @@ import { useEffect, useRef, useState } from "react";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
 import SeletorIdioma from "@/components/internacionalizacao/SeletorIdioma";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { traduzirDocumentoDocente } from "@/lib/documentos-docentes/i18n";
 import { diagnosticoSolicitado } from "@/lib/diagnostico-desempenho";
 import FotoPerfilAtual from "@/components/perfil/FotoPerfilAtual";
 
@@ -58,6 +59,7 @@ export default function AdminShell({
   const tNav = useTranslations("AdminNavigation");
   const tCommon = useTranslations("Common");
   const tPlanning = useTranslations("PlanningTracking");
+  const tituloDocentes = traduzirDocumentoDocente(useLocale(), "menuAdmin");
   const titulosMenuMobile: Record<string, string> = {
     Acadêmico: tNav("academic"),
     Comercial: tNav("commercial"),
@@ -1399,6 +1401,7 @@ export default function AdminShell({
 
                       <Link href="/admin/professores/acessos" className={getLinkClass("/admin/professores/acessos")}>{"🔐"} {tPlanning("teacherAccessTitle")}</Link>
                       <Link href="/admin/acompanhamento-aulas" className={getLinkClass("/admin/acompanhamento-aulas")}>{"🗓️"} {tPlanning("trackingTitle")}</Link>
+                      <Link href="/admin/documentos-docentes" className={getLinkClass("/admin/documentos-docentes")}>{"📄"} {tituloDocentes}</Link>
 
                       <Link
                         href="/admin/substituicoes-docentes"

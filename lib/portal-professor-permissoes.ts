@@ -17,6 +17,7 @@ export const PAGINAS_PROFESSOR: ReadonlyArray<{ chave: string; nome: string; pad
   { chave: "professor.planejamento", nome: "Planejamento de aulas", padrao: false },
   { chave: "professor.relatorios", nome: "Relatórios de aulas", padrao: false },
   { chave: "professor.desenvolvimento", nome: "Desenvolvimento dos alunos", padrao: false },
+  { chave: "professor.documentos", nome: "Documentos docentes", padrao: false },
 ];
 
 // Cache somente da requisicao: evita consultas repetidas para cada link do portal.
