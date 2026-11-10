@@ -11,10 +11,13 @@ import { ToastProvider } from "@/components/providers/ToastProvider";
 import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
 import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
 import SeletorIdioma from "@/components/internacionalizacao/SeletorIdioma";
-import { paginaVisivel } from "@/lib/portal-config";
+import { paginaProfessorVisivel, PAGINAS_PROFESSOR } from "@/lib/portal-professor-permissoes";
+import { chavePaginaProfessorPorRota } from "@/lib/rota-portal-professor";
+import { headers } from "next/headers";
 import { CHAVE_MOBILIDADE_DOCENTE } from "@/lib/mobilidade-docente-config";
 import ImpersonacaoBanner from "@/components/suporte/ImpersonacaoBanner";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
+import { traduzirDocumentoDocente } from "@/lib/documentos-docentes/i18n";
 import { bibliotecaDisponivel } from "@/lib/biblioteca-catalogo-leitor";
 
 export default async function ProfessorLayout({
@@ -27,6 +30,8 @@ export default async function ProfessorLayout({
       "ProfessorLayout"
     );
 
+  const tPlanning = await getTranslations("PlanningTracking");
+  const tituloDocumentosDocentes = traduzirDocumentoDocente(await getLocale(), "menuProfessor");
   const cookieStore =
     await cookies();
 
@@ -103,87 +108,54 @@ export default async function ProfessorLayout({
     );
   }
 
+  // A rota é definida pelo middleware; o cabeçalho não pode vir do navegador.
+  const caminhoProfessor = (await headers()).get("x-phanyx-rota-professor") || "";
+  const chaveSolicitada = chavePaginaProfessorPorRota(caminhoProfessor);
+  if (chaveSolicitada && !(await paginaProfessorVisivel(professor.instituicaoId, "PROFESSOR", chaveSolicitada, professor.id, (PAGINAS_PROFESSOR.find(p => p.chave === chaveSolicitada)?.padrao ?? false)))) {
+    redirect("/professor/sem-acesso");
+  }
+
   const visibilidadeProfessor =
     {
       biblioteca:
         await bibliotecaDisponivel(
           professor.instituicaoId
         ) &&
-        await paginaVisivel(
-          professor.instituicaoId,
-          "PROFESSOR",
-          "professor.biblioteca"
-        ),
+        await paginaProfessorVisivel(professor.instituicaoId, "PROFESSOR", "professor.biblioteca", professor.id),
       painel:
-        await paginaVisivel(
-          professor.instituicaoId,
-          "PROFESSOR",
-          "professor.painel"
-        ),
+        await paginaProfessorVisivel(professor.instituicaoId, "PROFESSOR", "professor.painel", professor.id),
 
       turmas:
-        await paginaVisivel(
-          professor.instituicaoId,
-          "PROFESSOR",
-          "professor.turmas"
-        ),
+        await paginaProfessorVisivel(professor.instituicaoId, "PROFESSOR", "professor.turmas", professor.id),
 
       substituicoes:
-        await paginaVisivel(
-          professor.instituicaoId,
-          "PROFESSOR",
-          "professor.substituicoes"
-        ),
+        await paginaProfessorVisivel(professor.instituicaoId, "PROFESSOR", "professor.substituicoes", professor.id),
 
       alunos:
-        await paginaVisivel(
-          professor.instituicaoId,
-          "PROFESSOR",
-          "professor.alunos"
-        ),
+        await paginaProfessorVisivel(professor.instituicaoId, "PROFESSOR", "professor.alunos", professor.id),
 
       atividades:
-        await paginaVisivel(
-          professor.instituicaoId,
-          "PROFESSOR",
-          "professor.atividades"
-        ),
+        await paginaProfessorVisivel(professor.instituicaoId, "PROFESSOR", "professor.atividades", professor.id),
 
       provas:
-        await paginaVisivel(
-          professor.instituicaoId,
-          "PROFESSOR",
-          "professor.provas"
-        ),
+        await paginaProfessorVisivel(professor.instituicaoId, "PROFESSOR", "professor.provas", professor.id),
 
       trabalhos:
-        await paginaVisivel(
-          professor.instituicaoId,
-          "PROFESSOR",
-          "professor.trabalhos"
-        ),
+        await paginaProfessorVisivel(professor.instituicaoId, "PROFESSOR", "professor.trabalhos", professor.id),
 
       reunioes:
-        await paginaVisivel(
-          professor.instituicaoId,
-          "PROFESSOR",
-          "professor.reunioes"
-        ),
+        await paginaProfessorVisivel(professor.instituicaoId, "PROFESSOR", "professor.reunioes", professor.id),
 
-      mobilidade: professor.ativo && await paginaVisivel(professor.instituicaoId, "PROFESSOR", CHAVE_MOBILIDADE_DOCENTE, false),
+      mobilidade: professor.ativo && await paginaProfessorVisivel(professor.instituicaoId, "PROFESSOR", CHAVE_MOBILIDADE_DOCENTE, professor.id, false),
       ouvidoria:
-        await paginaVisivel(
-          professor.instituicaoId,
-          "PROFESSOR",
-          "professor.ouvidoria"
-        ),
+        await paginaProfessorVisivel(professor.instituicaoId, "PROFESSOR", "professor.ouvidoria", professor.id),
 
       materiais:
-        await paginaVisivel(
-          professor.instituicaoId,
-          "PROFESSOR",
-          "professor.materiais"
-        ),
+        await paginaProfessorVisivel(professor.instituicaoId, "PROFESSOR", "professor.materiais", professor.id),
+      planejamento: await paginaProfessorVisivel(professor.instituicaoId,"PROFESSOR","professor.planejamento",professor.id,false),
+      relatorios: await paginaProfessorVisivel(professor.instituicaoId,"PROFESSOR","professor.relatorios",professor.id,false),
+      desenvolvimento: await paginaProfessorVisivel(professor.instituicaoId,"PROFESSOR","professor.desenvolvimento",professor.id,false),
+      documentos: await paginaProfessorVisivel(professor.instituicaoId,"PROFESSOR","professor.documentos",professor.id,false),
     };
 
   const classeItemMobile =
@@ -219,6 +191,10 @@ export default async function ProfessorLayout({
                 className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/95 lg:hidden"
               >
                 <div className="grid grid-cols-5 gap-1 text-[9px] font-semibold text-slate-600 dark:text-slate-300">
+                  {visibilidadeProfessor.planejamento && <a href="/professor/planejamento" className={classeItemMobile}><span aria-hidden="true" className="text-lg">🗓️</span><span className="mt-0.5 max-w-full truncate">{tPlanning("planningShort")}</span></a>}
+                  {visibilidadeProfessor.relatorios && <a href="/professor/relatorios" className={classeItemMobile}><span aria-hidden="true" className="text-lg">📋</span><span className="mt-0.5 max-w-full truncate">{tPlanning("reportsShort")}</span></a>}
+                  {visibilidadeProfessor.desenvolvimento && <a href="/professor/desenvolvimento" className={classeItemMobile}><span aria-hidden="true" className="text-lg">📈</span><span className="mt-0.5 max-w-full truncate">{tPlanning("developmentShort")}</span></a>}
+                  {visibilidadeProfessor.documentos && <a href="/professor/documentos" className={classeItemMobile}><span aria-hidden="true" className="text-lg">📄</span><span className="mt-0.5 max-w-full truncate">{tituloDocumentosDocentes}</span></a>}
                   {visibilidadeProfessor.biblioteca && <a href="/professor/biblioteca" className={classeItemMobile}><span aria-hidden="true" className="text-lg">📚</span><span className="mt-0.5 max-w-full truncate">{t("mobileNav.library")}</span></a>}
                   {visibilidadeProfessor.painel && (
                     <a
