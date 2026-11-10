@@ -29,6 +29,7 @@ export default async function ProfessorLayout({
       "ProfessorLayout"
     );
 
+  const tPlanning = await getTranslations("PlanningTracking");
   const cookieStore =
     await cookies();
 
@@ -187,9 +188,9 @@ export default async function ProfessorLayout({
                 className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/95 lg:hidden"
               >
                 <div className="grid grid-cols-5 gap-1 text-[9px] font-semibold text-slate-600 dark:text-slate-300">
-                  {visibilidadeProfessor.planejamento && <a href="/professor/planejamento" className={classeItemMobile}><span aria-hidden="true" className="text-lg">🗓️</span><span className="mt-0.5 max-w-full truncate">Planejamento</span></a>}
-                  {visibilidadeProfessor.relatorios && <a href="/professor/relatorios" className={classeItemMobile}><span aria-hidden="true" className="text-lg">📋</span><span className="mt-0.5 max-w-full truncate">Relatórios</span></a>}
-                  {visibilidadeProfessor.desenvolvimento && <a href="/professor/desenvolvimento" className={classeItemMobile}><span aria-hidden="true" className="text-lg">📈</span><span className="mt-0.5 max-w-full truncate">Desenvolvimento</span></a>}
+                  {visibilidadeProfessor.planejamento && <a href="/professor/planejamento" className={classeItemMobile}><span aria-hidden="true" className="text-lg">🗓️</span><span className="mt-0.5 max-w-full truncate">{tPlanning("planningShort")}</span></a>}
+                  {visibilidadeProfessor.relatorios && <a href="/professor/relatorios" className={classeItemMobile}><span aria-hidden="true" className="text-lg">📋</span><span className="mt-0.5 max-w-full truncate">{tPlanning("reportsShort")}</span></a>}
+                  {visibilidadeProfessor.desenvolvimento && <a href="/professor/desenvolvimento" className={classeItemMobile}><span aria-hidden="true" className="text-lg">📈</span><span className="mt-0.5 max-w-full truncate">{tPlanning("developmentShort")}</span></a>}
                   {visibilidadeProfessor.biblioteca && <a href="/professor/biblioteca" className={classeItemMobile}><span aria-hidden="true" className="text-lg">📚</span><span className="mt-0.5 max-w-full truncate">{t("mobileNav.library")}</span></a>}
                   {visibilidadeProfessor.painel && (
                     <a

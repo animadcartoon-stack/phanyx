@@ -83,6 +83,7 @@ function normalizarPaginasPortal(
 
 export default function ConfiguracaoPortaisPage() {
   const t = useTranslations("AdminPortalVisibilitySettings");
+  const tPlanning = useTranslations("PlanningTracking");
   const [instituicaoNome, setInstituicaoNome] = useState<string | null>(null);
   const [paginas, setPaginas] = useState<PaginaPortal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -219,7 +220,7 @@ export default function ConfiguracaoPortaisPage() {
           <p className="phanyx-config-muted mt-2 text-sm leading-6">
             {t("page.description")}
           </p>
-          <a href="/admin/professores/acessos" className="mt-3 inline-block text-sm font-bold text-blue-700 underline dark:text-blue-300">Configurar acesso individual de cada professor</a>
+          <a href="/admin/professores/acessos" className="mt-3 inline-block text-sm font-bold text-blue-700 underline dark:text-blue-300">{tPlanning("teacherAccessLink")}</a>
           {instituicaoNome && (
             <p className="phanyx-config-muted mt-2 text-sm font-semibold">
               {t("page.institutionScope", { nome: instituicaoNome })}
@@ -295,6 +296,7 @@ function BlocoPortal({
   ) => void;
 }) {
   const t = useTranslations("AdminPortalVisibilitySettings");
+  const tPlanning = useTranslations("PlanningTracking");
 
   function nomePaginaTraduzido(
     pagina: PaginaPortal,
@@ -352,6 +354,14 @@ function BlocoPortal({
         return t("pages.professor.ombudsman");
       case "professor.materiais":
         return t("pages.professor.materials");
+      case "aluno.desenvolvimento":
+        return tPlanning("myDevelopment");
+      case "professor.planejamento":
+        return tPlanning("planningTitle");
+      case "professor.relatorios":
+        return tPlanning("reportsTitle");
+      case "professor.desenvolvimento":
+        return tPlanning("developmentTitle");
       default:
         return pagina.nome;
     }

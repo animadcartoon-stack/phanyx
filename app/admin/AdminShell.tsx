@@ -57,6 +57,7 @@ export default function AdminShell({
 }) {
   const tNav = useTranslations("AdminNavigation");
   const tCommon = useTranslations("Common");
+  const tPlanning = useTranslations("PlanningTracking");
   const titulosMenuMobile: Record<string, string> = {
     Acadêmico: tNav("academic"),
     Comercial: tNav("commercial"),
@@ -1396,8 +1397,8 @@ export default function AdminShell({
                         👨‍🏫 {tNav("teachers")}
                       </Link>
 
-                      <Link href="/admin/professores/acessos" className={getLinkClass("/admin/professores/acessos")}>🔐 Acesso individual dos professores</Link>
-                      <Link href="/admin/acompanhamento-aulas" className={getLinkClass("/admin/acompanhamento-aulas")}>🗓️ Acompanhamento de aulas</Link>
+                      <Link href="/admin/professores/acessos" className={getLinkClass("/admin/professores/acessos")}>{"🔐"} {tPlanning("teacherAccessTitle")}</Link>
+                      <Link href="/admin/acompanhamento-aulas" className={getLinkClass("/admin/acompanhamento-aulas")}>{"🗓️"} {tPlanning("trackingTitle")}</Link>
 
                       <Link
                         href="/admin/substituicoes-docentes"

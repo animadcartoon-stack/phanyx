@@ -46,6 +46,7 @@ export default function AlunoSidebar({
   const t = useTranslations(
     "StudentSidebar"
   );
+  const tPlanning = useTranslations("PlanningTracking");
 
   const nomeAluno =
     aluno?.nome || t("student");
@@ -130,7 +131,7 @@ export default function AlunoSidebar({
       icon: "📚",
     },
 
-    podeVer.desenvolvimento && {label:"Meu desenvolvimento",href:"/aluno/desenvolvimento",icon:"📈"},
+    podeVer.desenvolvimento && {label:tPlanning("myDevelopment"),href:"/aluno/desenvolvimento",icon:"📈"},
     podeVer.progresso && {
       label: t("progress"),
       href: "/aluno/progresso",

@@ -40,6 +40,7 @@ export default function ProfessorSidebar({
   const { logout } = useAuth();
 
   const t = useTranslations("ProfessorSidebar");
+  const tPlanning = useTranslations("PlanningTracking");
 
   const podeVer = {
     biblioteca: visibilidade?.biblioteca ?? false,
@@ -79,9 +80,9 @@ export default function ProfessorSidebar({
       label: t("menu.materials"),
       href: "/professor/aulas",
     },
-    podeVer.planejamento && { label: "Planejamento de aulas", href: "/professor/planejamento" },
-    podeVer.relatorios && { label: "Relatórios de aulas", href: "/professor/relatorios" },
-    podeVer.desenvolvimento && { label: "Desenvolvimento dos alunos", href: "/professor/desenvolvimento" },
+    podeVer.planejamento && { label: tPlanning("planningTitle"), href: "/professor/planejamento" },
+    podeVer.relatorios && { label: tPlanning("reportsTitle"), href: "/professor/relatorios" },
+    podeVer.desenvolvimento && { label: tPlanning("developmentTitle"), href: "/professor/desenvolvimento" },
     podeVer.biblioteca && {
       label: t("menu.library"),
       href: "/professor/biblioteca",
