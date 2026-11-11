@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
-import { MASTER_SUPORTE_EMAIL } from "@/lib/impersonacao-suporte";
+import {
+  MASTER_SUPORTE_EMAIL,
+  verificarSessaoOriginalMaster,
+} from "@/lib/impersonacao-suporte";
+import { COOKIE_MASTER_SUPORTE } from "@/lib/sessao-suporte-cookie";
 
 type PayloadToken = {
   id?: number | string;
@@ -13,7 +17,8 @@ type PayloadToken = {
 
 export async function POST() {
   try {
-    if (!process.env.JWT_SECRET) {
+    const segredo = process.env.JWT_SECRET;
+    if (!segredo) {
       throw new Error(
         "JWT_SECRET não definido."
       );
@@ -26,7 +31,7 @@ export async function POST() {
 
     const tokenMaster =
       cookieStore.get(
-        "phanyx_master_token"
+        COOKIE_MASTER_SUPORTE
       )?.value;
 
     if (!tokenMaster) {
@@ -41,23 +46,12 @@ export async function POST() {
       );
     }
 
-    const payloadMaster = jwt.verify(
-      tokenMaster,
-      process.env.JWT_SECRET
-    ) as PayloadToken;
-
-    const masterId = Number(
-      payloadMaster.id
-    );
-
-    if (
-      !Number.isFinite(masterId) ||
-      masterId <= 0
-    ) {
+    const sessaoMaster = verificarSessaoOriginalMaster(tokenMaster, segredo);
+    if (!sessaoMaster) {
       return NextResponse.json(
         {
           error:
-            "A sessão Master é inválida.",
+            "A sessão Master expirou ou é inválida.",
         },
         {
           status: 401,
@@ -68,7 +62,7 @@ export async function POST() {
     const master =
       await prisma.user.findUnique({
         where: {
-          id: masterId,
+          id: sessaoMaster.id,
         },
         select: {
           id: true,
@@ -103,7 +97,7 @@ export async function POST() {
       try {
         const payloadAtual = jwt.verify(
           tokenAtual,
-          process.env.JWT_SECRET,
+          segredo,
           {
             ignoreExpiration: true,
           }
@@ -172,12 +166,12 @@ export async function POST() {
           "production",
         sameSite: "lax",
         path: "/",
-        maxAge: 24 * 60 * 60,
+        expires: new Date(sessaoMaster.exp * 1000),
       }
     );
 
     response.cookies.set(
-      "phanyx_master_token",
+      COOKIE_MASTER_SUPORTE,
       "",
       {
         httpOnly: true,
