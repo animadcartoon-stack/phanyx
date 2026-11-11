@@ -2,9 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import { traduzirDocumentoDocente, type ChaveDocumentoDocente } from "@/lib/documentos-docentes/i18n";
 import { traducaoDocentesEtapa3, type ChaveDocentesEtapa3 } from "@/lib/documentos-docentes/i18n-etapa3";
+import { professorPodeEditarDocumentoDocente } from "@/lib/documentos-docentes/fluxo";
+import LeitorPdfDocumento from "./LeitorPdfDocumento";
+import EditorPdfLocal from "./EditorPdfLocal";
+import { textosEditorPdf } from "@/lib/documentos-docentes/i18n-editor-pdf";
 import AssinaturaDocumentoDocenteModal from "@/components/documentos-docentes/AssinaturaDocumentoDocenteModal";
 
 type Papel = "ADMIN" | "PROFESSOR";
@@ -44,7 +49,8 @@ function dataFormatada(valor: string | null | undefined, locale: string): string
   return Number.isNaN(data.getTime()) ? "—" : data.toLocaleString(locale);
 }
 
-export default function CentralDocentes({ papel }: { papel: Papel }) {
+export default function CentralDocentes({ papel, documentoInicial = null }: { papel: Papel; documentoInicial?: number | null }) {
+  const router = useRouter();
   const locale = useLocale();
   const t = (chave: ChaveDocumentoDocente) => traduzirDocumentoDocente(locale, chave);
   const t3 = (chave: ChaveDocentesEtapa3) => traducaoDocentesEtapa3(locale, chave);
@@ -58,7 +64,7 @@ export default function CentralDocentes({ papel }: { papel: Papel }) {
   const [aviso, setAviso] = useState("");
   const [mostrarNovo, setMostrarNovo] = useState(false);
   const [filtro, setFiltro] = useState("TODOS");
-  const [idSelecionado, setIdSelecionado] = useState<number | null>(null);
+  const [idSelecionado, setIdSelecionado] = useState<number | null>(documentoInicial);
   const [versaoSelecionada, setVersaoSelecionada] = useState<number | null>(null);
   const [detalhes, setDetalhes] = useState<Detalhes | null>(null);
   const [titulo, setTitulo] = useState("");
@@ -72,6 +78,7 @@ export default function CentralDocentes({ papel }: { papel: Papel }) {
   const [arquivoSelecionado,setArquivoSelecionado] = useState<File|null>(null);
   const [notaAnexo,setNotaAnexo] = useState("");
   const [chaveArquivo,setChaveArquivo] = useState(0);
+  const [painelPdf, setPainelPdf] = useState<"leitor" | "editor" | null>(null);
   const [assinaturaAberta,setAssinaturaAberta] = useState(false);
 
   async function carregarLista() {
@@ -184,9 +191,17 @@ export default function CentralDocentes({ papel }: { papel: Papel }) {
     await Promise.all([carregarLista(),carregarDetalhe(detalhes.documento.id)]);
     setAviso(t3("signatureDone"));
   }
+  function voltarLista() {
+    setIdSelecionado(null);
+    setVersaoSelecionada(null);
+    setDetalhes(null);
+    setErro("");
+    setAviso("");
+    if (documentoInicial) router.replace("/professor/documentos", { scroll: false });
+  }
   const historica = detalhes !== null && versaoSelecionada !== null && versaoSelecionada !== detalhes.documento.versaoAtual;
   const camposNaoSalvos = !!detalhes && JSON.stringify(campos) !== JSON.stringify(detalhes.versao.campos || {});
-  const podeEditar = !admin && !historica && !!detalhes && ["RASCUNHO", "DEVOLVIDO", "AGUARDANDO_PROFESSOR"].includes(detalhes.documento.status);
+  const podeEditar = !admin && !historica && !!detalhes && professorPodeEditarDocumentoDocente(detalhes.documento.status);
   const podeAprovar = admin && !historica && detalhes?.documento.status === "ENVIADO";
   const podeDevolver = admin && !historica && ["ENVIADO", "APROVADO"].includes(detalhes?.documento.status || "");
   const podeConcluir = admin && !historica && detalhes?.documento.status === "APROVADO";
@@ -194,17 +209,44 @@ export default function CentralDocentes({ papel }: { papel: Papel }) {
   const assinaturaAdmin = detalhes?.assinaturas.some(a=>a.versao===detalhes.documento.versaoAtual&&a.papel==="ADMIN")??false;
   const existeAssinaturaAtual = assinaturaProfessor||assinaturaAdmin;
   const deveAssinar = !!detalhes && ["PLANO_AULA","RELATORIO"].includes(detalhes.documento.tipo);
-  const podeAssinar = !historica && !camposNaoSalvos && !!detalhes && (admin ? detalhes.documento.status==="APROVADO"&&!assinaturaAdmin : podeEditar&&!assinaturaProfessor);
+  const podeAssinarProfessor = podeEditar && !camposNaoSalvos && !assinaturaProfessor;
+  const podeAssinarAdmin = admin && !historica && !camposNaoSalvos && detalhes?.documento.status === "APROVADO" && !assinaturaAdmin;
   const podeAnexar = !historica && !!detalhes && !existeAssinaturaAtual && (admin ? !["CONCLUIDO","CANCELADO"].includes(detalhes.documento.status) : podeEditar);
   const camposAtuais = detalhes?.versao.campos || {};
   const nomesCampos = detalhes ? Array.from(new Set([...Object.keys(camposAtuais), ...Array.from(detalhes.versao.modeloSnapshot.matchAll(/\{\{\s*campo:([^{}]{1,80})\s*\}\}/giu)).map(m => m[1].trim())])) : [];
   const htmlRenderizado = detalhes?.versao.modeloSnapshot ? htmlPrevia(detalhes.versao.modeloSnapshot, campos) : "";
+
+  if (painelPdf === "editor") return <EditorPdfLocal onVoltar={() => setPainelPdf(null)} />;
+  if (painelPdf === "leitor" && detalhes) {
+    const pdf = `/api/documentos-docentes/${detalhes.documento.id}/pdf?versao=${detalhes.versao.numero}`;
+    return (
+      <main className="mx-auto max-w-7xl space-y-4 text-slate-900 dark:text-slate-100">
+        <header className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="text-xl font-bold">{detalhes.documento.titulo}</h1>
+            <p className="text-sm">{t("version")} {detalhes.versao.numero}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" className={`${botaoBase} border`} onClick={() => setPainelPdf(null)}>{t3("backToDocument")}</button>
+            <a href={`${pdf}&baixar=1`} className={`${botaoBase} border`}>{t3("downloadPdf")}</a>
+            {podeAssinarProfessor && (
+              <Link href={`/professor/documentos/${detalhes.documento.id}/assinar?versao=${detalhes.documento.versaoAtual}`}
+                className={`${botaoBase} bg-blue-700 text-white`}>{t3("signWithPhanyx")}</Link>
+            )}
+          </div>
+        </header>
+        {camposNaoSalvos && <p className="text-sm text-amber-800 dark:text-amber-300">{t3("savedBeforeSign")}</p>}
+        <LeitorPdfDocumento url={pdf} />
+      </main>
+    );
+  }
 
   return <main className="mx-auto max-w-7xl space-y-5 text-slate-900 dark:text-slate-100">
     <header className="flex flex-wrap items-start justify-between gap-4">
       <div><h1 className="text-2xl font-bold">{t(admin ? "titleAdmin" : "titleProfessor")}</h1><p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{t(admin ? "descriptionAdmin" : "descriptionProfessor")}</p></div>
       <div className="flex flex-wrap gap-2">
         <button type="button" disabled={ocupado} onClick={() => { setCarregando(true); void carregarLista().catch(e => setErro(e instanceof Error ? e.message : t("genericError"))).finally(() => setCarregando(false)); }} className={`${botaoBase} border border-slate-300 dark:border-slate-600`}>{t("retry")}</button>
+        <button type="button" onClick={() => setPainelPdf("editor")} className={`${botaoBase} border border-slate-300 dark:border-slate-600`}>{textosEditorPdf(locale).editor}</button>
         <button type="button" onClick={iniciarCriacao} className={`${botaoBase} bg-blue-700 text-white hover:bg-blue-800`}>{t("newDocument")}</button>
       </div>
     </header>
@@ -244,7 +286,7 @@ export default function CentralDocentes({ papel }: { papel: Papel }) {
     </section>}
 
     {!mostrarNovo && idSelecionado && <section className="space-y-5">
-      <button type="button" className={`${botaoBase} border border-slate-300 dark:border-slate-700`} onClick={() => {setIdSelecionado(null);setVersaoSelecionada(null);setDetalhes(null);setErro("");setAviso("");}}>{t("back")}</button>
+      <button type="button" className={`${botaoBase} border border-slate-300 dark:border-slate-700`} onClick={voltarLista}>{t("back")}</button>
       {!detalhes && <p role="status">{t("loading")}</p>}
       {detalhes && <>
         <div className="space-y-2 rounded-xl border border-slate-200 p-5 dark:border-slate-700"><div className="flex flex-wrap items-center justify-between gap-2"><h2 className="text-xl font-bold">{detalhes.documento.titulo}</h2><span className="rounded-full border px-3 py-1 text-sm">{statusTexto(detalhes.documento.status)}</span></div>
@@ -254,7 +296,7 @@ export default function CentralDocentes({ papel }: { papel: Papel }) {
           </select></label>{historica && <p className="text-sm text-amber-700 dark:text-amber-300">{t("versionReadOnly")}</p>}
         </div>
         <div className="flex flex-wrap gap-2">
-          <a href={`/api/documentos-docentes/${detalhes.documento.id}/pdf?versao=${detalhes.versao.numero}`} target="_blank" rel="noreferrer" className={`${botaoBase} border border-blue-500 text-blue-700 dark:text-blue-300`}>{t3("printPdf")}</a>
+          <button type="button" onClick={() => setPainelPdf("leitor")} className={`${botaoBase} border border-blue-500 text-blue-700 dark:text-blue-300`}>{t3("printPdf")}</button>
           <a href={`/api/documentos-docentes/${detalhes.documento.id}/pdf?versao=${detalhes.versao.numero}&baixar=1`} className={`${botaoBase} border border-slate-300 dark:border-slate-700`}>{t3("downloadPdf")}</a>
           {detalhes.versao.modeloSnapshot && <a href={`/api/documentos-docentes/${detalhes.documento.id}/pdf?versao=${detalhes.versao.numero}&branco=1&baixar=1`} className={`${botaoBase} border border-slate-300 dark:border-slate-700`}>{t3("blankPdf")}</a>}
         </div>
@@ -263,7 +305,22 @@ export default function CentralDocentes({ papel }: { papel: Papel }) {
             {nomesCampos.length === 0 ? <p className="text-sm text-slate-500">{t("noFields")}</p> : nomesCampos.map(nome => <label key={nome} className="block space-y-1 text-sm"><span className="font-medium">{nome}</span>
               <textarea className={campoBase} rows={nome.length > 60 ? 3 : 4} maxLength={5000} disabled={!podeEditar || ocupado} value={campos[nome] || ""} onChange={(e: { target: { value: string } }) => setCampos(anteriores => ({...anteriores,[nome]:e.target.value}))} />
             </label>)}
-            {podeEditar && <><p className="text-xs text-slate-600 dark:text-slate-300">{t("editHelp")}</p><div className="flex flex-wrap gap-2"><button type="button" disabled={ocupado} className={`${botaoBase} bg-blue-700 text-white`} onClick={() => void atualizarDocumento("EDITAR")}>{t("saveVersion")}</button><button type="button" disabled={ocupado || camposNaoSalvos || (deveAssinar&&!assinaturaProfessor)} title={camposNaoSalvos ? t("saveFirst") : deveAssinar&&!assinaturaProfessor ? t3("signFirst") : undefined} className={`${botaoBase} border border-blue-700 text-blue-700 dark:text-blue-300`} onClick={() => void atualizarDocumento("ENVIAR")}>{t("send")}</button></div>{camposNaoSalvos && <p className="text-xs text-amber-800 dark:text-amber-300">{t("saveFirst")}</p>}</>}
+            {podeEditar && <>
+              <p className="text-xs text-slate-600 dark:text-slate-300">{t("editHelp")}</p>
+              <div className="flex flex-wrap gap-2">
+                <button type="button" disabled={ocupado} className={`${botaoBase} bg-blue-700 text-white`} onClick={() => void atualizarDocumento("EDITAR")}>{t("saveVersion")}</button>
+                {podeAssinarProfessor && <button
+                  type="button"
+                  disabled={ocupado}
+                  className={`${botaoBase} border border-blue-700 text-blue-700 dark:text-blue-300`}
+                  onClick={() => router.push(`/professor/documentos/${detalhes.documento.id}/assinar?versao=${detalhes.documento.versaoAtual}`)}
+                >
+                  {t3("signWithPhanyx")}
+                </button>}
+                <button type="button" disabled={ocupado || camposNaoSalvos || (deveAssinar&&!assinaturaProfessor)} title={camposNaoSalvos ? t("saveFirst") : deveAssinar&&!assinaturaProfessor ? t3("signFirst") : undefined} className={`${botaoBase} border border-blue-700 text-blue-700 dark:text-blue-300`} onClick={() => void atualizarDocumento("ENVIAR")}>{t("send")}</button>
+              </div>
+              {camposNaoSalvos && <p className="text-xs text-amber-800 dark:text-amber-300">{t("saveFirst")}</p>}
+            </>}
             {podeAprovar && <button type="button" disabled={ocupado} className={`${botaoBase} bg-blue-700 text-white`} onClick={() => void atualizarDocumento("APROVAR")}>{t("approve")}</button>}
             {podeDevolver && <div className="space-y-2"><label className="block space-y-1 text-sm"><span className="font-semibold">{t("reason")}</span><textarea className={campoBase} value={justificativa} onChange={(e: { target: { value: string } }) => setJustificativa(e.target.value)} maxLength={3000} rows={3} placeholder={t("reasonPlaceholder")} /></label><button type="button" disabled={ocupado || !justificativa.trim()} className={`${botaoBase} border border-amber-600 text-amber-800 dark:text-amber-300`} onClick={() => void atualizarDocumento("DEVOLVER")}>{t("return")}</button></div>}
             {podeConcluir && <button type="button" disabled={ocupado || (deveAssinar && (!assinaturaProfessor || !assinaturaAdmin))} title={deveAssinar&&!assinaturaAdmin?t3("adminSignFirst"):undefined} className={`${botaoBase} bg-blue-700 text-white`} onClick={() => void atualizarDocumento("CONCLUIR")}>{t("finish")}</button>}
@@ -293,7 +350,7 @@ export default function CentralDocentes({ papel }: { papel: Papel }) {
           <section className="space-y-2 rounded-xl border border-slate-200 p-5 dark:border-slate-700"><h3 className="font-semibold">{t("signatures")}</h3>
             {detalhes.assinaturas.map(a => <p key={a.id} className="text-sm">{a.nomeAssinante} · {t("version")} {a.versao} · {dataFormatada(a.assinadoEm,locale)}</p>)}
             {detalhes.assinaturas.filter(a=>a.versao===detalhes.versao.numero).length===0 && <p className="text-xs text-slate-600 dark:text-slate-300">{t3("noSignature")}</p>}
-            {podeAssinar && <button type="button" disabled={ocupado} className={`${botaoBase} bg-blue-700 text-white`} onClick={()=>setAssinaturaAberta(true)}>{t3("sign")}</button>}
+            {podeAssinarAdmin && <button type="button" disabled={ocupado} className={`${botaoBase} bg-blue-700 text-white`} onClick={()=>setAssinaturaAberta(true)}>{t3("sign")}</button>}
             {!historica&&deveAssinar&&!assinaturaProfessor&&!admin&&<p className="text-xs text-amber-700 dark:text-amber-300">{t3("signFirst")}</p>}
             {!historica&&deveAssinar&&admin&&!assinaturaAdmin&&<p className="text-xs text-amber-700 dark:text-amber-300">{t3("adminSignFirst")}</p>}
           </section>

@@ -1,4 +1,5 @@
 "use client";
+import DesenvolvimentoAlunoStudentSuccess from "@/components/student-success/DesenvolvimentoAlunoStudentSuccess";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -6649,6 +6650,8 @@ export default function AdminStudentSuccessPage() {
                   + {t("drawer.registerIntervention")}
                 </button>
               </section>
+              <DesenvolvimentoAlunoStudentSuccess key={alunoSelecionado.alunoId} alunoId={alunoSelecionado.alunoId} />
+
               {/* LINHA DO TEMPO DO ALUNO */}
               <section
                 className="

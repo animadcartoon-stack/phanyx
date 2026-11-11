@@ -11949,6 +11949,7 @@ model RegistroDesenvolvimento {
   professor      Professor   @relation(fields: [professorId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
   aluno          Aluno       @relation(fields: [alunoId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
   turma          Turma       @relation(fields: [turmaId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  links          Json @default("[]")
   imagens        ImagemDesenvolvimento[]
   @@index([instituicaoId, status])
   @@index([alunoId, publicadoEm])
