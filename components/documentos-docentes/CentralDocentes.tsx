@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useLocale } from "next-intl";
+import { camposModeloDocente, renderizarCamposDocentes } from "@/lib/documentos-docentes/campos-impressao";
 import { traduzirDocumentoDocente, type ChaveDocumentoDocente } from "@/lib/documentos-docentes/i18n";
 import { traducaoDocentesEtapa3, type ChaveDocentesEtapa3 } from "@/lib/documentos-docentes/i18n-etapa3";
 import AssinaturaDocumentoDocenteModal from "@/components/documentos-docentes/AssinaturaDocumentoDocenteModal";
@@ -26,9 +27,7 @@ function htmlTexto(valor: string): string {
 }
 // A prévia é isolada em iframe sandbox sem scripts, formulários, navegação ou origem compartilhada.
 function htmlPrevia(modelo: string, campos: Record<string, string>): string {
-  const corpo = modelo.replace(/\{\{\s*campo:([^{}]{1,80})\s*\}\}/giu, (_orig, chave: string) =>
-    htmlTexto(campos[chave.trim()] || "____________________").replace(/\r?\n/g,"<br />")
-  );
+  const corpo = renderizarCamposDocentes(modelo, campos);
   return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"><style>body{font:14px/1.6 Arial,sans-serif;padding:26px;color:#0f172a;overflow-wrap:anywhere;max-width:820px;margin:auto}table{border-collapse:collapse;max-width:100%}td,th{border:1px solid #64748b;padding:6px}img{max-width:100%}</style></head><body>${corpo}</body></html>`;
 }
 
@@ -197,7 +196,7 @@ export default function CentralDocentes({ papel }: { papel: Papel }) {
   const podeAssinar = !historica && !camposNaoSalvos && !!detalhes && (admin ? detalhes.documento.status==="APROVADO"&&!assinaturaAdmin : podeEditar&&!assinaturaProfessor);
   const podeAnexar = !historica && !!detalhes && !existeAssinaturaAtual && (admin ? !["CONCLUIDO","CANCELADO"].includes(detalhes.documento.status) : podeEditar);
   const camposAtuais = detalhes?.versao.campos || {};
-  const nomesCampos = detalhes ? Array.from(new Set([...Object.keys(camposAtuais), ...Array.from(detalhes.versao.modeloSnapshot.matchAll(/\{\{\s*campo:([^{}]{1,80})\s*\}\}/giu)).map(m => m[1].trim())])) : [];
+  const nomesCampos = detalhes ? Array.from(new Set([...Object.keys(camposAtuais), ...camposModeloDocente(detalhes.versao.modeloSnapshot)])) : [];
   const htmlRenderizado = detalhes?.versao.modeloSnapshot ? htmlPrevia(detalhes.versao.modeloSnapshot, campos) : "";
 
   return <main className="mx-auto max-w-7xl space-y-5 text-slate-900 dark:text-slate-100">

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { camposModeloDocente } from "@/lib/documentos-docentes/campos-impressao";
 import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
 import { professorAutorizado } from "@/lib/portal-professor-permissoes";
 
@@ -37,7 +38,7 @@ export function lerCampos(valor: unknown): Record<string, string> | null {
 }
 
 export function camposDoModelo(html: string) {
-  return Array.from(new Set(Array.from(html.matchAll(/\{\{\s*campo:([^{}]{1,80})\s*\}\}/giu)).map(x => x[1].trim())));
+  return camposModeloDocente(html);
 }
 
 export function modeloDocenteValido(template: { ativo: boolean; tipo: string; contexto: string | null }) {
