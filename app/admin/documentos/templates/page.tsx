@@ -9,6 +9,7 @@ import withAuth from "@/lib/withAuth";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import EditorTemplatePHANYX from "@/components/documentos/EditorTemplatePHANYX";
+import ConfiguradorLinhasDocente from "@/components/documentos-docentes/ConfiguradorLinhasDocente";
 import HistoricoTemplateEditorPHANYX from "@/components/documentos/HistoricoTemplateEditorPHANYX";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -5041,6 +5042,14 @@ function AdminDocumentosTemplatesPage() {
                   </div>
                 </div>
               </div>
+
+              <ConfiguradorLinhasDocente
+                tipo={tipo}
+                contexto={contexto}
+                conteudo={conteudo}
+                aoInserir={inserirVariavelNoEditor}
+                aoAlterar={setConteudo}
+              />
 
               <div>
                 <label className="pdoc-label mb-2 block text-sm font-bold">
