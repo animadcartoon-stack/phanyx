@@ -16,6 +16,8 @@ import {
   validatePassword,
 } from "@/lib/password-policy";
 
+type PortalLogin = "admin" | "professor" | "aluno";
+
 function RedefinirSenhaContent() {
   const searchParams =
     useSearchParams();
@@ -48,8 +50,8 @@ function RedefinirSenhaContent() {
     setMostrarSenha,
   ] = useState(false);
 
-  const [sucesso, setSucesso] =
-    useState(false);
+  const [portalLogin, setPortalLogin] =
+    useState<PortalLogin | null>(null);
 
   const [erro, setErro] =
     useState("");
@@ -135,7 +137,12 @@ function RedefinirSenhaContent() {
         );
       }
 
-      setSucesso(true);
+      setPortalLogin(
+        data?.portal === "professor" ||
+        data?.portal === "aluno"
+          ? data.portal
+          : "admin"
+      );
     } catch (error) {
       setErro(
         error instanceof Error
@@ -164,14 +171,14 @@ function RedefinirSenhaContent() {
           </p>
         </div>
 
-        {sucesso ? (
+        {portalLogin ? (
           <>
             <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-700">
               {t("success")}
             </div>
 
             <a
-              href="/login"
+              href={`/login?portal=${portalLogin}`}
               className="block w-full rounded-lg bg-blue-600 py-2 text-center font-medium text-white transition hover:bg-blue-500"
             >
               {t("backToLogin")}
