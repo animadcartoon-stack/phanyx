@@ -48,9 +48,38 @@ test('alterar linhas preserva os demais campos e versões não modificadas', () 
   assert.equal(original.includes('linhas:10'), false);
 });
 
-test('marcador não permite campos inválidos nem mais de 12 linhas', () => {
+test('marcador aceita zero, quantidades maiores e rejeita mais de 999 linhas', () => {
+  assert.equal(marcadorCampoDocente('Objetivos', 0), '{{campo:Objetivos|linhas:0}}');
   assert.equal(marcadorCampoDocente('Objetivos', 1), '{{campo:Objetivos}}');
   assert.equal(marcadorCampoDocente('Objetivos', 5), '{{campo:Objetivos|linhas:5}}');
-  assert.throws(()=>marcadorCampoDocente('Objetivos', 13));
+  assert.equal(marcadorCampoDocente('Objetivos', 150), '{{campo:Objetivos|linhas:150}}');
+  assert.equal(marcadorCampoDocente('Objetivos', 999), '{{campo:Objetivos|linhas:999}}');
+  assert.throws(()=>marcadorCampoDocente('Objetivos', 1000));
   assert.throws(()=>marcadorCampoDocente('x|campo', 2));
+});
+
+
+test('zero linhas não desenha traços no PDF branco e permite o texto digital', () => {
+  const modelo = '<p>Objetivos: {{campo:Objetivos|linhas:0}}</p>';
+  const branco = renderizarCamposDocentes(modelo, {}, true);
+  assert.ok(branco.includes('Objetivos: '));
+  assert.ok(!branco.includes('aria-hidden="true"'));
+  const digital = renderizarCamposDocentes(modelo, { Objetivos: 'Texto sem limite de altura\nSegunda linha' });
+  assert.ok(digital.includes('Texto sem limite de altura<br />Segunda linha'));
+  assert.ok(!digital.includes('height:24px'));
+});
+
+test('150 linhas cabem na configuração e permitem quebra entre páginas', () => {
+  const marcador = marcadorCampoDocente('Objetivos', 150);
+  const html = renderizarCamposDocentes(marcador, {}, true);
+  assert.equal((html.match(/aria-hidden="true"/g) || []).length, 150);
+  assert.ok(html.includes('break-inside:auto'));
+  assert.deepEqual(Array.from(camposModeloDocente(marcador)), ['Objetivos']);
+});
+
+test('campos do editor têm cor e text-fill explícitos', () => {
+  const componente = fs.readFileSync(path.join(process.cwd(), 'components/documentos-docentes/ConfiguradorLinhasDocente.tsx'), 'utf8');
+  assert.ok(componente.includes('input.phanyx-docentes-campo-control'));
+  assert.ok(componente.includes('-webkit-text-fill-color: #0f172a !important'));
+  assert.ok(componente.includes('inputMode="numeric"'));
 });
