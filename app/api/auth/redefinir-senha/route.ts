@@ -5,6 +5,16 @@ import {
   validatePassword,
 } from "@/lib/password-policy";
 
+function linkInvalidoOuExpirado() {
+  return NextResponse.json(
+    {
+      codigo: "RESET_LINK_INVALID_OR_EXPIRED",
+      error: "Reset link is invalid or expired.",
+    },
+    { status: 400 }
+  );
+}
+
 export async function POST(
   req: Request
 ) {
@@ -14,7 +24,7 @@ export async function POST(
       senha,
     } = await req.json();
 
-    if (!token) {
+    if (typeof token !== "string" || !token) {
       return NextResponse.json(
         {
           codigo:
@@ -55,20 +65,11 @@ export async function POST(
             gt: new Date(),
           },
         },
+        select: { id: true, role: true },
       });
 
     if (!user) {
-      return NextResponse.json(
-        {
-          codigo:
-            "RESET_LINK_INVALID_OR_EXPIRED",
-          error:
-            "Reset link is invalid or expired.",
-        },
-        {
-          status: 400,
-        }
-      );
+      return linkInvalidoOuExpirado();
     }
 
     const senhaHash =
@@ -77,9 +78,11 @@ export async function POST(
         10
       );
 
-    await prisma.user.update({
+    const { count } = await prisma.user.updateMany({
       where: {
         id: user.id,
+        resetToken: token,
+        resetTokenExpira: { gt: new Date() },
       },
       data: {
         senha: senhaHash,
@@ -89,8 +92,17 @@ export async function POST(
       },
     });
 
+    if (count === 0) {
+      return linkInvalidoOuExpirado();
+    }
+
+    const portal =
+      user.role === "PROFESSOR" ? "professor" :
+      user.role === "ALUNO" ? "aluno" : "admin";
+
     return NextResponse.json({
       success: true,
+      portal,
     });
   } catch (error) {
     console.error(
