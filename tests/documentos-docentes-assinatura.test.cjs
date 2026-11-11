@@ -66,6 +66,10 @@ function contexto({ papel = "PROFESSOR", impersonacao = false, autorizado = true
           "data-documento": documentoId, "data-versao": versao, "data-retorno": retorno, "data-hash": hashEsperado,
         }),
     },
+    "@/components/documentos-docentes/LeitorPdfDocumento": {
+      default: ({ url }) => require("react").createElement("div", { "data-phanyx-pdf": url }),
+      __esModule: true,
+    },
     "next-intl/server": { getLocale: async () => "pt-BR" },
   };
   const { default: pagina } = carregarModulo("app/professor/documentos/[id]/assinar/page.tsx", dependencias);
@@ -84,7 +88,7 @@ function contexto({ papel = "PROFESSOR", impersonacao = false, autorizado = true
 test("a assinatura do docente revisa o PDF, lista os anexos e volta ao mesmo documento", async () => {
   const html = await contexto().abrir("2");
   assert.match(html, /Assinatura PHANYX/);
-  assert.match(html, /\/api\/documentos-docentes\/7\/pdf\?versao=2/);
+  assert.match(html, /data-phanyx-pdf="\/api\/documentos-docentes\/7\/pdf\?versao=2"/);
   assert.match(html, /\/api\/documentos-docentes\/7\/anexos\/8/);
   assert.match(html, /data-documento="7" data-versao="2" data-retorno="\/professor\/documentos\?documento=7"/);
   assert.ok(html.includes(`data-hash="${hashRevisado}"`));
@@ -100,7 +104,7 @@ test("modo suporte permite conferir o PDF e não permite assinar como professor"
   const suporte = contexto({ impersonacao: true });
   const html = await suporte.abrir("2");
   assert.match(html, /Entre na sua conta de professor/);
-  assert.match(html, /\/api\/documentos-docentes\/7\/pdf\?versao=2/);
+  assert.match(html, /data-phanyx-pdf="\/api\/documentos-docentes\/7\/pdf\?versao=2"/);
   assert.doesNotMatch(html, /data-versao=/);
   assert.equal((await suporte.assinar(2)).status, 403);
   assert.equal(suporte.gravacoes.length, 0);

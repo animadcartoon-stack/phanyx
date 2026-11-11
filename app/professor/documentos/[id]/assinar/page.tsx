@@ -1,4 +1,5 @@
 import Link from "next/link";
+import LeitorPdfDocumento from "@/components/documentos-docentes/LeitorPdfDocumento";
 import { notFound } from "next/navigation";
 import { getLocale } from "next-intl/server";
 import { AssinaturaDocumentoDocentePagina } from "@/components/documentos-docentes/AssinaturaDocumentoDocenteModal";
@@ -69,10 +70,10 @@ export default async function AssinarDocumentoDocentePage({ params, searchParams
 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         {versaoAtual && <section className="min-w-0 space-y-3 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-          <a href={pdf} target="_blank" rel="noreferrer" className="inline-block text-sm font-semibold text-blue-700 underline dark:text-blue-300">
-            {t("openPdf")}
+          <a href={`${pdf}&baixar=1`} className="inline-block text-sm font-semibold text-blue-700 underline dark:text-blue-300">
+            {t("downloadPdf")}
           </a>
-          <iframe title={t("printPdf")} src={pdf} loading="lazy" className="h-[62vh] min-h-72 w-full rounded-lg border border-slate-200 dark:border-slate-700" />
+          <LeitorPdfDocumento url={pdf} />
           {anexos.length > 0 && <div className="space-y-2">
             <h2 className="text-sm font-semibold">{t("fileTitle")}</h2>
             <ul className="space-y-1 text-sm">

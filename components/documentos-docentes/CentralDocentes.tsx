@@ -7,6 +7,9 @@ import { useLocale } from "next-intl";
 import { traduzirDocumentoDocente, type ChaveDocumentoDocente } from "@/lib/documentos-docentes/i18n";
 import { traducaoDocentesEtapa3, type ChaveDocentesEtapa3 } from "@/lib/documentos-docentes/i18n-etapa3";
 import { professorPodeEditarDocumentoDocente } from "@/lib/documentos-docentes/fluxo";
+import LeitorPdfDocumento from "./LeitorPdfDocumento";
+import EditorPdfLocal from "./EditorPdfLocal";
+import { textosEditorPdf } from "@/lib/documentos-docentes/i18n-editor-pdf";
 import AssinaturaDocumentoDocenteModal from "@/components/documentos-docentes/AssinaturaDocumentoDocenteModal";
 
 type Papel = "ADMIN" | "PROFESSOR";
@@ -75,6 +78,7 @@ export default function CentralDocentes({ papel, documentoInicial = null }: { pa
   const [arquivoSelecionado,setArquivoSelecionado] = useState<File|null>(null);
   const [notaAnexo,setNotaAnexo] = useState("");
   const [chaveArquivo,setChaveArquivo] = useState(0);
+  const [painelPdf, setPainelPdf] = useState<"leitor" | "editor" | null>(null);
   const [assinaturaAberta,setAssinaturaAberta] = useState(false);
 
   async function carregarLista() {
@@ -212,11 +216,37 @@ export default function CentralDocentes({ papel, documentoInicial = null }: { pa
   const nomesCampos = detalhes ? Array.from(new Set([...Object.keys(camposAtuais), ...Array.from(detalhes.versao.modeloSnapshot.matchAll(/\{\{\s*campo:([^{}]{1,80})\s*\}\}/giu)).map(m => m[1].trim())])) : [];
   const htmlRenderizado = detalhes?.versao.modeloSnapshot ? htmlPrevia(detalhes.versao.modeloSnapshot, campos) : "";
 
+  if (painelPdf === "editor") return <EditorPdfLocal onVoltar={() => setPainelPdf(null)} />;
+  if (painelPdf === "leitor" && detalhes) {
+    const pdf = `/api/documentos-docentes/${detalhes.documento.id}/pdf?versao=${detalhes.versao.numero}`;
+    return (
+      <main className="mx-auto max-w-7xl space-y-4 text-slate-900 dark:text-slate-100">
+        <header className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="text-xl font-bold">{detalhes.documento.titulo}</h1>
+            <p className="text-sm">{t("version")} {detalhes.versao.numero}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" className={`${botaoBase} border`} onClick={() => setPainelPdf(null)}>{t3("backToDocument")}</button>
+            <a href={`${pdf}&baixar=1`} className={`${botaoBase} border`}>{t3("downloadPdf")}</a>
+            {podeAssinarProfessor && (
+              <Link href={`/professor/documentos/${detalhes.documento.id}/assinar?versao=${detalhes.documento.versaoAtual}`}
+                className={`${botaoBase} bg-blue-700 text-white`}>{t3("signWithPhanyx")}</Link>
+            )}
+          </div>
+        </header>
+        {camposNaoSalvos && <p className="text-sm text-amber-800 dark:text-amber-300">{t3("savedBeforeSign")}</p>}
+        <LeitorPdfDocumento url={pdf} />
+      </main>
+    );
+  }
+
   return <main className="mx-auto max-w-7xl space-y-5 text-slate-900 dark:text-slate-100">
     <header className="flex flex-wrap items-start justify-between gap-4">
       <div><h1 className="text-2xl font-bold">{t(admin ? "titleAdmin" : "titleProfessor")}</h1><p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{t(admin ? "descriptionAdmin" : "descriptionProfessor")}</p></div>
       <div className="flex flex-wrap gap-2">
         <button type="button" disabled={ocupado} onClick={() => { setCarregando(true); void carregarLista().catch(e => setErro(e instanceof Error ? e.message : t("genericError"))).finally(() => setCarregando(false)); }} className={`${botaoBase} border border-slate-300 dark:border-slate-600`}>{t("retry")}</button>
+        <button type="button" onClick={() => setPainelPdf("editor")} className={`${botaoBase} border border-slate-300 dark:border-slate-600`}>{textosEditorPdf(locale).editor}</button>
         <button type="button" onClick={iniciarCriacao} className={`${botaoBase} bg-blue-700 text-white hover:bg-blue-800`}>{t("newDocument")}</button>
       </div>
     </header>
@@ -266,7 +296,7 @@ export default function CentralDocentes({ papel, documentoInicial = null }: { pa
           </select></label>{historica && <p className="text-sm text-amber-700 dark:text-amber-300">{t("versionReadOnly")}</p>}
         </div>
         <div className="flex flex-wrap gap-2">
-          <a href={`/api/documentos-docentes/${detalhes.documento.id}/pdf?versao=${detalhes.versao.numero}`} target="_blank" rel="noreferrer" className={`${botaoBase} border border-blue-500 text-blue-700 dark:text-blue-300`}>{t3("printPdf")}</a>
+          <button type="button" onClick={() => setPainelPdf("leitor")} className={`${botaoBase} border border-blue-500 text-blue-700 dark:text-blue-300`}>{t3("printPdf")}</button>
           <a href={`/api/documentos-docentes/${detalhes.documento.id}/pdf?versao=${detalhes.versao.numero}&baixar=1`} className={`${botaoBase} border border-slate-300 dark:border-slate-700`}>{t3("downloadPdf")}</a>
           {detalhes.versao.modeloSnapshot && <a href={`/api/documentos-docentes/${detalhes.documento.id}/pdf?versao=${detalhes.versao.numero}&branco=1&baixar=1`} className={`${botaoBase} border border-slate-300 dark:border-slate-700`}>{t3("blankPdf")}</a>}
         </div>

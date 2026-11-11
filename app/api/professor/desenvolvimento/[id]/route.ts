@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { validarLinksDesenvolvimento } from "@/lib/desenvolvimento-materiais";
 import { contextoProfessor, dataCivil, textoCurto, turmaDoProfessor, alunoMatriculadoNaTurma } from "@/lib/acompanhamento-permissoes";
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   const ctx = await contextoProfessor("professor.desenvolvimento");
@@ -18,9 +19,15 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   if (nota !== null && (!Number.isFinite(nota) || nota<0 || nota>100)) return NextResponse.json({ error: "Nota inválida" }, { status:400 });
   const prazo=atual.tipo === "TAREFA" && body.prazoTarefa ? dataCivil(body.prazoTarefa) : null;
   if (atual.tipo === "TAREFA" && body.prazoTarefa && !prazo) return NextResponse.json({ error: "Prazo inválido" }, { status:400 });
-  const registro = await prisma.registroDesenvolvimento.update({ where: { id }, data: {
-    titulo, descricao, conceito: conceito || null, nota, prazoTarefa: prazo,
+  const links = body.links === undefined ? undefined : validarLinksDesenvolvimento(body.links);
+  if (links === null) return NextResponse.json({ error: "Informe até 10 links HTTP ou HTTPS válidos." }, { status: 400 });
+  const resultado = await prisma.registroDesenvolvimento.updateMany({ where: {
+    id, instituicaoId: ctx.instituicaoId, professorId: ctx.professor.id, status: atual.status, atualizadoEm: atual.atualizadoEm,
+  }, data: {
+    titulo, descricao, conceito: conceito || null, nota, prazoTarefa: prazo, links,
     status: body.acao === "ENVIAR" ? "ENVIADO" : atual.status,
   } });
+  if (resultado.count !== 1) return NextResponse.json({ error: "O registro foi alterado. Atualize a página e tente novamente." }, { status: 409 });
+  const registro = await prisma.registroDesenvolvimento.findUnique({ where: { id } });
   return NextResponse.json({ ok:true, registro });
 }
