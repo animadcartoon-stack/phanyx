@@ -6,6 +6,7 @@ import {
 } from "next/navigation";
 
 import CursoTurmaTransferencia from "./CursoTurmaTransferencia";
+import ReatribuicaoAlunoAnalise from "@/components/admin/ReatribuicaoAlunoAnalise";
 import DestinoTransferenciaLegacy from "./DestinoTransferenciaLegacy";
 
 export default function DestinoTransferenciaPage() {
@@ -36,6 +37,10 @@ export default function DestinoTransferenciaPage() {
         }
       />
     );
+  }
+
+  if (tipo === "REATRIBUICAO_ALUNO") {
+    return <ReatribuicaoAlunoAnalise matriculaId={matriculaId} />;
   }
 
   return (
