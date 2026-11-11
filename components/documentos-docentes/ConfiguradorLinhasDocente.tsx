@@ -74,16 +74,22 @@ export default function ConfiguradorLinhasDocente({ tipo, contexto, conteudo, ao
     setAviso(m.updated);
   }
   return (
-    <section className="mb-4 space-y-3 rounded-xl border border-blue-300 bg-blue-50/60 p-4 text-slate-900 dark:border-blue-800 dark:bg-slate-900 dark:text-slate-100">
-      <h3 className="text-sm font-semibold">{m.title}</h3>
-      <p className="text-xs text-slate-600 dark:text-slate-300">{m.help}</p>
+    <section className="pdoc-soft mb-4 space-y-3 rounded-xl border border-blue-300 bg-blue-50/60 p-4 text-slate-900 dark:border-blue-800 dark:bg-slate-900 dark:text-slate-100">
+      <h3 className="pdoc-label text-sm font-semibold">{m.title}</h3>
+      <p className="pdoc-muted text-xs text-slate-600 dark:text-slate-300">{m.help}</p>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_180px]">
-        <label className="block text-xs font-semibold">{m.name}
-          <input list="phanyx-campos-docentes-existentes" className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" maxLength={80} value={nome} onChange={e=>{setNome(e.target.value);setAviso("");}} placeholder={m.nameHint}/>
+        <label className="pdoc-label block text-xs font-semibold">{m.name}
+          <input list="phanyx-campos-docentes-existentes" className="pdoc-input mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" maxLength={120} value={nome} onChange={e=>{
+            const digitado=e.target.value;
+            const tag=digitado.trim().match(/^\{\{\s*campo:([^{}|]{1,80})(?:\s*\|\s*linhas\s*:\s*(\d{1,2}))?\s*\}\}$/iu);
+            setNome(tag ? tag[1].trim() : digitado);
+            if(tag?.[2]) {const qtd=Number(tag[2]);if(qtd>=1&&qtd<=12) setLinhas(qtd);}
+            setAviso("");
+          }} placeholder={m.nameHint}/>
           <datalist id="phanyx-campos-docentes-existentes">{campos.map(c=><option key={c} value={c}/>)}</datalist>
         </label>
-        <label className="block text-xs font-semibold">{m.lines}
-          <select className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" value={linhas} onChange={e=>setLinhas(Number(e.target.value))}>
+        <label className="pdoc-label block text-xs font-semibold">{m.lines}
+          <select className="pdoc-input mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" value={linhas} onChange={e=>setLinhas(Number(e.target.value))}>
             {Array.from({length:12},(_,i)=>i+1).map(n=><option key={n} value={n}>{n}</option>)}
           </select>
         </label>
@@ -92,9 +98,9 @@ export default function ConfiguradorLinhasDocente({ tipo, contexto, conteudo, ao
         <button type="button" disabled={!valido} onClick={inserir} className="rounded-lg bg-blue-700 px-3 py-2 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">{m.insert}</button>
         <button type="button" disabled={!valido} onClick={atualizar} className="rounded-lg border border-blue-600 px-3 py-2 text-xs font-semibold text-blue-800 dark:text-blue-200 disabled:opacity-50">{m.update}</button>
       </div>
-      <p className="break-all font-mono text-[11px] text-slate-700 dark:text-slate-300">{valido ? marcadorCampoDocente(nome, linhas) : "{{campo:Objetivos|linhas:5}}"}</p>
-      <p className="text-xs text-slate-600 dark:text-slate-400">{m.examples}: {campos.length ? campos.join(", ") : m.noExisting}</p>
-      {aviso && <p role="status" className="text-xs font-medium text-blue-900 dark:text-blue-200">{aviso}</p>}
+      <p className="pdoc-muted break-all font-mono text-[11px] text-slate-700 dark:text-slate-300">{valido ? marcadorCampoDocente(nome, linhas) : "{{campo:Objetivos|linhas:5}}"}</p>
+      <p className="pdoc-muted text-xs text-slate-600 dark:text-slate-400">{m.examples}: {campos.length ? campos.join(", ") : m.noExisting}</p>
+      {aviso && <p role="status" className="pdoc-label text-xs font-medium text-blue-900 dark:text-blue-200">{aviso}</p>}
     </section>
   );
 }

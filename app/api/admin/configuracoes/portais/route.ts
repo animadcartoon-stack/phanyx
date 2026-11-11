@@ -102,6 +102,9 @@ const PAGINAS_PADRAO: PaginaPadraoPortal[] = [
   { portal: "PROFESSOR", chavePagina: "professor.planejamento", nome: "Planejamento de aulas", visivelPadrao: false },
   { portal: "PROFESSOR", chavePagina: "professor.relatorios", nome: "Relatórios de aulas", visivelPadrao: false },
   { portal: "PROFESSOR", chavePagina: "professor.desenvolvimento", nome: "Desenvolvimento dos alunos", visivelPadrao: false },
+  // Central de Documentos Docentes: pagina existente em /professor/documentos.
+  // Permanece oculta por padrao; o Admin ou uma permissao individual pode liberá-la.
+  { portal: "PROFESSOR", chavePagina: "professor.documentos", nome: "Documentos docentes", visivelPadrao: false },
   {
     portal: "PROFESSOR",
     chavePagina: "professor.biblioteca",

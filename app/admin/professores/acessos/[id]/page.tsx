@@ -3,12 +3,14 @@ import Link from "next/link";
 import {useParams} from "next/navigation";
 import {useEffect,useState} from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { traduzirDocumentoDocente } from "@/lib/documentos-docentes/i18n";
 type Historico={id:number;chavePagina:string;modoAnterior:string;modoNovo:string;alteradoEm:string;alteradoPorId:number};
 type Pagina={chave:string;nome:string;modo:"PADRAO"|"HABILITADA"|"DESABILITADA";institucional:boolean};
 export default function AcessoProfessor(){
   const tr = useTranslations("PlanningTracking");
   const locale = useLocale();
   function rotuloPagina(chave:string, fallback:string): string {
+    if (chave === "professor.documentos") return traduzirDocumentoDocente(locale, "menuProfessor");
     const nomes: Record<string, string> = {
       "professor.painel": "pageDashboard",
       "professor.turmas": "pageClasses",

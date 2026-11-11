@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { traduzirDocumentoDocente } from "@/lib/documentos-docentes/i18n";
 import { CHAVE_INSCRICOES_DOCENTES, CHAVE_MOBILIDADE_DOCENTE } from "@/lib/mobilidade-docente-config";
 
 type ModoVisibilidadePortal =
@@ -297,6 +298,7 @@ function BlocoPortal({
 }) {
   const t = useTranslations("AdminPortalVisibilitySettings");
   const tPlanning = useTranslations("PlanningTracking");
+  const locale = useLocale();
 
   function nomePaginaTraduzido(
     pagina: PaginaPortal,
@@ -362,6 +364,8 @@ function BlocoPortal({
         return tPlanning("reportsTitle");
       case "professor.desenvolvimento":
         return tPlanning("developmentTitle");
+      case "professor.documentos":
+        return traduzirDocumentoDocente(locale, "menuProfessor");
       default:
         return pagina.nome;
     }
