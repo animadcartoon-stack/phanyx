@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { renderizarCamposDocentes } from "@/lib/documentos-docentes/campos-impressao";
 import fs from "node:fs";
 import chromium from "@sparticuz/chromium-min";
 import puppeteer from "puppeteer-core";
@@ -21,10 +22,7 @@ function htmlCampos(modelo: string, campos: unknown, branco: boolean): string {
     .replace(/\son[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "")
     .replace(/\bjavascript\s*:/gi, "");
   if (!base.trim()) return '<p style="font-size:14px">Documento enviado sem modelo de preenchimento. Consulte os anexos.</p>';
-  return base.replace(/\{\{\s*campo:([^{}]{1,80})\s*\}\}/giu, (_:string, chave:string) => {
-    const dado = branco ? "________________________" : String(mapa[chave.trim()]??"________________________");
-    return escaparHtmlDocente(dado).replace(/\r?\n/g,"<br />");
-  });
+  return renderizarCamposDocentes(base, mapa, branco);
 }
 
 async function abrirNavegador() {
