@@ -14,14 +14,14 @@ visit(ast);
 assert.ok(effect,'o controle de inatividade do Admin precisa ser exercitado');
 const compiled = ts.transpileModule('const executar = '+effect+'; executar();',{compilerOptions:{target:ts.ScriptTarget.ES2020}}).outputText;
 const duration=5*60*1000;
-function start({editor=false,storedAge,fetchStatus=200,referencia='sessao-teste',development=false}={}) {
+function start({editor=false,storedAge,fetchStatus=200,referencia='sessao-teste',development=false,modoSuporte=false}={}) {
   let now=1_800_000_000_000, next=0, reads=0, writes=0, allocations=0;
   const timers=new Map(), events=new Map(), values=new Map(), requests=[], expired=[], redirects=[];
   const key='phanyx:atividade-admin:'+referencia;
   if(storedAge!==undefined) values.set(key,String(now-storedAge));
   const sandbox={
     process:{env:{NODE_ENV:development?'development':'production'}},
-    referenciaSessaoInicial:referencia,editorCertificadoAberto:editor,
+    referenciaSessaoInicial:referencia,editorCertificadoAberto:editor,modoSuporte,
     AbortController,
     Date:class extends Date { static now(){return now;} },
     localStorage:{getItem:k=>{reads++;return values.get(k)||null;},setItem:(k,v)=>{writes++;values.set(k,v);}},
@@ -69,6 +69,13 @@ test('sessão sem atividade encerra exatamente após cinco minutos e mantém a r
   assert.equal(env.requests[0].options.headers['x-phanyx-sessao-admin'],'sessao-teste');
   assert.equal(env.requests[0].options.headers['x-phanyx-logout-motivo'],'inatividade');
   assert.deepEqual(env.expired,[true]);await env.tick(2500);assert.deepEqual(env.redirects,['/login?portal=admin']);env.cleanup();
+});
+test('modo suporte mantém o atendimento aberto após o prazo de inatividade do Admin',async()=>{
+  const env=start({modoSuporte:true,storedAge:duration+1});
+  await env.tick(6*duration);
+  assert.equal(env.pending,0);
+  assert.equal(env.requests.length,0);
+  assert.deepEqual(env.redirects,[]);
 });
 test('reabrir o Admin depois de cinco minutos preserva o prazo vencido, mesmo com movimento do mouse',async()=>{
   const env=start({storedAge:duration+1});

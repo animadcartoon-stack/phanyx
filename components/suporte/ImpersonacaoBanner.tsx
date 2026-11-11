@@ -98,9 +98,11 @@ export default function ImpersonacaoBanner() {
     return null;
   }
 
-  const expiraAs = new Date(
+  const expiraEm = new Date(
     impersonacao.expiraEm
-  ).toLocaleTimeString("pt-BR", {
+  ).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -127,7 +129,7 @@ export default function ImpersonacaoBanner() {
             {impersonacao.role
               ? ` • Perfil: ${impersonacao.role}`
               : ""}
-            {` • Expira às ${expiraAs}`}
+            {` • Acesso válido até ${expiraEm}`}
           </p>
 
           {erro && (

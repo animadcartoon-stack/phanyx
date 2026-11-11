@@ -50,11 +50,13 @@ export default function AdminShell({
   usuarioInicial = null,
   permissoesIniciais = [],
   referenciaSessaoInicial = null,
+  modoSuporte = false,
 }: {
   children: React.ReactNode;
   usuarioInicial?: UsuarioLogado | null;
   permissoesIniciais?: string[];
   referenciaSessaoInicial?: string | null;
+  modoSuporte?: boolean;
 }) {
   const tNav = useTranslations("AdminNavigation");
   const tCommon = useTranslations("Common");
@@ -114,7 +116,7 @@ export default function AdminShell({
   }, [referenciaSessaoInicial, editorCertificadoAberto]);
 
   useEffect(() => {
-    if (process.env.NODE_ENV === "development" || !referenciaSessaoInicial) return;
+    if (process.env.NODE_ENV === "development" || modoSuporte || !referenciaSessaoInicial) return;
     let timeout: ReturnType<typeof setTimeout>;
     let redirecionamento: ReturnType<typeof setTimeout> | undefined;
     let ativo = true;
@@ -194,10 +196,10 @@ export default function AdminShell({
       window.removeEventListener("scroll", registrarAtividade);
       window.removeEventListener("storage", sincronizarAtividade);
     };
-  }, [referenciaSessaoInicial, editorCertificadoAberto]);
+  }, [referenciaSessaoInicial, editorCertificadoAberto, modoSuporte]);
 
   useEffect(() => {
-    if (process.env.NODE_ENV === "development" || !referenciaSessaoInicial || editorCertificadoAberto) return;
+    if (process.env.NODE_ENV === "development" || modoSuporte || !referenciaSessaoInicial || editorCertificadoAberto) return;
     const chave = `phanyx:admin-encerrado:${referenciaSessaoInicial}`;
     const exigirNovoLogin = () => {
       setSessaoExpirada(true);
@@ -210,7 +212,7 @@ export default function AdminShell({
     };
     window.addEventListener("storage", aoEncerrarOutraAba);
     return () => window.removeEventListener("storage", aoEncerrarOutraAba);
-  }, [referenciaSessaoInicial, editorCertificadoAberto, pathname]);
+  }, [referenciaSessaoInicial, editorCertificadoAberto, modoSuporte, pathname]);
 
   const descobrirMenuInicial = () => {
     if (pathname.startsWith("/admin/leads")) {

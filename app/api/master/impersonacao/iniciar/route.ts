@@ -3,19 +3,22 @@ import {
   NextResponse,
 } from "next/server";
 import { cookies } from "next/headers";
+import { createHash } from "node:crypto";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import {
   masterPodeImpersonar,
   portalDestinoPorRole,
+  verificarSessaoOriginalMaster,
 } from "@/lib/impersonacao-suporte";
+import { COOKIE_MASTER_SUPORTE } from "@/lib/sessao-suporte-cookie";
 
 export async function POST(req: NextRequest) {
   try {
     const master = await getUserFromToken();
 
-    if (!masterPodeImpersonar(master)) {
+    if (!master || !masterPodeImpersonar(master)) {
       return NextResponse.json(
         {
           error:
@@ -27,7 +30,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!process.env.JWT_SECRET) {
+    const segredo = process.env.JWT_SECRET;
+    if (!segredo) {
       throw new Error("JWT_SECRET não definido.");
     }
 
@@ -71,7 +75,9 @@ export async function POST(req: NextRequest) {
     const tokenMaster =
       cookieStore.get("token")?.value;
 
-    if (!tokenMaster) {
+    const sessaoMaster = verificarSessaoOriginalMaster(tokenMaster, segredo);
+
+    if (!tokenMaster || !sessaoMaster || sessaoMaster.id !== master.id) {
       return NextResponse.json(
         {
           error:
@@ -118,7 +124,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (usuarioAlvo.id === master!.id) {
+    if (usuarioAlvo.id === master.id) {
       return NextResponse.json(
         {
           error:
@@ -185,9 +191,8 @@ export async function POST(req: NextRequest) {
     }
 
     const agora = new Date();
-    const expiraEm = new Date(
-      agora.getTime() + 30 * 60 * 1000
-    );
+    const expiraEm = new Date(sessaoMaster.exp * 1000);
+    const vinculoSessaoMaster = createHash("sha256").update(tokenMaster).digest("hex");
 
     const ipEncaminhado =
       req.headers.get("x-forwarded-for");
@@ -202,7 +207,7 @@ export async function POST(req: NextRequest) {
 
     await prisma.impersonacaoSuporte.updateMany({
       where: {
-        masterUserId: master!.id,
+        masterUserId: master.id,
         ativa: true,
         encerradoEm: null,
       },
@@ -215,13 +220,13 @@ export async function POST(req: NextRequest) {
     const registro =
       await prisma.impersonacaoSuporte.create({
         data: {
-          masterUserId: master!.id,
+          masterUserId: master.id,
           usuarioAlvoId: usuarioAlvo.id,
           instituicaoId:
             usuarioAlvo.instituicaoId,
 
           masterEmailSnapshot:
-            master!.email,
+            master.email,
 
           usuarioAlvoEmailSnapshot:
             usuarioAlvo.email,
@@ -264,12 +269,11 @@ export async function POST(req: NextRequest) {
 
         impersonacao: true,
         impersonacaoId: registro.id,
-        masterOriginalId: master!.id,
+        masterOriginalId: master.id,
+        vinculoSessaoMaster,
+        exp: sessaoMaster.exp,
       },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "30m",
-      }
+      segredo
     );
 
     const response = NextResponse.json({
@@ -287,7 +291,7 @@ export async function POST(req: NextRequest) {
     });
 
     response.cookies.set(
-      "phanyx_master_token",
+      COOKIE_MASTER_SUPORTE,
       tokenMaster,
       {
         httpOnly: true,
@@ -296,7 +300,7 @@ export async function POST(req: NextRequest) {
           "production",
         sameSite: "lax",
         path: "/",
-        maxAge: 35 * 60,
+        expires: expiraEm,
       }
     );
 
@@ -311,7 +315,7 @@ export async function POST(req: NextRequest) {
           "production",
         sameSite: "lax",
         path: "/",
-        maxAge: 30 * 60,
+        expires: expiraEm,
       }
     );
 

@@ -1,8 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { COOKIE_SESSAO_EDITOR_CERTIFICADO, HEADER_CAMINHO_EDITOR, HEADER_METODO_EDITOR, tokenEditorDentroDaValidade, requisicaoPermitidaAoEditorCertificado } from "@/lib/sessao-editor-certificado";
 import { COOKIE_LOCALE_PHANYX, localeEhSuportado } from "@/i18n/config";
+import { COOKIE_MASTER_SUPORTE, tokenSuporteVinculadoAoMaster } from "@/lib/sessao-suporte-cookie";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   // O cookie dedicado so e entregue internamente as rotas do editor.
   const headers = new Headers(request.headers);
@@ -13,17 +14,23 @@ export function middleware(request: NextRequest) {
   if (path === "/professor" || path.startsWith("/professor/")) headers.set("x-phanyx-rota-professor", path);
   headers.delete("x-phanyx-rota-aluno");
   if (path === "/aluno" || path.startsWith("/aluno/")) headers.set("x-phanyx-rota-aluno", path);
-  const tokenAdmin = request.cookies.get("token")?.value;
+  const tokenOriginal = request.cookies.get("token")?.value;
+  const tokenMaster = request.cookies.get(COOKIE_MASTER_SUPORTE)?.value;
+  const vinculoSuporteValido = await tokenSuporteVinculadoAoMaster(tokenOriginal, tokenMaster);
+  const tokenAdmin = vinculoSuporteValido ? tokenOriginal : undefined;
   const tokenEditor = request.cookies.get(COOKIE_SESSAO_EDITOR_CERTIFICADO)?.value;
   const rotaEditor = requisicaoPermitidaAoEditorCertificado(path, request.method);
   const origin = request.headers.get("origin");
   const origemPermitida = request.headers.get("sec-fetch-site") !== "cross-site" && (!origin || origin === request.nextUrl.origin);
   const usarEditor = Boolean(tokenEditor && tokenEditorDentroDaValidade(tokenEditor) && rotaEditor && origemPermitida);
-  if (usarEditor && tokenEditor) {
+  const tokenEncaminhado = usarEditor ? tokenEditor : tokenAdmin;
+  if (tokenEncaminhado !== tokenOriginal) {
     const cookies = request.cookies.getAll().filter((cookie) => cookie.name !== "token")
       .map((cookie) => `${cookie.name}=${encodeURIComponent(cookie.value)}`);
-    cookies.push(`token=${encodeURIComponent(tokenEditor)}`);
+    if (tokenEncaminhado) cookies.push(`token=${encodeURIComponent(tokenEncaminhado)}`);
     headers.set("cookie", cookies.join("; "));
+  }
+  if (usarEditor) {
     headers.set(HEADER_CAMINHO_EDITOR, path);
     headers.set(HEADER_METODO_EDITOR, request.method);
   }
