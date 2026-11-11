@@ -4,6 +4,7 @@ import sharp from "sharp";
 import { prisma } from "@/lib/prisma";
 import { documentoAutorizado } from "@/lib/documentos-docentes/seguranca";
 import { hashVersaoDocente } from "@/lib/documentos-docentes/integridade";
+import { professorPodeEditarDocumentoDocente } from "@/lib/documentos-docentes/fluxo";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -28,12 +29,19 @@ export async function POST(req: Request, { params }: Params) {
   const auth = await documentoAutorizado(Number(params.id));
   if (!auth) return NextResponse.json({ error:"Documento inexistente ou sem permissão." }, { status:404 });
   const { ctx, documento } = auth;
+  if (ctx.papel === "PROFESSOR" && ctx.usuario.impersonacao) {
+    return NextResponse.json({ error:"Entre na sua conta de professor para assinar o documento." }, { status:403 });
+  }
   const body = await req.json().catch(() => null);
   const versao = Number(body?.versao);
+  const hashEsperado = body?.hashEsperado;
   const tipo = body?.tipo === "DESENHO" ? "DESENHO" : body?.tipo === "DIGITAL" ? "DIGITAL" : "";
   if (versao !== documento.versaoAtual || !tipo || body?.consentimento !== true) return NextResponse.json({ error:"Confirme a versão e o consentimento antes de assinar." }, { status:400 });
+  if (hashEsperado !== undefined && (typeof hashEsperado !== "string" || !/^[a-f0-9]{64}$/.test(hashEsperado))) {
+    return NextResponse.json({ error:"A revisão do documento é inválida. Atualize a página." }, { status:400 });
+  }
   if (documento.status === "CANCELADO" || documento.status === "CONCLUIDO") return NextResponse.json({ error:"Documento já encerrado." }, { status:409 });
-  const professorAssina = ctx.papel === "PROFESSOR" && ["RASCUNHO","DEVOLVIDO","AGUARDANDO_PROFESSOR"].includes(documento.status);
+  const professorAssina = ctx.papel === "PROFESSOR" && professorPodeEditarDocumentoDocente(documento.status);
   const adminAssina = ctx.papel === "ADMIN" && documento.status === "APROVADO";
   if (!professorAssina && !adminAssina) return NextResponse.json({ error:"Assinatura indisponível neste estado." }, { status:403 });
   const imagem = tipo === "DESENHO" ? (typeof body?.imagem === "string" ? body.imagem : "") : "";
@@ -50,6 +58,9 @@ export async function POST(req: Request, { params }: Params) {
   if (adminAssina && !assinaturaProfessor) return NextResponse.json({ error:"O professor precisa assinar esta versão antes da coordenação." }, { status:409 });
 
   const hashConteudo = hashVersaoDocente(documento.id, snapshot, anexos);
+  if (hashEsperado !== undefined && hashEsperado !== hashConteudo) {
+    return NextResponse.json({ error:"O documento ou seus anexos mudaram. Atualize e revise o PDF antes de assinar." }, { status:409 });
+  }
   try {
     const resultado = await prisma.$transaction(async tx => {
       // Uma atualização condicional serializa a operação com edições/alterações de estado.
