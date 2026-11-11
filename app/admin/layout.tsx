@@ -72,6 +72,7 @@ export default async function AdminLayout({
         usuarioInicial={usuarioInicial}
         permissoesIniciais={usuario.permissoes}
         referenciaSessaoInicial={referenciaSessaoInicial}
+        modoSuporte={usuario.impersonacao}
       >
         {children}
       </AdminShell>

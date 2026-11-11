@@ -5,7 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import ChatGlobalWidget from "@/components/chat/ChatGlobalWidget";
 import PhanyxNotificationBell from "@/components/notificacoes/PhanyxNotificationBell";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { traduzirDocumentoDocente } from "@/lib/documentos-docentes/i18n";
 
 type VisibilidadeProfessor = {
   biblioteca?: boolean;
@@ -20,6 +21,10 @@ type VisibilidadeProfessor = {
   ouvidoria?: boolean;
   mobilidade?: boolean;
   materiais?: boolean;
+  planejamento?: boolean;
+  relatorios?: boolean;
+  desenvolvimento?: boolean;
+  documentos?: boolean;
 };
 
 export default function ProfessorSidebar({
@@ -37,6 +42,8 @@ export default function ProfessorSidebar({
   const { logout } = useAuth();
 
   const t = useTranslations("ProfessorSidebar");
+  const tPlanning = useTranslations("PlanningTracking");
+  const labelDocumentos = traduzirDocumentoDocente(useLocale(), "menuProfessor");
 
   const podeVer = {
     biblioteca: visibilidade?.biblioteca ?? false,
@@ -50,6 +57,10 @@ export default function ProfessorSidebar({
     reunioes: visibilidade?.reunioes ?? true,
     ouvidoria: visibilidade?.ouvidoria ?? true,
     materiais: visibilidade?.materiais ?? true,
+    planejamento: visibilidade?.planejamento ?? false,
+    relatorios: visibilidade?.relatorios ?? false,
+    desenvolvimento: visibilidade?.desenvolvimento ?? false,
+    documentos: visibilidade?.documentos ?? false,
   };
 
   const menu = [
@@ -73,6 +84,10 @@ export default function ProfessorSidebar({
       label: t("menu.materials"),
       href: "/professor/aulas",
     },
+    podeVer.planejamento && { label: tPlanning("planningTitle"), href: "/professor/planejamento" },
+    podeVer.relatorios && { label: tPlanning("reportsTitle"), href: "/professor/relatorios" },
+    podeVer.desenvolvimento && { label: tPlanning("developmentTitle"), href: "/professor/desenvolvimento" },
+    podeVer.documentos && { label: labelDocumentos, href: "/professor/documentos" },
     podeVer.biblioteca && {
       label: t("menu.library"),
       href: "/professor/biblioteca",

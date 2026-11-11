@@ -13,6 +13,7 @@ type VisibilidadeAluno = {
   rematricula?: boolean;
   disciplinas?: boolean;
   progresso?: boolean;
+  desenvolvimento?: boolean;
   trabalhos?: boolean;
   presenca?: boolean;
   boletim?: boolean;
@@ -45,6 +46,7 @@ export default function AlunoSidebar({
   const t = useTranslations(
     "StudentSidebar"
   );
+  const tPlanning = useTranslations("PlanningTracking");
 
   const nomeAluno =
     aluno?.nome || t("student");
@@ -65,6 +67,7 @@ export default function AlunoSidebar({
     progresso:
       visibilidade?.progresso ??
       true,
+    desenvolvimento: visibilidade?.desenvolvimento ?? false,
 
     trabalhos:
       visibilidade?.trabalhos ??
@@ -128,6 +131,7 @@ export default function AlunoSidebar({
       icon: "📚",
     },
 
+    podeVer.desenvolvimento && {label:tPlanning("myDevelopment"),href:"/aluno/desenvolvimento",icon:"📈"},
     podeVer.progresso && {
       label: t("progress"),
       href: "/aluno/progresso",

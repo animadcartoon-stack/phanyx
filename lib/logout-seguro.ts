@@ -130,6 +130,9 @@ export async function criarLogoutAdmin(request: NextRequest) {
       (inatividade && (!sessao || !referencia || referencia !== sessao.referencia))) {
     return NextResponse.json({ encerrada: false }, { status: 409, headers });
   }
+  if (inatividade && sessao?.impersonacao) {
+    return NextResponse.json({ encerrada: false }, { status: 409, headers });
+  }
   if (!inatividade) return criarLogoutSeguro(request, "/login?portal=admin");
   let editorSegueAtivo = false;
   const tokenEditor = request.cookies.get(COOKIE_SESSAO_EDITOR_CERTIFICADO)?.value;

@@ -8,7 +8,8 @@ import { useEffect, useRef, useState } from "react";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
 import SeletorIdioma from "@/components/internacionalizacao/SeletorIdioma";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { traduzirDocumentoDocente } from "@/lib/documentos-docentes/i18n";
 import { diagnosticoSolicitado } from "@/lib/diagnostico-desempenho";
 import FotoPerfilAtual from "@/components/perfil/FotoPerfilAtual";
 
@@ -49,14 +50,18 @@ export default function AdminShell({
   usuarioInicial = null,
   permissoesIniciais = [],
   referenciaSessaoInicial = null,
+  modoSuporte = false,
 }: {
   children: React.ReactNode;
   usuarioInicial?: UsuarioLogado | null;
   permissoesIniciais?: string[];
   referenciaSessaoInicial?: string | null;
+  modoSuporte?: boolean;
 }) {
   const tNav = useTranslations("AdminNavigation");
   const tCommon = useTranslations("Common");
+  const tPlanning = useTranslations("PlanningTracking");
+  const tituloDocentes = traduzirDocumentoDocente(useLocale(), "menuAdmin");
   const titulosMenuMobile: Record<string, string> = {
     Acadêmico: tNav("academic"),
     Comercial: tNav("commercial"),
@@ -111,7 +116,7 @@ export default function AdminShell({
   }, [referenciaSessaoInicial, editorCertificadoAberto]);
 
   useEffect(() => {
-    if (process.env.NODE_ENV === "development" || !referenciaSessaoInicial) return;
+    if (process.env.NODE_ENV === "development" || modoSuporte || !referenciaSessaoInicial) return;
     let timeout: ReturnType<typeof setTimeout>;
     let redirecionamento: ReturnType<typeof setTimeout> | undefined;
     let ativo = true;
@@ -191,10 +196,10 @@ export default function AdminShell({
       window.removeEventListener("scroll", registrarAtividade);
       window.removeEventListener("storage", sincronizarAtividade);
     };
-  }, [referenciaSessaoInicial, editorCertificadoAberto]);
+  }, [referenciaSessaoInicial, editorCertificadoAberto, modoSuporte]);
 
   useEffect(() => {
-    if (process.env.NODE_ENV === "development" || !referenciaSessaoInicial || editorCertificadoAberto) return;
+    if (process.env.NODE_ENV === "development" || modoSuporte || !referenciaSessaoInicial || editorCertificadoAberto) return;
     const chave = `phanyx:admin-encerrado:${referenciaSessaoInicial}`;
     const exigirNovoLogin = () => {
       setSessaoExpirada(true);
@@ -207,7 +212,7 @@ export default function AdminShell({
     };
     window.addEventListener("storage", aoEncerrarOutraAba);
     return () => window.removeEventListener("storage", aoEncerrarOutraAba);
-  }, [referenciaSessaoInicial, editorCertificadoAberto, pathname]);
+  }, [referenciaSessaoInicial, editorCertificadoAberto, modoSuporte, pathname]);
 
   const descobrirMenuInicial = () => {
     if (pathname.startsWith("/admin/leads")) {
@@ -1395,6 +1400,10 @@ export default function AdminShell({
                       >
                         👨‍🏫 {tNav("teachers")}
                       </Link>
+
+                      <Link href="/admin/professores/acessos" className={getLinkClass("/admin/professores/acessos")}>{"🔐"} {tPlanning("teacherAccessTitle")}</Link>
+                      <Link href="/admin/acompanhamento-aulas" className={getLinkClass("/admin/acompanhamento-aulas")}>{"🗓️"} {tPlanning("trackingTitle")}</Link>
+                      <Link href="/admin/documentos-docentes" className={getLinkClass("/admin/documentos-docentes")}>{"📄"} {tituloDocentes}</Link>
 
                       <Link
                         href="/admin/substituicoes-docentes"

@@ -9,6 +9,12 @@ datasource db {
 }
 
 model Instituicao {
+  documentosDocentes DocumentoDocente[]
+  permissoesPaginasProfessor ProfessorPaginaPortal[]
+  historicosPermissaoProfessor HistoricoPermissaoProfessor[]
+  regrasPlanejamentoAula RegraPlanejamentoAula[]
+  planosRelatoriosAula PlanoRelatorioAula[]
+  registrosDesenvolvimento RegistroDesenvolvimento[]
   // Reservas de turmas avulsas sem grade curricular (isoladas por instituicao).
   horariosTurmaAvulsa TurmaHorarioAvulso[]
   vinculosMatriculaTurmaAvulsa MatriculaTurmaAvulsa[]
@@ -677,6 +683,7 @@ model ImpersonacaoSuporte {
 }
 
 model Aluno {
+  registrosDesenvolvimento RegistroDesenvolvimento[]
   id                           Int                         @id @default(autoincrement())
   nome                         String
   createdAt                    DateTime                    @default(now())
@@ -771,6 +778,11 @@ model Aluno {
 }
 
 model Professor {
+  documentosDocentes DocumentoDocente[]
+  permissoesPaginasPortal ProfessorPaginaPortal[]
+  historicosPermissaoProfessor HistoricoPermissaoProfessor[]
+  planosRelatoriosAula PlanoRelatorioAula[]
+  registrosDesenvolvimento RegistroDesenvolvimento[]
   sessoesOptativasAvulsas SessaoOptativaAvulsa[]
   id                Int         @id @default(autoincrement())
   nome              String
@@ -1107,6 +1119,8 @@ model Disciplina {
 }
 
 model Turma {
+  planosRelatoriosAula PlanoRelatorioAula[]
+  registrosDesenvolvimento RegistroDesenvolvimento[]
   sessoesOptativasAvulsas TurmaSessaoOptativaAvulsa[]
   // Horarios proprios de cursos avulsos sem vinculo com TurmaDisciplina.
   horariosAvulsos TurmaHorarioAvulso[]
@@ -2791,6 +2805,7 @@ model Assinatura {
 }
 
 model DocumentoTemplate {
+  documentosDocentes DocumentoDocente[]
   id            Int                   @id @default(autoincrement())
   nome          String
   descricao     String?
@@ -11853,4 +11868,218 @@ model CursoRequisitoConjunto {
   @@unique([cursoId, cursoObrigatorioId])
   @@index([instituicaoId, cursoId])
   @@index([instituicaoId, cursoObrigatorioId])
+}
+
+// PHANYX 2026-11-10: modulos independentes de planejamento, relatórios e práticas.
+model ProfessorPaginaPortal {
+  id            Int      @id @default(autoincrement())
+  instituicaoId Int
+  professorId   Int
+  chavePagina   String
+  modo          String   // HABILITADA | DESABILITADA (ausencia = PADRAO)
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+  instituicao   Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  professor     Professor   @relation(fields: [professorId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  @@unique([professorId, chavePagina])
+  @@index([instituicaoId, professorId])
+}
+
+model RegraPlanejamentoAula {
+  id            Int      @id @default(autoincrement())
+  instituicaoId Int
+  cursoId       Int      @default(0) // 0 = regra institucional
+  periodicidade String   @default("SEMANAL") // SEMANAL, MENSAL, ANUAL
+  exigeAprovacao Boolean @default(true)
+  atualizadoEm  DateTime @updatedAt
+  instituicao   Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  @@unique([instituicaoId, cursoId])
+}
+
+model PlanoRelatorioAula {
+  id             Int      @id @default(autoincrement())
+  instituicaoId  Int
+  professorId    Int
+  turmaId        Int
+  tipo           String   // PLANEJAMENTO | RELATORIO
+  periodicidade  String
+  inicioPeriodo  DateTime @db.Date
+  fimPeriodo     DateTime @db.Date
+  titulo         String
+  objetivos      String   @db.Text
+  conteudo       String   @db.Text
+  metodologia    String   @db.Text
+  recursos       String?  @db.Text
+  avaliacao      String?  @db.Text
+  observacoes    String?  @db.Text
+  status         String   @default("RASCUNHO") // ENVIADO, REVISAO, APROVADO
+  devolutiva     String?  @db.Text
+  enviadoEm      DateTime?
+  revisadoEm     DateTime?
+  revisadoPorId  Int?
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+  instituicao    Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  professor      Professor   @relation(fields: [professorId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  turma          Turma       @relation(fields: [turmaId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  @@index([instituicaoId, status, tipo])
+  @@index([professorId, inicioPeriodo])
+}
+
+model RegistroDesenvolvimento {
+  id             Int      @id @default(autoincrement())
+  instituicaoId  Int
+  professorId    Int
+  alunoId        Int
+  turmaId        Int
+  tipo           String   // EVOLUCAO | AVALIACAO | TAREFA
+  titulo         String
+  descricao      String   @db.Text
+  conceito       String?
+  nota           Decimal? @db.Decimal(6, 2)
+  prazoTarefa    DateTime? @db.Date
+  status         String   @default("RASCUNHO") // ENVIADO, DEVOLVIDO, PUBLICADO
+  devolutiva     String?  @db.Text
+  autorizacaoImagemConfirmada Boolean @default(false)
+  publicadoEm    DateTime?
+  publicadoPorId Int?
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+  instituicao    Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  professor      Professor   @relation(fields: [professorId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  aluno          Aluno       @relation(fields: [alunoId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  turma          Turma       @relation(fields: [turmaId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  imagens        ImagemDesenvolvimento[]
+  @@index([instituicaoId, status])
+  @@index([alunoId, publicadoEm])
+  @@index([professorId, turmaId])
+}
+
+model ImagemDesenvolvimento {
+  id             Int      @id @default(autoincrement())
+  registroId     Int
+  instituicaoId  Int
+  chaveR2        String   @unique
+  mime           String
+  tamanho        Int
+  nomeOriginal   String
+  criadoEm       DateTime @default(now())
+  registro       RegistroDesenvolvimento @relation(fields: [registroId], references: [id], onDelete: Cascade)
+  @@index([instituicaoId, registroId])
+}
+
+model HistoricoPermissaoProfessor {
+  id            Int      @id @default(autoincrement())
+  instituicaoId Int
+  professorId   Int
+  chavePagina   String
+  modoAnterior  String
+  modoNovo      String
+  alteradoPorId Int
+  alteradoEm    DateTime @default(now())
+  instituicao   Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  professor     Professor @relation(fields: [professorId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  @@index([instituicaoId, professorId, alteradoEm], map: "HistPermProf_inst_prof_data_idx")
+}
+
+model DocumentoDocente {
+  id                Int       @id @default(autoincrement())
+  instituicaoId     Int
+  professorId       Int
+  templateId        Int?
+  turmaId           Int?
+  origem            String
+  tipo              String
+  titulo            String
+  status            String    @default("RASCUNHO")
+  versaoAtual       Int       @default(1)
+  criadoPorId       Int
+  enviadoEm         DateTime?
+  concluidoEm       DateTime?
+  criadoEm          DateTime  @default(now())
+  atualizadoEm      DateTime  @updatedAt
+
+  instituicao       Instituicao         @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  professor         Professor           @relation(fields: [professorId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  template          DocumentoTemplate?  @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  versoes           DocumentoDocenteVersao[]
+  mensagens         DocumentoDocenteMensagem[]
+  anexos            DocumentoDocenteAnexo[]
+  assinaturas       DocumentoDocenteAssinatura[]
+  eventos           DocumentoDocenteEvento[]
+
+  @@index([instituicaoId, professorId, atualizadoEm])
+  @@index([instituicaoId, status, atualizadoEm])
+  @@index([templateId])
+}
+
+model DocumentoDocenteVersao {
+  id              Int      @id @default(autoincrement())
+  documentoId     Int
+  numero          Int
+  modeloSnapshot  String   @db.Text
+  campos          Json
+  criadoPorId     Int
+  criadoEm        DateTime @default(now())
+  documento       DocumentoDocente @relation(fields: [documentoId], references: [id], onDelete: Cascade)
+  @@unique([documentoId, numero])
+  @@index([documentoId, criadoEm])
+}
+
+model DocumentoDocenteMensagem {
+  id              Int      @id @default(autoincrement())
+  documentoId     Int
+  autorId         Int
+  papel           String
+  texto           String   @db.Text
+  criadoEm        DateTime @default(now())
+  documento       DocumentoDocente @relation(fields: [documentoId], references: [id], onDelete: Cascade)
+  @@index([documentoId, criadoEm])
+}
+
+model DocumentoDocenteAnexo {
+  id              Int      @id @default(autoincrement())
+  documentoId     Int
+  mensagemId      Int?
+  enviadoPorId    Int
+  nomeOriginal    String
+  chaveR2         String   @unique
+  mime            String
+  tamanho         Int
+  versao          Int      @default(1)
+  sha256          String?
+  criadoEm        DateTime @default(now())
+  documento       DocumentoDocente @relation(fields: [documentoId], references: [id], onDelete: Cascade)
+  @@index([documentoId, criadoEm])
+  @@index([documentoId, versao])
+}
+
+model DocumentoDocenteAssinatura {
+  id              Int      @id @default(autoincrement())
+  documentoId     Int
+  versao          Int
+  papel           String
+  assinanteId     Int
+  nomeAssinante   String
+  tipo            String
+  imagem          String   @db.Text
+  hashConteudo    String
+  ip              String?
+  userAgent       String?
+  assinadoEm      DateTime @default(now())
+  documento       DocumentoDocente @relation(fields: [documentoId], references: [id], onDelete: Cascade)
+  @@unique([documentoId, versao, papel])
+  @@index([documentoId, assinadoEm])
+}
+
+model DocumentoDocenteEvento {
+  id              Int      @id @default(autoincrement())
+  documentoId     Int
+  usuarioId       Int
+  tipo            String
+  descricao       String?
+  versao          Int
+  criadoEm        DateTime @default(now())
+  documento       DocumentoDocente @relation(fields: [documentoId], references: [id], onDelete: Cascade)
+  @@index([documentoId, criadoEm])
 }

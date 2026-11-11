@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import jwt from "jsonwebtoken";
 import { redirect } from "next/navigation";
@@ -22,6 +22,7 @@ export default async function AlunoLayout({
     await getTranslations(
       "StudentLayout"
     );
+  const tPlanning = await getTranslations("PlanningTracking");
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
@@ -337,6 +338,7 @@ export default async function AlunoLayout({
     rematricula: mostrarRematricula,
     disciplinas: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.disciplinas"),
     progresso: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.progresso"),
+    desenvolvimento: await paginaVisivel(aluno.instituicaoId,"ALUNO","aluno.desenvolvimento",false),
     trabalhos: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.trabalhos"),
     presenca: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.presenca"),
     boletim: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.boletim"),
@@ -351,6 +353,8 @@ export default async function AlunoLayout({
     dados: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.dados"),
   };
 
+  const caminhoAluno = (await headers()).get("x-phanyx-rota-aluno") || "";
+  if ((caminhoAluno === "/aluno/desenvolvimento" || caminhoAluno.startsWith("/aluno/desenvolvimento/")) && !visibilidadeAluno.desenvolvimento) redirect("/aluno/sem-acesso");
   return (
     <>
       <ImpersonacaoBanner />
@@ -368,6 +372,7 @@ export default async function AlunoLayout({
                 rematricula: visibilidadeAluno.rematricula,
                 disciplinas: visibilidadeAluno.disciplinas,
                 progresso: visibilidadeAluno.progresso,
+                desenvolvimento: visibilidadeAluno.desenvolvimento,
                 trabalhos: visibilidadeAluno.trabalhos,
                 presenca: visibilidadeAluno.presenca,
                 boletim: visibilidadeAluno.boletim,
@@ -390,6 +395,7 @@ export default async function AlunoLayout({
 
           <nav className="fixed bottom-0 left-0 right-0 z-[70] overflow-x-auto border-t border-slate-200 bg-white/95 px-1 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur dark:border-slate-700 dark:bg-slate-950/95 lg:hidden">
             <div className="grid w-max auto-cols-[78px] grid-flow-col gap-1 text-[9px] font-semibold text-slate-700 dark:text-slate-200">
+              {visibilidadeAluno.desenvolvimento && <a href="/aluno/desenvolvimento" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 dark:hover:bg-slate-800"><span className="text-lg">📈</span>{tPlanning("myDevelopment")}</a>}
               {visibilidadeAluno.biblioteca && <a href="/aluno/biblioteca" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-slate-100 dark:hover:bg-slate-800"><span className="text-lg" aria-hidden="true">📚</span>{tAluno("library")}</a>}
               {visibilidadeAluno.painel && (
                 <a
