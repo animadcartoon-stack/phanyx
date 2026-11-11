@@ -1,3 +1,4 @@
+import { isDeepStrictEqual } from "node:util";
 import { createHash, randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
@@ -227,7 +228,7 @@ export async function POST(request: Request, { params }: Contexto) {
       // Revalidação exata da proposta SALVA antes de liberar a vaga anterior.
       const previa = await prepararContratacaoModalidades(tx, instituicaoId, baseProposta);
       if (previa.versao !== plano.versaoOfertas ||
-          JSON.stringify(previa.calculo) !== JSON.stringify(plano.calculo)) {
+          !isDeepStrictEqual(previa.calculo, plano.calculo)) {
         throw new ErroExecucaoReatribuicao("PROPOSTA_DESATUALIZADA", 409,
           "O valor, as vagas ou as regras foram alterados. Gere e salve uma nova proposta.");
       }
@@ -248,7 +249,7 @@ export async function POST(request: Request, { params }: Contexto) {
       // A retirada da origem altera a ocupação. Revalida a proposta novamente,
       // agora contra o estado definitivo de vagas dentro da mesma transação.
       const definitiva = await prepararContratacaoModalidades(tx, instituicaoId, baseProposta);
-      if (JSON.stringify(definitiva.calculo) !== JSON.stringify(previa.calculo)) {
+      if (!isDeepStrictEqual(definitiva.calculo, previa.calculo)) {
         throw new ErroExecucaoReatribuicao("VALORES_ALTERADOS", 409);
       }
       const situacao = proposta.dataInicioCurso > hoje ? "A_INICIAR" : "ATIVA";
