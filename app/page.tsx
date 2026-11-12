@@ -254,7 +254,7 @@ export default function HomePage() {
                   </span>
 
                   <span className="mt-2 block bg-gradient-to-r from-blue-300 via-blue-200 to-blue-400 bg-clip-text text-transparent">
-                    mais controle institucional, experiência moderna e base SaaS real
+                    Matrículas, financeiro e documentos em um só lugar.
                   </span>
                 </h1>
 
