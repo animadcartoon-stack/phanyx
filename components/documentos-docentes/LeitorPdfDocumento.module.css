@@ -1,0 +1,53 @@
+.camadaTexto {
+  position: absolute;
+  z-index: 1;
+  overflow: clip;
+  line-height: 1;
+  text-align: initial;
+  transform-origin: 0 0;
+  user-select: text;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  --min-font-size: 1;
+  --scale-round-x: 1px;
+  --scale-round-y: 1px;
+  --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));
+  --min-font-size-inv: calc(1 / var(--min-font-size));
+}
+
+.camadaTexto :global(span), .camadaTexto :global(br) {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0 0;
+}
+
+.camadaTexto > :not(:global(.markedContent)),
+.camadaTexto :global(.markedContent) span:not(:global(.markedContent)) {
+  --font-height: 0;
+  --scale-x: 1;
+  --rotate: 0deg;
+  font-size: calc(var(--text-scale-factor) * var(--font-height));
+  transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv));
+}
+
+.camadaTexto :global(.markedContent) {
+  display: contents;
+}
+
+.camadaTexto ::selection {
+  background: #2563eb55;
+}
+
+.camadaTexto[data-main-rotation="90"] {
+  transform: rotate(90deg) translateY(-100%);
+}
+
+.camadaTexto[data-main-rotation="180"] {
+  transform: rotate(180deg) translate(-100%, -100%);
+}
+
+.camadaTexto[data-main-rotation="270"] {
+  transform: rotate(270deg) translateX(-100%);
+}

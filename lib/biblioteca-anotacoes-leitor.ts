@@ -14,3 +14,13 @@ export function filtrarAnotacoesLeitor(anotacoes: AnotacaoLeitor[], busca: strin
 export function anotacaoTemTrecho(a: AnotacaoLeitor) {
   return (a.tipo === "DESTAQUE" || a.tipo === "NOTA") && Array.isArray(a.areas) && a.areas.length > 0;
 }
+
+export function areasSelecaoPdf(range: Range, camada: HTMLElement): AreaAnotacaoLeitor[] {
+  const bounds = camada.getBoundingClientRect();
+  if (!bounds.width || !bounds.height) return [];
+  return Array.from(range.getClientRects()).filter(r => r.width > 1 && r.height > 1).slice(0, 100).map(r => {
+    const x = Math.max(0, Math.min(1, (r.left - bounds.left) / bounds.width));
+    const y = Math.max(0, Math.min(1, (r.top - bounds.top) / bounds.height));
+    return { x, y, largura: Math.min(1 - x, r.width / bounds.width), altura: Math.min(1 - y, r.height / bounds.height) };
+  }).filter(r => r.largura > 0 && r.altura > 0);
+}

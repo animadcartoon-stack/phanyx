@@ -273,7 +273,7 @@ export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLe
       {progresso && <p role="status" className="text-sm">{progresso}</p>}
       {urlVisivel && (
         <div className={edicao ? "grid items-start gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]" : ""}>
-          <LeitorPdfDocumento url={urlVisivel} pagina={pagina} onPagina={n => { if (!ocupado) navegar(n); }}
+          <LeitorPdfDocumento permitirMarcacoes url={urlVisivel} pagina={pagina} onPagina={n => { if (!ocupado) navegar(n); }}
             onPdfPronto={origem ? setPdfLido : undefined}
             onPonto={edicao ? p => { if (!ocupado) selecionarPonto(p); } : undefined} ponto={edicao ? ponto : null} />
           {edicao && dados && arquivo?.dados === dados && <section className="space-y-4 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
