@@ -18,4 +18,11 @@ for (const arquivo of ["pdf.min.mjs", "pdf.worker.min.mjs", "LICENSE", "cmaps", 
   const origem = path.join(destino, arquivo);
   if (fs.existsSync(origem)) fs.cpSync(origem, path.join(versionado, arquivo), { recursive: true });
 }
+const wasmPdfium = require.resolve("@embedpdf/pdfium/pdfium.wasm");
+const pastaPdfium = path.join(destino, "pdfium");
+fs.mkdirSync(pastaPdfium, { recursive: true });
+fs.copyFileSync(wasmPdfium, path.join(pastaPdfium, "pdfium.wasm"));
+for (const arquivo of ["LICENSE", "LICENSE.pdfium"]) {
+  fs.copyFileSync(path.resolve(path.dirname(wasmPdfium), "..", arquivo), path.join(pastaPdfium, arquivo));
+}
 console.log("OK: arquivos do leitor PDF preparados localmente.");

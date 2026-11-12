@@ -98,7 +98,11 @@ export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, pon
     void carregar();
     return () => {
       ativo = false;
-      if (tarefa) void tarefa.destroy().catch(() => undefined);
+      if (tarefa) {
+        const anterior = tarefa;
+        // A fonte pode ser trocada enquanto o PDF.js ainda resolve o documento.
+        void anterior.promise.catch(() => undefined).then(() => anterior.destroy()).catch(() => undefined);
+      }
     };
   }, [url, tentativa]);
 
