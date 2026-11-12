@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { PDFDocumentLoadingTask, PDFDocumentProxy, PDFPageProxy, RenderTask, PageViewport, TextLayer } from "pdfjs-dist";
 import { carregarBibliotecaPdf, obterWorkerBibliotecaPdf, raizPdfBiblioteca } from "@/lib/biblioteca-pdf-client";
@@ -9,6 +9,7 @@ import { areasSelecaoPdf, type AreaAnotacaoLeitor } from "@/lib/biblioteca-anota
 import { CORES_MARCACOES, pintarMarcacoesPdf } from "@/lib/biblioteca-cores-marcacoes";
 import { textosMarcadoresPdf } from "@/lib/documentos-docentes/i18n-marcadores-pdf";
 import styles from "./LeitorPdfDocumento.module.css";
+import type { AreaVisualPdf } from "@/lib/documentos-docentes/operacoes-visuais-pdf";
 
 export type PontoPdf = { x: number; y: number };
 
@@ -17,6 +18,8 @@ type Props = {
   pagina?: number;
   onPagina?: (pagina: number) => void;
   onPonto?: (ponto: PontoPdf) => void;
+  onArea?: (area: AreaVisualPdf | null) => void;
+  area?: AreaVisualPdf | null;
   ponto?: PontoPdf | null;
   onPdfPronto?: (pdf: PDFDocumentProxy | null) => void;
   permitirMarcacoes?: boolean;
@@ -34,7 +37,7 @@ const coresExtras = ["#ff8a26", "#2ea8ff", "#a56bff", "#ff3b3b", "#bdff00", "#00
 
 export const botaoLeitorPdf = "rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium disabled:opacity-40 dark:border-slate-600";
 
-export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, ponto, onPdfPronto, permitirMarcacoes = false }: Props) {
+export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, ponto, onArea, area, onPdfPronto, permitirMarcacoes = false }: Props) {
   const t = useTranslations("ReaderLibrary");
   const textosMarcacao = textosMarcadoresPdf(useLocale());
   const [pdf, setPdf] = useState<PDFDocumentProxy | null>(null);
@@ -47,6 +50,8 @@ export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, pon
   const [busca, setBusca] = useState("");
   const [resultado, setResultado] = useState<number[] | "erro" | null>(null);
   const quadro = useRef<HTMLDivElement>(null);
+  const arraste = useRef<{ id: number; inicio: PontoPdf } | null>(null);
+  const [areaArrastada, setAreaArrastada] = useState<AreaVisualPdf | null>(null);
   const folha = useRef<HTMLDivElement>(null);
   const camadaTexto = useRef<HTMLDivElement>(null);
   const paginaRenderizada = useRef<PaginaRenderizada | null>(null);
@@ -57,7 +62,8 @@ export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, pon
   const [destaques, setDestaques] = useState<Record<number, Destaque[]>>({});
   const [selecao, setSelecao] = useState<AreaAnotacaoLeitor[]>([]);
   const [textoPronto, setTextoPronto] = useState<boolean | null>(null);
-  const podeMarcar = permitirMarcacoes && !onPonto;
+  const selecionandoArea = Boolean(onArea);
+  const podeMarcar = permitirMarcacoes && !onPonto && !selecionandoArea;
   const selecionarTexto = podeMarcar && marcaTexto;
   const destaquesPagina = destaques[numero];
 
@@ -95,6 +101,11 @@ export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, pon
       if (tarefa) void tarefa.destroy().catch(() => undefined);
     };
   }, [url, tentativa]);
+
+  useEffect(() => {
+    arraste.current = null;
+    setAreaArrastada(null);
+  }, [selecionandoArea, numero, url, zoom, largura]);
 
   useEffect(() => {
     onPdfPronto?.(pdf);
@@ -248,6 +259,44 @@ export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, pon
     setDestaques(atuais => ({ ...atuais, [numero]: atuais[numero]?.slice(0, -1) ?? [] }));
   }
 
+  function pontoNaArea(e: PointerEvent<HTMLDivElement>): PontoPdf | null {
+    const borda = paginaRenderizada.current?.canvas.getBoundingClientRect();
+    if (!borda?.width || !borda.height) return null;
+    return {
+      x: Math.max(0, Math.min(1, (e.clientX - borda.left) / borda.width)),
+      y: Math.max(0, Math.min(1, (e.clientY - borda.top) / borda.height)),
+    };
+  }
+
+  function calcularArea(e: PointerEvent<HTMLDivElement>): AreaVisualPdf | null {
+    const inicio = arraste.current;
+    const fim = pontoNaArea(e);
+    if (!inicio || inicio.id !== e.pointerId || !fim) return null;
+    return {
+      x: Math.min(inicio.inicio.x, fim.x),
+      y: Math.min(inicio.inicio.y, fim.y),
+      largura: Math.abs(inicio.inicio.x - fim.x),
+      altura: Math.abs(inicio.inicio.y - fim.y),
+    };
+  }
+
+  function iniciarArea(e: PointerEvent<HTMLDivElement>) {
+    if (e.button !== 0 || e.target !== paginaRenderizada.current?.canvas) return;
+    const inicio = pontoNaArea(e);
+    if (!inicio) return;
+    arraste.current = { id: e.pointerId, inicio };
+    e.currentTarget.setPointerCapture(e.pointerId);
+    onArea?.(null);
+  }
+
+  function finalizarArea(e: PointerEvent<HTMLDivElement>) {
+    const resultado = calcularArea(e);
+    arraste.current = null;
+    setAreaArrastada(null);
+    if (resultado && resultado.largura > 0 && resultado.altura > 0) onArea?.(resultado);
+  }
+
+  const retangulo = selecionandoArea ? areaArrastada ?? area : null;
   const marca = ponto && viewportAtual ? viewportAtual.convertToViewportPoint(ponto.x, ponto.y) : null;
   return (
     <section className="min-w-0 space-y-3">
@@ -293,7 +342,7 @@ export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, pon
             </div>
             <p className="text-sm" role="status">{textoPronto === false ? textosMarcacao.semTexto : textosMarcacao.selecione}</p>
           </div>}
-          {!onPonto && <form className="flex flex-wrap gap-2" onSubmit={e => { e.preventDefault(); setBusca(termo.trim()); }}>
+          {!onPonto && !selecionandoArea && <form className="flex flex-wrap gap-2" onSubmit={e => { e.preventDefault(); setBusca(termo.trim()); }}>
             <input type="search" className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm dark:border-slate-600"
               aria-label={t("documentSearch")} placeholder={t("documentSearch")} maxLength={120} value={termo}
               onChange={e => { setTermo(e.target.value); if (!e.target.value) setBusca(""); }} />
@@ -309,7 +358,13 @@ export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, pon
       )}
       <div className="max-h-[72vh] overflow-auto rounded-lg bg-slate-100 dark:bg-slate-950" hidden={falha}>
         <div ref={quadro} className="relative min-h-40 py-2">
-          <div ref={folha} className={onPonto ? "cursor-crosshair" : undefined} onClick={onPonto ? e => {
+          <div ref={folha}
+            className={selecionandoArea ? "touch-none cursor-crosshair select-none" : onPonto ? "cursor-crosshair" : undefined}
+            onPointerDown={selecionandoArea ? iniciarArea : undefined}
+            onPointerMove={selecionandoArea ? e => { if (arraste.current) setAreaArrastada(calcularArea(e)); } : undefined}
+            onPointerUp={selecionandoArea ? finalizarArea : undefined}
+            onLostPointerCapture={selecionandoArea ? () => { arraste.current = null; setAreaArrastada(null); } : undefined}
+            onClick={onPonto ? e => {
             const atual = paginaRenderizada.current;
             if (!atual || e.target !== atual.canvas) return;
             const borda = atual.canvas.getBoundingClientRect();
@@ -318,6 +373,14 @@ export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, pon
           } : undefined} />
           {selecionarTexto && viewportAtual && <div ref={camadaTexto} className={styles.camadaTexto}
             style={{ top: 8, left: Math.max(0, (largura - viewportAtual.width) / 2) }} />}
+          {retangulo && viewportAtual && <div aria-hidden data-pdf-area="true"
+            className="pointer-events-none absolute z-10 border-2 border-blue-600 bg-blue-400/20"
+            style={{
+              left: Math.max(0, (largura - viewportAtual.width) / 2) + retangulo.x * viewportAtual.width,
+              top: 8 + retangulo.y * viewportAtual.height,
+              width: retangulo.largura * viewportAtual.width,
+              height: retangulo.altura * viewportAtual.height,
+            }} />}
           {marca && viewportAtual && <div aria-hidden className="pointer-events-none absolute top-2"
             style={{ width: viewportAtual.width, left: Math.max(0, (largura - viewportAtual.width) / 2) }}>
             <span className="absolute h-3 w-3 rounded-full bg-blue-600 ring-2 ring-white"
