@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Header from "@/components/layout/Header";
+import FreeToolsPromo from "@/components/marketing/FreeToolsPromo";
 import SuporteWhatsAppButton from "@/components/marketing/SuporteWhatsAppButton";
 import Image from "next/image";
 import Footer from "@/components/layout/Footer";
@@ -392,6 +393,8 @@ export default function HomePage() {
 
           <SuporteWhatsAppButton />
         </section>
+
+        <FreeToolsPromo locale="pt-BR" />
 
         <section className="border-b border-slate-200 bg-white">
           <div className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-12">

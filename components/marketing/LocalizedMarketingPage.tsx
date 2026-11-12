@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import FreeToolsPromo from "@/components/marketing/FreeToolsPromo";
 import LocalizedHeader from "@/components/marketing/LocalizedHeader";
 import type { ForeignLocale } from "@/lib/localized-plans";
 import { localizedHome } from "@/lib/localized-home";
@@ -57,6 +58,8 @@ export default function LocalizedMarketingPage({ locale, section }: { locale: Fo
             </div>
           </div>
         </section>
+
+        {section === "home" ? <FreeToolsPromo locale={locale} /> : null}
 
         <section className="border-b border-slate-200 bg-white"><div className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-12">
           <h2 className="text-3xl font-bold md:text-4xl">{copy.featuresTitle}</h2><p className="mt-3 text-slate-600">{copy.featuresDescription}</p>
