@@ -39,7 +39,7 @@ export default function LocalizedMarketingPage({ locale, section }: { locale: Fo
                 <p className="mb-3 inline-flex rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-semibold text-blue-200">{t.kicker}</p>
                 <h1 className="mt-4 text-[2rem] font-semibold leading-[1.05] tracking-[-0.04em] sm:text-4xl xl:text-[3.1rem]">
                   <span className="block text-white">{section === "academic" ? copy.headline : t.lead}</span>
-                  <span className="mt-2 block bg-gradient-to-r from-blue-300 via-blue-200 to-blue-400 bg-clip-text text-transparent">{t.accent}</span>
+                  <span className="mt-2 block bg-gradient-to-r from-blue-300 via-blue-200 to-blue-400 bg-clip-text text-transparent">{section === "home" ? t.homeAccent : t.accent}</span>
                 </h1>
                 <p className="mt-5 max-w-xl text-sm leading-7 text-slate-300 md:text-base">{section === "academic" ? copy.intro : t.intro}</p>
                 <p className="mt-6 text-slate-300">{t.theologyLead} <a href="/ibe/matricula" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">{t.theologyLink}</a> {t.theologyEnd}</p>
