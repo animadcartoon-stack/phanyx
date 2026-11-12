@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import type { PDFDocument } from "pdf-lib";
@@ -11,6 +11,8 @@ import { textosEditorTextoPdf } from "@/lib/documentos-docentes/i18n-editor-text
 import { documentoTextoVazio, importarTextoPdf, type TextoImportadoPdf } from "@/lib/documentos-docentes/texto-editavel-pdf";
 
 import FerramentaVisualPdf from "./FerramentaVisualPdf";
+import { textosEdicaoNativaPdf } from "@/lib/documentos-docentes/i18n-edicao-nativa-pdf";
+import { executarEdicaoNativaPdf, type CaixaNativaPdf, type SelecaoNativaPdf } from "@/lib/documentos-docentes/edicao-nativa-pdf";
 import { textosEdicaoVisualPdf } from "@/lib/documentos-docentes/i18n-edicao-visual-pdf";
 import { aplicarOperacaoVisualPdf, type AreaVisualPdf, type OperacaoVisualPdf } from "@/lib/documentos-docentes/operacoes-visuais-pdf";
 import { useTelaCheiaPdf } from "./useTelaCheiaPdf";
@@ -20,6 +22,7 @@ const EditorTextoPdf = dynamic(() => import("./EditorTextoPdf"), { ssr: false })
 
 const LIMITE_ARQUIVO = 30 * 1024 * 1024;
 type DadosPdf = { bytes: Uint8Array<ArrayBuffer>; total: number; nome: string; modificado?: boolean };
+type ModoEdicaoPdf = OperacaoVisualPdf["tipo"] | "textoNativo";
 type OperacaoPdf = (documento: PDFDocument, biblioteca: typeof import("pdf-lib")) => Promise<void> | void;
 type OrigemPdf = {
   url: string;
@@ -44,6 +47,7 @@ export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLe
   const t = textosEditorPdf(locale);
   const tTexto = textosEditorTextoPdf(locale);
   const tVisual = textosEdicaoVisualPdf(locale);
+  const tNativo = textosEdicaoNativaPdf(locale);
   const leitor = useTranslations("ReaderLibrary");
   const tela = useTelaCheiaPdf();
   const [imagemSelecionada, setImagemSelecionada] = useState<File | null>(null);
@@ -51,7 +55,11 @@ export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLe
   const [dados, setDados] = useState<DadosPdf | null>(null);
   const [pdfLido, setPdfLido] = useState<PDFDocumentProxy | null>(null);
   const [edicao, setEdicao] = useState(false);
-  const [modoVisual, setModoVisual] = useState<OperacaoVisualPdf["tipo"] | null>(null);
+  const [modoVisual, setModoVisual] = useState<ModoEdicaoPdf | null>(null);
+  const [selecaoNativa, setSelecaoNativa] = useState<SelecaoNativaPdf | null>(null);
+  const [textoNativo, setTextoNativo] = useState("");
+  const caixaTextoNativo = useRef<HTMLTextAreaElement>(null);
+  const [corNativa, setCorNativa] = useState<string | null>(null);
   const [areaVisual, setAreaVisual] = useState<AreaVisualPdf | null>(null);
   const [anterior, setAnterior] = useState<{ dados: DadosPdf; pagina: number } | null>(null);
   const [arquivo, setArquivo] = useState<{ dados: DadosPdf; url: string } | null>(null);
@@ -64,6 +72,10 @@ export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLe
   const [ocupado, setOcupado] = useState(false);
   const [progresso, setProgresso] = useState("");
   const [textoEditavel, setTextoEditavel] = useState<{ documento: TextoImportadoPdf; nome: string; importado: boolean } | null>(null);
+
+  useEffect(() => {
+    if (selecaoNativa && !ocupado) caixaTextoNativo.current?.focus({ preventScroll: true });
+  }, [selecaoNativa, ocupado]);
 
   useEffect(() => {
     if (!dados) return;
@@ -82,6 +94,11 @@ export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLe
         AREA_PEQUENA: tVisual.areaPequena,
         GRAFICO_PEQUENO: tVisual.graficoPequeno,
         TEXTO_NAO_CABE: tVisual.textoNaoCabe,
+        TEXTO_NATIVO_NAO_CABE: tNativo.naoCabe,
+        TEXTO_NATIVO_INDISPONIVEL: tNativo.semTexto,
+        COR_OBJETO_PARCIAL: tNativo.parcial,
+        FONTE_NATIVA: tNativo.fonte,
+        LINHAS_NATIVAS: tNativo.linhas,
       };
       setErro(errosVisuais[codigo] ?? t.falha);
     }
@@ -114,10 +131,11 @@ export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLe
     setEdicao(false);
   }
 
-  function escolherModoVisual(modo: OperacaoVisualPdf["tipo"] | null) {
+  function escolherModoVisual(modo: ModoEdicaoPdf | null) {
     setErro("");
     setAreaVisual(null);
     setModoVisual(modo);
+    setSelecaoNativa(null);
   }
 
   async function editarTexto() {
@@ -147,6 +165,7 @@ export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLe
   function navegar(numero: number) {
     setPagina(numero);
     setAreaVisual(null);
+    setSelecaoNativa(null);
     setX("");
     setY("");
   }
@@ -175,9 +194,51 @@ export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLe
       await fn(pdf, lib);
       const bytes = await pdf.save({ updateFieldAppearances: false });
       if (bytes.byteLength > LIMITE_ARQUIVO) throw new Error("Tamanho inválido");
-      setAnterior({ dados, pagina });
-      navegar(Math.min(proximaPagina, pdf.getPageCount()));
-      setDados({ bytes: new Uint8Array(bytes), total: pdf.getPageCount(), nome: dados.nome, modificado: true });
+      guardarCopia(new Uint8Array(bytes), dados, Math.min(proximaPagina, pdf.getPageCount()), pdf.getPageCount());
+    });
+  }
+
+  function guardarCopia(bytes: Uint8Array<ArrayBuffer>, original: DadosPdf, proximaPagina = pagina, total = original.total) {
+    setAnterior({ dados: original, pagina });
+    navegar(proximaPagina);
+    setDados({ bytes, total, nome: original.nome, modificado: true });
+  }
+
+  async function caixaNativa(area: AreaVisualPdf, leitura: PDFDocumentProxy): Promise<CaixaNativaPdf> {
+    const folha = await leitura.getPage(pagina);
+    const vista = folha.getViewport({ scale: 1 });
+    const [x1, y1] = vista.convertToPdfPoint(area.x * vista.width, area.y * vista.height);
+    const [x2, y2] = vista.convertToPdfPoint((area.x + area.largura) * vista.width, (area.y + area.altura) * vista.height);
+    return { esquerda: Math.min(x1, x2), baixo: Math.min(y1, y2), direita: Math.max(x1, x2), alto: Math.max(y1, y2) };
+  }
+
+  function selecionarArea(area: AreaVisualPdf | null) {
+    if (ocupado) return;
+    setAreaVisual(area);
+    setSelecaoNativa(null);
+    setCorNativa(null);
+    setTextoNativo("");
+    if (modoVisual !== "textoNativo" || !area || !dados || !pdfLido) return;
+    void executar(async () => {
+      const caixa = await caixaNativa(area, pdfLido);
+      const resposta = await executarEdicaoNativaPdf(dados.bytes, pagina, { tipo: "selecionar", caixa });
+      if ("erro" in resposta) throw new Error(resposta.erro);
+      if (!("selecao" in resposta)) throw new Error("PDFIUM");
+      setTextoNativo(resposta.selecao.texto);
+      setSelecaoNativa(resposta.selecao);
+    });
+  }
+
+  function salvarTextoNativo() {
+    if (!dados || !areaVisual || !pdfLido || !selecaoNativa || ocupado) return;
+    const cor = corNativa === selecaoNativa.cor ? null : corNativa;
+    if (textoNativo === selecaoNativa.texto && !cor) return;
+    void executar(async () => {
+      const caixa = await caixaNativa(areaVisual, pdfLido);
+      const resposta = await executarEdicaoNativaPdf(dados.bytes, pagina, { tipo: "editar", caixa, texto: textoNativo, cor });
+      if ("erro" in resposta) throw new Error(resposta.erro);
+      if (!("bytes" in resposta)) throw new Error("PDFIUM");
+      guardarCopia(new Uint8Array(resposta.bytes), dados);
     });
   }
 
@@ -269,7 +330,7 @@ export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLe
     setTextoEditavel({ documento: { conteudo: documentoTextoVazio, paginasSemTexto: [] }, nome: "documento-phanyx", importado: false });
   }
 
-  const copiaModificada = dados?.modificado === true;
+  const copiaModificada = arquivo?.dados.modificado === true;
   const urlVisivel = origem && !copiaModificada ? origem.url : arquivo?.url;
   const nomeCopia = dados && `${dados.nome.replace(/\.pdf$/i, "")}-phanyx.pdf`;
   const nomeVisivel = origem?.nome ?? dados?.nome;
@@ -315,14 +376,14 @@ export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLe
         <div className={edicao ? "grid items-start gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]" : ""}>
           <LeitorPdfDocumento permitirMarcacoes url={urlVisivel} pagina={pagina} onPagina={n => { if (!ocupado) navegar(n); }}
             onPdfPronto={setPdfLido}
-            onArea={edicao && modoVisual ? setAreaVisual : undefined} area={areaVisual}
+            onArea={edicao && modoVisual ? selecionarArea : undefined} area={areaVisual}
             onPonto={edicao && !modoVisual ? p => { if (!ocupado) selecionarPonto(p); } : undefined}
             ponto={edicao && !modoVisual ? ponto : null} />
           {edicao && dados && arquivo?.dados === dados && <section className="space-y-4 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
             <p className="break-all text-sm font-semibold">{dados.nome}</p>
             <div className="flex flex-wrap gap-2">
-              <button type="button" disabled={ocupado} aria-pressed={modoVisual === "texto"} className={botaoModo}
-                onClick={() => escolherModoVisual("texto")}>{tVisual.editar}</button>
+              <button type="button" disabled={ocupado} aria-pressed={modoVisual === "textoNativo"} className={botaoModo}
+                onClick={() => escolherModoVisual("textoNativo")}>{tNativo.texto}</button>
               <button type="button" disabled={ocupado} aria-pressed={modoVisual === "remover"} className={botaoModo}
                 onClick={() => escolherModoVisual("remover")}>{tVisual.remover}</button>
               {anterior && <button type="button" disabled={ocupado} className={botaoLeitorPdf} onClick={desfazer}>{tVisual.desfazer}</button>}
@@ -336,8 +397,25 @@ export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLe
                 ))}
               </div>
             </div>
-            {modoVisual && <FerramentaVisualPdf key={modoVisual} modo={modoVisual} temArea={Boolean(areaVisual && pdfLido)}
-              ocupado={ocupado} onAplicar={aplicarVisual} onCancelar={() => escolherModoVisual(null)} />}
+            {modoVisual === "textoNativo" && <fieldset disabled={ocupado} className="space-y-2 rounded-lg border border-blue-300 p-3 dark:border-blue-700">
+              <p className="text-sm" role="status">{selecaoNativa ? tNativo.pronto : tNativo.selecionar}</p>
+              <label className="block text-sm">{tNativo.textoSelecionado}
+                <textarea ref={caixaTextoNativo} className={`block w-full ${campo}`} rows={5} maxLength={12000} disabled={!selecaoNativa}
+                  value={selecaoNativa ? textoNativo : ""} onChange={e => setTextoNativo(e.target.value)} />
+              </label>
+              {selecaoNativa && <div className="flex flex-wrap items-center gap-3">
+                <label className="flex items-center gap-2 text-sm">{tNativo.cor}
+                  <input type="color" className="h-8 w-10" value={corNativa ?? selecaoNativa.cor ?? "#0f172a"} onChange={e => setCorNativa(e.target.value)} />
+                </label>
+                <button type="button" disabled={textoNativo === selecaoNativa.texto && (!corNativa || corNativa === selecaoNativa.cor)}
+                  className="rounded-lg bg-blue-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50" onClick={salvarTextoNativo}>{tVisual.aplicar}</button>
+              </div>}
+            </fieldset>}
+            {modoVisual && modoVisual !== "textoNativo" &&
+              <FerramentaVisualPdf key={modoVisual} modo={modoVisual} temArea={Boolean(areaVisual && pdfLido)}
+                ocupado={ocupado} onAplicar={aplicarVisual} onCancelar={() => escolherModoVisual(null)} />}
+            <button type="button" disabled={ocupado} aria-pressed={modoVisual === "texto"} className={botaoModo}
+              onClick={() => escolherModoVisual("texto")}>{tNativo.retoque}</button>
             <button type="button" disabled={ocupado} onClick={() => void editarTexto()}
               className={botaoLeitorPdf}>{tTexto.editar}</button>
             <fieldset disabled={ocupado} className="space-y-3">
