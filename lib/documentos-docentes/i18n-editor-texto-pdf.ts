@@ -1,6 +1,6 @@
 const rotulos = {
   pt: {
-    editar: "Editar texto do PDF", novo: "Novo documento de texto", titulo: "Edição de texto",
+    editar: "Reformatar texto em uma nova cópia", novo: "Novo documento de texto", titulo: "Edição de texto",
     explicacao: "Formate o conteúdo e salve uma nova cópia pelo diálogo de impressão.",
     importado: "O texto foi importado. Refaça o layout, as tabelas e as imagens conforme necessário.",
     semTexto: "Este PDF não contém texto selecionável. É necessário reconhecimento de texto (OCR) para importar um documento digitalizado.",
@@ -18,7 +18,7 @@ const rotulos = {
     deslocamentoX: "Deslocamento horizontal (px)", deslocamentoY: "Deslocamento vertical (px)",
   },
   en: {
-    editar: "Edit PDF text", novo: "New text document", titulo: "Text editing",
+    editar: "Reformat text in a new copy", novo: "New text document", titulo: "Text editing",
     explicacao: "Format the content and save a new copy from the print dialog.",
     importado: "Text imported. Rebuild layout, tables and images as needed.",
     semTexto: "This PDF has no selectable text. Scanned documents require text recognition (OCR) before import.",
@@ -35,7 +35,7 @@ const rotulos = {
     deslocamentoX: "Horizontal offset (px)", deslocamentoY: "Vertical offset (px)",
   },
   es: {
-    editar: "Editar texto del PDF", novo: "Nuevo documento de texto", titulo: "Edición de texto",
+    editar: "Reformatear texto en una nueva copia", novo: "Nuevo documento de texto", titulo: "Edición de texto",
     explicacao: "Da formato al contenido y guarda una copia desde el diálogo de impresión.",
     importado: "Texto importado. Reconstruye el diseño, las tablas y las imágenes según sea necesario.",
     semTexto: "Este PDF no tiene texto seleccionable. Los documentos escaneados requieren reconocimiento de texto (OCR).",
@@ -52,7 +52,7 @@ const rotulos = {
     deslocamentoX: "Desplazamiento horizontal (px)", deslocamentoY: "Desplazamiento vertical (px)",
   },
   fr: {
-    editar: "Modifier le texte du PDF", novo: "Nouveau document texte", titulo: "Édition du texte",
+    editar: "Reformater le texte dans une nouvelle copie", novo: "Nouveau document texte", titulo: "Édition du texte",
     explicacao: "Mettez en forme le contenu et enregistrez une copie depuis le dialogue d’impression.",
     importado: "Texte importé. Recomposez la mise en page, les tableaux et les images au besoin.",
     semTexto: "Ce PDF ne contient pas de texte sélectionnable. Les documents numérisés nécessitent une reconnaissance de texte (OCR).",

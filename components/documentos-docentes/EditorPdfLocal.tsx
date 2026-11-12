@@ -10,6 +10,9 @@ import { textosEditorPdf } from "@/lib/documentos-docentes/i18n-editor-pdf";
 import { textosEditorTextoPdf } from "@/lib/documentos-docentes/i18n-editor-texto-pdf";
 import { documentoTextoVazio, importarTextoPdf, type TextoImportadoPdf } from "@/lib/documentos-docentes/texto-editavel-pdf";
 
+import FerramentaVisualPdf from "./FerramentaVisualPdf";
+import { textosEdicaoVisualPdf } from "@/lib/documentos-docentes/i18n-edicao-visual-pdf";
+import { aplicarOperacaoVisualPdf, type AreaVisualPdf, type OperacaoVisualPdf } from "@/lib/documentos-docentes/operacoes-visuais-pdf";
 import { useTelaCheiaPdf } from "./useTelaCheiaPdf";
 import { bytesImagemPdf, dimensoesImagemPdf, lerImagemPdf } from "@/lib/documentos-docentes/imagem-pdf-local";
 
@@ -33,12 +36,14 @@ type Props = {
   avisoLeitura?: ReactNode;
 };
 
+const botaoModo = `${botaoLeitorPdf} aria-pressed:border-blue-700 aria-pressed:bg-blue-100 aria-pressed:text-blue-900 dark:aria-pressed:bg-blue-950 dark:aria-pressed:text-blue-200`;
 const campo = "rounded-lg border border-slate-300 bg-transparent px-2 py-1 text-sm dark:border-slate-600";
 
 export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLeitura, avisoLeitura }: Props) {
   const locale = useLocale();
   const t = textosEditorPdf(locale);
   const tTexto = textosEditorTextoPdf(locale);
+  const tVisual = textosEdicaoVisualPdf(locale);
   const leitor = useTranslations("ReaderLibrary");
   const tela = useTelaCheiaPdf();
   const [imagemSelecionada, setImagemSelecionada] = useState<File | null>(null);
@@ -46,6 +51,9 @@ export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLe
   const [dados, setDados] = useState<DadosPdf | null>(null);
   const [pdfLido, setPdfLido] = useState<PDFDocumentProxy | null>(null);
   const [edicao, setEdicao] = useState(false);
+  const [modoVisual, setModoVisual] = useState<OperacaoVisualPdf["tipo"] | null>(null);
+  const [areaVisual, setAreaVisual] = useState<AreaVisualPdf | null>(null);
+  const [anterior, setAnterior] = useState<{ dados: DadosPdf; pagina: number } | null>(null);
   const [arquivo, setArquivo] = useState<{ dados: DadosPdf; url: string } | null>(null);
   const [pagina, setPagina] = useState(1);
   const [texto, setTexto] = useState("");
@@ -68,7 +76,15 @@ export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLe
     setOcupado(true);
     setErro("");
     try { await fn(); }
-    catch { setErro(t.falha); }
+    catch (falha) {
+      const codigo = falha instanceof Error ? falha.message : "";
+      const errosVisuais: Record<string, string> = {
+        AREA_PEQUENA: tVisual.areaPequena,
+        GRAFICO_PEQUENO: tVisual.graficoPequeno,
+        TEXTO_NAO_CABE: tVisual.textoNaoCabe,
+      };
+      setErro(errosVisuais[codigo] ?? t.falha);
+    }
     finally { setOcupado(false); }
   }
 
@@ -94,7 +110,14 @@ export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLe
   function voltarLeitura() {
     setX("");
     setY("");
+    escolherModoVisual(null);
     setEdicao(false);
+  }
+
+  function escolherModoVisual(modo: OperacaoVisualPdf["tipo"] | null) {
+    setErro("");
+    setAreaVisual(null);
+    setModoVisual(modo);
   }
 
   async function editarTexto() {
@@ -123,6 +146,7 @@ export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLe
 
   function navegar(numero: number) {
     setPagina(numero);
+    setAreaVisual(null);
     setX("");
     setY("");
   }
@@ -136,6 +160,8 @@ export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLe
       navegar(1);
       setImagemSelecionada(null);
       setLarguraImagem("");
+      setAnterior(null);
+      escolherModoVisual(null);
       setEdicao(false);
       setDados({ bytes, total: pdf.getPageCount(), nome: file.name });
     });
@@ -149,9 +175,23 @@ export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLe
       await fn(pdf, lib);
       const bytes = await pdf.save({ updateFieldAppearances: false });
       if (bytes.byteLength > LIMITE_ARQUIVO) throw new Error("Tamanho inválido");
+      setAnterior({ dados, pagina });
       navegar(Math.min(proximaPagina, pdf.getPageCount()));
       setDados({ bytes: new Uint8Array(bytes), total: pdf.getPageCount(), nome: dados.nome, modificado: true });
     });
+  }
+
+  function desfazer() {
+    if (!anterior || ocupado) return;
+    navegar(anterior.pagina);
+    setDados(anterior.dados);
+    setAnterior(null);
+    setErro("");
+  }
+
+  function aplicarVisual(op: OperacaoVisualPdf) {
+    if (!areaVisual || !pdfLido || ocupado) return;
+    alterar((pdf, lib) => aplicarOperacaoVisualPdf(pdf, lib, pdfLido, pagina, areaVisual, op));
   }
 
   function mover(destino: number) {
@@ -274,12 +314,32 @@ export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLe
       {urlVisivel && (
         <div className={edicao ? "grid items-start gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]" : ""}>
           <LeitorPdfDocumento permitirMarcacoes url={urlVisivel} pagina={pagina} onPagina={n => { if (!ocupado) navegar(n); }}
-            onPdfPronto={origem ? setPdfLido : undefined}
-            onPonto={edicao ? p => { if (!ocupado) selecionarPonto(p); } : undefined} ponto={edicao ? ponto : null} />
+            onPdfPronto={setPdfLido}
+            onArea={edicao && modoVisual ? setAreaVisual : undefined} area={areaVisual}
+            onPonto={edicao && !modoVisual ? p => { if (!ocupado) selecionarPonto(p); } : undefined}
+            ponto={edicao && !modoVisual ? ponto : null} />
           {edicao && dados && arquivo?.dados === dados && <section className="space-y-4 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
             <p className="break-all text-sm font-semibold">{dados.nome}</p>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" disabled={ocupado} aria-pressed={modoVisual === "texto"} className={botaoModo}
+                onClick={() => escolherModoVisual("texto")}>{tVisual.editar}</button>
+              <button type="button" disabled={ocupado} aria-pressed={modoVisual === "remover"} className={botaoModo}
+                onClick={() => escolherModoVisual("remover")}>{tVisual.remover}</button>
+              {anterior && <button type="button" disabled={ocupado} className={botaoLeitorPdf} onClick={desfazer}>{tVisual.desfazer}</button>}
+            </div>
+            <div role="group" aria-label={tVisual.inserir}>
+              <p className="mb-2 text-sm font-semibold">{tVisual.inserir}</p>
+              <div className="flex flex-wrap gap-2">
+                {(["forma", "simbolo", "grafico"] as const).map(modo => (
+                  <button key={modo} type="button" disabled={ocupado} aria-pressed={modoVisual === modo}
+                    className={botaoModo} onClick={() => escolherModoVisual(modo)}>{tVisual[modo]}</button>
+                ))}
+              </div>
+            </div>
+            {modoVisual && <FerramentaVisualPdf key={modoVisual} modo={modoVisual} temArea={Boolean(areaVisual && pdfLido)}
+              ocupado={ocupado} onAplicar={aplicarVisual} onCancelar={() => escolherModoVisual(null)} />}
             <button type="button" disabled={ocupado} onClick={() => void editarTexto()}
-              className={`${botaoLeitorPdf} border-blue-600 text-blue-700 dark:text-blue-300`}>{tTexto.editar}</button>
+              className={botaoLeitorPdf}>{tTexto.editar}</button>
             <fieldset disabled={ocupado} className="space-y-3">
               <div className="flex flex-wrap gap-2">
                 <button type="button" className={botaoLeitorPdf} onClick={() => alterar((pdf, lib) => {
@@ -294,29 +354,31 @@ export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLe
                 <input type="file" accept="application/pdf,.pdf" className="mt-1 block max-w-full"
                   onChange={e => { const file = e.target.files?.[0]; if (file) mesclar(file); e.target.value = ""; }} />
               </label>
-              <label className="block text-sm">{t.texto}
-                <textarea maxLength={1000} rows={3} className={`block w-full ${campo}`} value={texto} onChange={e => setTexto(e.target.value)} />
-              </label>
-              <p className="text-sm">{t.posicao}</p>
-              <div className="grid grid-cols-3 gap-2">
-                <label className="text-sm">X <input type="number" step="any" value={x} className={`block w-full ${campo}`} onChange={e => setX(e.target.value)} /></label>
-                <label className="text-sm">Y <input type="number" step="any" value={y} className={`block w-full ${campo}`} onChange={e => setY(e.target.value)} /></label>
-                <label className="text-sm">{t.tamanho} <input type="number" min={6} max={72} value={tamanho} className={`block w-full ${campo}`} onChange={e => setTamanho(e.target.value)} /></label>
-              </div>
-              <button type="button" className={botaoLeitorPdf} disabled={!ponto || !texto.trim() || pt < 6 || pt > 72} onClick={adicionarTexto}>{t.adicionar}</button>
-              <label className="block text-sm">{tTexto.imagem}
-                <input type="file" accept="image/png,image/jpeg,image/webp" className="mt-1 block max-w-full"
-                  onChange={e => { const imagem = e.target.files?.[0]; if (imagem) void selecionarImagem(imagem); e.target.value = ""; }} />
-              </label>
-              {imagemSelecionada && <div className="space-y-2">
-                <p className="break-all text-sm">{imagemSelecionada.name}</p>
-                <label className="block text-sm">{tTexto.larguraPt}
-                  <input type="number" min="1" step="any" placeholder={tTexto.original} value={larguraImagem}
-                    className={`ml-2 w-24 ${campo}`} onChange={e => setLarguraImagem(e.target.value)} />
+              {!modoVisual && <>
+                <label className="block text-sm">{t.texto}
+                  <textarea maxLength={1000} rows={3} className={`block w-full ${campo}`} value={texto} onChange={e => setTexto(e.target.value)} />
                 </label>
-                <button type="button" className={botaoLeitorPdf} disabled={!ponto || (larguraImagem !== "" && !(Number(larguraImagem) > 0))}
-                  onClick={inserirImagem}>{tTexto.aplicarImagem}</button>
-              </div>}
+                <p className="text-sm">{t.posicao}</p>
+                <div className="grid grid-cols-3 gap-2">
+                  <label className="text-sm">X <input type="number" step="any" value={x} className={`block w-full ${campo}`} onChange={e => setX(e.target.value)} /></label>
+                  <label className="text-sm">Y <input type="number" step="any" value={y} className={`block w-full ${campo}`} onChange={e => setY(e.target.value)} /></label>
+                  <label className="text-sm">{t.tamanho} <input type="number" min={6} max={72} value={tamanho} className={`block w-full ${campo}`} onChange={e => setTamanho(e.target.value)} /></label>
+                </div>
+                <button type="button" className={botaoLeitorPdf} disabled={!ponto || !texto.trim() || pt < 6 || pt > 72} onClick={adicionarTexto}>{t.adicionar}</button>
+                <label className="block text-sm">{tTexto.imagem}
+                  <input type="file" accept="image/png,image/jpeg,image/webp" className="mt-1 block max-w-full"
+                    onChange={e => { const imagem = e.target.files?.[0]; if (imagem) void selecionarImagem(imagem); e.target.value = ""; }} />
+                </label>
+                {imagemSelecionada && <div className="space-y-2">
+                  <p className="break-all text-sm">{imagemSelecionada.name}</p>
+                  <label className="block text-sm">{tTexto.larguraPt}
+                    <input type="number" min="1" step="any" placeholder={tTexto.original} value={larguraImagem}
+                      className={`ml-2 w-24 ${campo}`} onChange={e => setLarguraImagem(e.target.value)} />
+                  </label>
+                  <button type="button" className={botaoLeitorPdf} disabled={!ponto || (larguraImagem !== "" && !(Number(larguraImagem) > 0))}
+                    onClick={inserirImagem}>{tTexto.aplicarImagem}</button>
+                </div>}
+              </>}
             </fieldset>
             <a href={arquivo.url} download={nomeCopia}
               className="inline-block rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white">
