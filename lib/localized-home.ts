@@ -1,7 +1,7 @@
 import type { ForeignLocale } from "@/lib/localized-plans";
 
 type HomeCopy = {
-  kicker: string; lead: string; accent: string; intro: string;
+  kicker: string; lead: string; accent: string; homeAccent: string; intro: string;
   theologyLead: string; theologyLink: string; theologyEnd: string;
   portals: [string, string, string]; blog: string; trust: { title: string; description: string }[];
   modulesKicker: string; modulesTitle: string; modulesDescription: string;
@@ -17,6 +17,7 @@ type HomeCopy = {
 export const localizedHome: Record<ForeignLocale, HomeCopy> = {
   "en-US": {
     kicker: "Multi-institution academic SaaS platform", lead: "PHANYX for school management, academic management and online learning", accent: "more institutional control, a modern experience and a scalable SaaS foundation",
+    homeAccent: "Enrollment, finance, and documents in one place.",
     intro: "Organize your institution with a modern platform for universities, colleges, technical schools, independent courses and distance education. PHANYX unites academic management, LMS, finance, documents and institutional security.",
     theologyLead: "Interested in theological education? Discover our", theologyLink: "online theology course", theologyEnd: "and enroll online.",
     portals: ["Student portal", "Teacher portal", "Administration"], blog: "School management software",
@@ -45,6 +46,7 @@ export const localizedHome: Record<ForeignLocale, HomeCopy> = {
   },
   "es-ES": {
     kicker: "Plataforma académica SaaS para varias instituciones", lead: "PHANYX para gestión escolar, gestión académica y enseñanza virtual", accent: "más control institucional y una experiencia moderna",
+    homeAccent: "Matrículas, finanzas y documentos en un solo lugar.",
     intro: "Organiza tu institución con una plataforma para universidades, facultades, escuelas técnicas, cursos y educación a distancia. PHANYX reúne gestión académica, LMS, finanzas, documentos y seguridad.",
     theologyLead: "¿Te interesa la formación teológica? Conoce nuestro", theologyLink: "curso de teología en línea", theologyEnd: "e inscríbete.", portals: ["Área del estudiante", "Área docente", "Administración"], blog: "Software de gestión escolar",
     trust: [{ title: "Varias instituciones", description: "Datos separados por institución." }, { title: "LMS + gestión", description: "Educación, documentos y finanzas en un sistema." }, { title: "Seguridad", description: "Auditoría, validación y prevención del fraude." }],
@@ -58,6 +60,7 @@ export const localizedHome: Record<ForeignLocale, HomeCopy> = {
   },
   "fr-FR": {
     kicker: "Plateforme académique SaaS multi-établissements", lead: "PHANYX pour la gestion scolaire, académique et l'enseignement en ligne", accent: "plus de contrôle et une expérience moderne",
+    homeAccent: "Inscriptions, finances et documents au même endroit.",
     intro: "Organisez votre établissement avec une plateforme pour universités, écoles, formations et enseignement à distance. PHANYX réunit gestion académique, LMS, finances, documents et sécurité.",
     theologyLead: "Vous cherchez une formation théologique ? Découvrez notre", theologyLink: "cours de théologie en ligne", theologyEnd: "et inscrivez-vous.", portals: ["Espace étudiant", "Espace enseignant", "Administration"], blog: "Logiciel de gestion scolaire",
     trust: [{ title: "Plusieurs établissements", description: "Données séparées par établissement." }, { title: "LMS + gestion", description: "Enseignement, documents et finances réunis." }, { title: "Sécurité", description: "Audit, validation et prévention de la fraude." }],
@@ -71,6 +74,7 @@ export const localizedHome: Record<ForeignLocale, HomeCopy> = {
   },
   "pt-PT": {
     kicker: "Plataforma académica SaaS multi-instituição", lead: "PHANYX para gestão escolar, gestão académica e ensino online", accent: "mais controlo institucional e uma experiência moderna",
+    homeAccent: "Matrículas, finanças e documentos num só lugar.",
     intro: "Organize a sua instituição com uma plataforma para universidades, faculdades, escolas técnicas, cursos e ensino à distância. O PHANYX une gestão académica, LMS, finanças, documentos e segurança.",
     theologyLead: "Quer começar a sua formação teológica? Conheça o nosso", theologyLink: "curso de teologia online", theologyEnd: "e inscreva-se.", portals: ["Área do estudante", "Área do docente", "Administração"], blog: "Software de gestão escolar",
     trust: [{ title: "Várias instituições", description: "Dados separados por instituição." }, { title: "LMS + gestão", description: "Ensino digital, documentos e finanças num sistema." }, { title: "Segurança", description: "Auditoria, validação e prevenção de fraude." }],
