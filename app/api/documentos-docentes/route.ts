@@ -5,11 +5,16 @@ import { contextoDocumentosDocentes, lerCampos, modeloDocenteValido } from "@/li
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: Request) {
   const ctx = await contextoDocumentosDocentes();
   if (!ctx) return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+  const excluidos = ctx.papel === "ADMIN" && new URL(req.url).searchParams.get("excluidos") === "1";
   const documentos = await prisma.documentoDocente.findMany({
-    where: { instituicaoId: ctx.instituicaoId, ...(ctx.professorId ? { professorId: ctx.professorId } : {}) },
+    where: {
+      instituicaoId: ctx.instituicaoId,
+      ...(ctx.professorId ? { professorId: ctx.professorId } : {}),
+      status: excluidos ? "CANCELADO" : { not: "CANCELADO" },
+    },
     include: { professor: { select: { nome: true } }, _count: { select: { anexos: true, mensagens: true, assinaturas: true } } },
     orderBy: { atualizadoEm: "desc" }, take: 150,
   });

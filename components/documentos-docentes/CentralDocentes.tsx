@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
@@ -11,6 +11,11 @@ import { professorPodeEditarDocumentoDocente } from "@/lib/documentos-docentes/f
 import EditorPdfLocal from "./EditorPdfLocal";
 import { textosEditorPdf } from "@/lib/documentos-docentes/i18n-editor-pdf";
 import AssinaturaDocumentoDocenteModal from "@/components/documentos-docentes/AssinaturaDocumentoDocenteModal";
+
+import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
+import EnviarDocumentoDocenteModal, { type DocumentoParaEnviar } from "./EnviarDocumentoDocenteModal";
+import { textosGestaoDocente } from "@/lib/documentos-docentes/i18n-gestao";
+import { eventosEmailDocente, lerRegistroEmailDocente } from "@/lib/documentos-docentes/destinos-email";
 
 type Papel = "ADMIN" | "PROFESSOR";
 type Modelo = { id: number; nome: string; descricao: string | null; contexto: string; campos: string[] };
@@ -50,7 +55,12 @@ export default function CentralDocentes({ papel, documentoInicial = null }: { pa
   const t = (chave: ChaveDocumentoDocente) => traduzirDocumentoDocente(locale, chave);
   const t3 = (chave: ChaveDocentesEtapa3) => traducaoDocentesEtapa3(locale, chave);
   const admin = papel === "ADMIN";
+  const gestao = textosGestaoDocente(locale);
   const [documentos, setDocumentos] = useState<Doc[]>([]);
+  const [excluidos, setExcluidos] = useState<Doc[]>([]);
+  const [documentoParaExcluir, setDocumentoParaExcluir] = useState<Doc | null>(null);
+  const [documentoParaEnviar, setDocumentoParaEnviar] = useState<DocumentoParaEnviar | null>(null);
+  const [erroExclusao, setErroExclusao] = useState("");
   const [modelos, setModelos] = useState<Modelo[]>([]);
   const [professores, setProfessores] = useState<Professor[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -117,11 +127,71 @@ export default function CentralDocentes({ papel, documentoInicial = null }: { pa
   }, [idSelecionado, versaoSelecionada]);
 
   const modeloEscolhido = modelos.find(m => String(m.id) === modeloId);
-  const documentosFiltrados = useMemo(() => documentos.filter(d => filtro === "TODOS" || d.status === filtro), [documentos, filtro]);
+  const documentosFiltrados = filtro === "CANCELADO" ? excluidos : documentos.filter(d => filtro === "TODOS" || d.status === filtro);
   const statusLabels: Record<string, ChaveDocumentoDocente> = { RASCUNHO:"draft", AGUARDANDO_PROFESSOR:"waiting", ENVIADO:"sent", APROVADO:"approved", DEVOLVIDO:"returned", CONCLUIDO:"done", CANCELADO:"cancelled" };
   const tipoLabels: Record<string, ChaveDocumentoDocente> = { PLANO_AULA:"plan", RELATORIO:"report", ORIENTACAO:"guidance", ARQUIVO:"attachmentDoc" };
-  const statusTexto = (status: string) => statusLabels[status] ? t(statusLabels[status]) : status;
+  const statusTexto = (status: string) => status === "CANCELADO" ? gestao.excluido : statusLabels[status] ? t(statusLabels[status]) : status;
   const tipoTexto = (tipo: string) => tipoLabels[tipo] ? t(tipoLabels[tipo]) : tipo;
+
+  async function atualizarLista(situacao: string) {
+    setCarregando(true);
+    setErro("");
+    try {
+      if (situacao === "CANCELADO") {
+        const dados = await requisitar<{ documentos: Doc[] }>("/api/documentos-docentes?excluidos=1");
+        setExcluidos(dados.documentos);
+      } else {
+        await carregarLista();
+      }
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : t("genericError"));
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  async function excluirDocumento() {
+    if (!documentoParaExcluir || ocupado) return;
+    const { id, versaoAtual } = documentoParaExcluir;
+    setOcupado(true);
+    setErroExclusao("");
+    try {
+      await requisitar(`/api/documentos-docentes/${id}?versao=${versaoAtual}`, { method: "DELETE" });
+      setDocumentos(lista => lista.filter(doc => doc.id !== id));
+      setDocumentoParaExcluir(null);
+      if (idSelecionado === id) voltarLista();
+      setAviso(gestao.exclusaoConcluida);
+    } catch (e) {
+      setErroExclusao(e instanceof Error ? e.message : gestao.falha);
+    } finally {
+      setOcupado(false);
+    }
+  }
+
+  function acoesGestao(doc: Doc, versao: number, carregandoVersao = false) {
+    if (!admin || doc.status === "CANCELADO") return null;
+    return <>
+      <button type="button" disabled={ocupado || carregandoVersao} className={`${botaoBase} border border-slate-300 dark:border-slate-600`}
+        onClick={() => setDocumentoParaEnviar({ id: doc.id, titulo: doc.titulo, versao })}>{gestao.enviarPdf}</button>
+      <button type="button" disabled={ocupado} className={`${botaoBase} border border-red-200 text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950`}
+        onClick={() => { setErroExclusao(""); setDocumentoParaExcluir(doc); }}>{gestao.excluir}</button>
+    </>;
+  }
+
+  function historicoEvento(evento: Evento) {
+    if (evento.tipo === "EXCLUIDO") return { titulo: gestao.excluido, descricao: evento.descricao ? statusTexto(evento.descricao) : null };
+    if (eventosEmailDocente.some(tipo => tipo === evento.tipo)) {
+      const registro = lerRegistroEmailDocente(evento.descricao);
+      if (!registro) return { titulo: gestao.registrado, descricao: null };
+      const resultado = registro.resultado;
+      const resumo = resultado.estado === "aceito"
+        ? `${gestao.aceitos} · ${resultado.aceitos}${resultado.recusados ? ` · ${gestao.recusados} · ${resultado.recusados}` : ""}`
+        : gestao[resultado.estado];
+      return { titulo: gestao.registrado, descricao: `${registro.destino}
+${resumo}` };
+    }
+    return { titulo: evento.tipo, descricao: evento.descricao };
+  }
 
   function iniciarCriacao() { setMostrarNovo(true); setIdSelecionado(null); setDetalhes(null); setErro(""); setAviso(""); }
   function selecionarModelo(id: string) {
@@ -214,7 +284,7 @@ export default function CentralDocentes({ papel, documentoInicial = null }: { pa
   if (painelPdf === "editor") return <EditorPdfLocal onVoltar={() => setPainelPdf(null)} />;
   if (painelPdf === "leitor" && detalhes) {
     const pdf = `/api/documentos-docentes/${detalhes.documento.id}/pdf?versao=${detalhes.versao.numero}`;
-    const permiteEdicao = !detalhes.assinaturas.some(assinatura => assinatura.versao === detalhes.versao.numero);
+    const permiteEdicao = detalhes.documento.status !== "CANCELADO" && !detalhes.assinaturas.some(assinatura => assinatura.versao === detalhes.versao.numero);
     return (
       <EditorPdfLocal
         key={pdf}
@@ -242,7 +312,7 @@ export default function CentralDocentes({ papel, documentoInicial = null }: { pa
     <header className="flex flex-wrap items-start justify-between gap-4">
       <div><h1 className="text-2xl font-bold">{t(admin ? "titleAdmin" : "titleProfessor")}</h1><p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{t(admin ? "descriptionAdmin" : "descriptionProfessor")}</p></div>
       <div className="flex flex-wrap gap-2">
-        <button type="button" disabled={ocupado} onClick={() => { setCarregando(true); void carregarLista().catch(e => setErro(e instanceof Error ? e.message : t("genericError"))).finally(() => setCarregando(false)); }} className={`${botaoBase} border border-slate-300 dark:border-slate-600`}>{t("retry")}</button>
+        <button type="button" disabled={ocupado} onClick={() => void atualizarLista(filtro)} className={`${botaoBase} border border-slate-300 dark:border-slate-600`}>{t("retry")}</button>
         <button type="button" onClick={() => setPainelPdf("editor")} className={`${botaoBase} border border-slate-300 dark:border-slate-600`}>{textosEditorPdf(locale).editor}</button>
         <button type="button" onClick={iniciarCriacao} className={`${botaoBase} bg-blue-700 text-white hover:bg-blue-800`}>{t("newDocument")}</button>
       </div>
@@ -271,15 +341,25 @@ export default function CentralDocentes({ papel, documentoInicial = null }: { pa
     </section>}
 
     {!mostrarNovo && !idSelecionado && <section className="space-y-3">
-      <div className="flex flex-wrap items-center gap-3"><h2 className="text-lg font-semibold">{t("inbox")} ({documentosFiltrados.length})</h2><label className="ml-auto text-sm">{t("status")} <select className={`${campoBase} ml-1 w-auto`} value={filtro} onChange={(e: { target: { value: string } }) => setFiltro(e.target.value)}>
-        <option value="TODOS">{t("all")}</option>{Object.keys(statusLabels).map(k => <option key={k} value={k}>{statusTexto(k)}</option>)}
+      <div className="flex flex-wrap items-center gap-3"><h2 className="text-lg font-semibold">{t("inbox")} ({documentosFiltrados.length})</h2><label className="ml-auto text-sm">{t("status")} <select className={`${campoBase} ml-1 w-auto`} value={filtro} onChange={e => {
+        const situacao = e.target.value;
+        setFiltro(situacao);
+        if (situacao === "CANCELADO") void atualizarLista(situacao);
+      }}>
+        <option value="TODOS">{t("all")}</option>{Object.keys(statusLabels).filter(k => k !== "CANCELADO").map(k => <option key={k} value={k}>{statusTexto(k)}</option>)}{admin && <option value="CANCELADO">{gestao.excluidos}</option>}
       </select></label></div>
       {carregando && <p role="status" className="text-sm">{t("loading")}</p>}
       {!carregando && documentosFiltrados.length === 0 && <p className="rounded-xl border border-slate-300 p-6 text-sm dark:border-slate-700">{t("noDocs")}</p>}
-      <div className="grid gap-3">{documentosFiltrados.map(d => <button type="button" key={d.id} onClick={() => { setErro(""); setAviso(""); setVersaoSelecionada(null); setIdSelecionado(d.id); }} className="w-full rounded-xl border border-slate-200 bg-white p-4 text-left transition hover:border-blue-500 hover:shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:hover:border-blue-500">
-        <div className="flex flex-wrap items-center justify-between gap-2"><span className="font-semibold">{d.titulo}</span><span className="rounded-full border border-slate-300 px-3 py-1 text-xs dark:border-slate-600">{statusTexto(d.status)}</span></div>
-        <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-600 dark:text-slate-300"><span>{tipoTexto(d.tipo)}</span>{admin && <span>{t("teacher")}: {d.professor?.nome || d.professorId}</span>}<span>{t("version")}: {d.versaoAtual}</span><span>{t("updated")}: {dataFormatada(d.atualizadoEm,locale)}</span><span>{t("messages")}: {d._count?.mensagens ?? 0}</span></div>
-      </button>)}</div>
+      <div className="grid gap-3">{documentosFiltrados.map(d => (
+        <article key={d.id} className="rounded-xl border border-slate-200 bg-white shadow-sm hover:border-blue-400 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-blue-500">
+          <button type="button" className="block w-full rounded-xl p-4 text-left outline-offset-2 focus-visible:outline-blue-600"
+            onClick={() => { setErro(""); setAviso(""); setVersaoSelecionada(null); setIdSelecionado(d.id); }}>
+            <div className="flex flex-wrap items-center justify-between gap-2"><span className="font-semibold">{d.titulo}</span><span className="rounded-full border border-slate-300 px-3 py-1 text-xs dark:border-slate-600">{statusTexto(d.status)}</span></div>
+            <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-600 dark:text-slate-300"><span>{tipoTexto(d.tipo)}</span>{admin && <><span>#{d.id}</span><span>{t("teacher")}: {d.professor?.nome || d.professorId}</span></>}<span>{t("version")}: {d.versaoAtual}</span><span>{t("updated")}: {dataFormatada(d.atualizadoEm,locale)}</span><span>{t("messages")}: {d._count?.mensagens ?? 0}</span></div>
+          </button>
+          {admin && d.status !== "CANCELADO" && <div className="flex flex-wrap gap-2 px-4 pb-3">{acoesGestao(d, d.versaoAtual)}</div>}
+        </article>
+      ))}</div>
     </section>}
 
     {!mostrarNovo && idSelecionado && <section className="space-y-5">
@@ -296,6 +376,7 @@ export default function CentralDocentes({ papel, documentoInicial = null }: { pa
           <button type="button" onClick={() => setPainelPdf("leitor")} className={`${botaoBase} border border-blue-500 text-blue-700 dark:text-blue-300`}>{t3("printPdf")}</button>
           <a href={`/api/documentos-docentes/${detalhes.documento.id}/pdf?versao=${detalhes.versao.numero}&baixar=1`} className={`${botaoBase} border border-slate-300 dark:border-slate-700`}>{t3("downloadPdf")}</a>
           {detalhes.versao.modeloSnapshot && <a href={`/api/documentos-docentes/${detalhes.documento.id}/pdf?versao=${detalhes.versao.numero}&branco=1&baixar=1`} className={`${botaoBase} border border-slate-300 dark:border-slate-700`}>{t3("blankPdf")}</a>}
+          {acoesGestao(detalhes.documento, detalhes.versao.numero, detalhes.versao.numero !== (versaoSelecionada ?? detalhes.documento.versaoAtual))}
         </div>
         <div className="grid gap-5 xl:grid-cols-2">
           <section className="space-y-3 rounded-xl border border-slate-200 p-5 dark:border-slate-700"><h3 className="font-semibold">{t("fields")}</h3>
@@ -337,12 +418,17 @@ export default function CentralDocentes({ papel, documentoInicial = null }: { pa
         <section className="space-y-3 rounded-xl border border-slate-200 p-5 dark:border-slate-700"><h3 className="font-semibold">{t("messages")}</h3>
           {detalhes.mensagens.length === 0 && <p className="text-sm text-slate-500">{t("noMessages")}</p>}
           {detalhes.mensagens.map(m => <article key={m.id} className="rounded-xl bg-slate-100 p-3 text-sm dark:bg-slate-800"><div className="mb-1 flex flex-wrap justify-between gap-2 text-xs text-slate-600 dark:text-slate-300"><strong>{t(m.papel === "ADMIN" ? "adminSays" : "teacherSays")}</strong><time>{dataFormatada(m.criadoEm,locale)}</time></div><p className="whitespace-pre-wrap break-words">{m.texto}</p></article>)}
+          {detalhes.documento.status !== "CANCELADO" && <>
           <label className="block"><span className="sr-only">{t("sendMessage")}</span><textarea className={campoBase} maxLength={10000} rows={3} placeholder={t("messagePlaceholder")} value={textoMensagem} onChange={(e: { target: { value: string } }) => setTextoMensagem(e.target.value)} /></label>
           <button type="button" disabled={ocupado || !textoMensagem.trim()} className={`${botaoBase} bg-blue-700 text-white`} onClick={() => void enviarMensagem()}>{t("sendMessage")}</button>
+          </>}
         </section>
         <div className="grid gap-4 lg:grid-cols-2">
           <section className="space-y-2 rounded-xl border border-slate-200 p-5 dark:border-slate-700"><h3 className="font-semibold">{t("history")}</h3>{detalhes.eventos.length === 0 && <p className="text-sm">{t("noHistory")}</p>}
-            <ol className="space-y-2">{detalhes.eventos.map(evento => <li key={evento.id} className="border-l-2 border-blue-400 pl-3 text-xs"><strong>{evento.tipo}</strong> · {t("version")} {evento.versao} · {dataFormatada(evento.criadoEm,locale)}{evento.descricao && <p className="mt-1 whitespace-pre-wrap">{evento.descricao}</p>}</li>)}</ol>
+            <ol className="space-y-2">{detalhes.eventos.map(evento => {
+              const { titulo, descricao } = historicoEvento(evento);
+              return <li key={evento.id} className="border-l-2 border-blue-400 pl-3 text-xs"><strong>{titulo}</strong> · {t("version")} {evento.versao} · {dataFormatada(evento.criadoEm, locale)}{descricao && <p className="mt-1 whitespace-pre-wrap break-words">{descricao}</p>}</li>;
+            })}</ol>
           </section>
           <section className="space-y-2 rounded-xl border border-slate-200 p-5 dark:border-slate-700"><h3 className="font-semibold">{t("signatures")}</h3>
             {detalhes.assinaturas.map(a => <p key={a.id} className="text-sm">{a.nomeAssinante} · {t("version")} {a.versao} · {dataFormatada(a.assinadoEm,locale)}</p>)}
@@ -355,6 +441,31 @@ export default function CentralDocentes({ papel, documentoInicial = null }: { pa
       </>}
     </section>}
     {assinaturaAberta&&detalhes&&!historica&&<AssinaturaDocumentoDocenteModal documentoId={detalhes.documento.id} titulo={detalhes.documento.titulo} versao={detalhes.documento.versaoAtual} onFechar={()=>setAssinaturaAberta(false)} onAssinou={assinaturaConcluida}/>}
+    {documentoParaExcluir && <PhanyxConfirmModal
+      aberto
+      titulo={gestao.confirmarExclusao}
+      mensagem={`${documentoParaExcluir.titulo} (#${documentoParaExcluir.id}) · ${statusTexto(documentoParaExcluir.status)}`}
+      textoConfirmar={gestao.excluir}
+      textoCancelar={gestao.cancelar}
+      textoCarregando={t("loading")}
+      carregando={ocupado}
+      tipo="perigo"
+      onConfirmar={() => void excluirDocumento()}
+      onCancelar={() => setDocumentoParaExcluir(null)}
+    >
+      <p className="text-sm">{gestao.efeitoExclusao}</p>
+      {erroExclusao && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{erroExclusao}</p>}
+    </PhanyxConfirmModal>}
+    {documentoParaEnviar && <EnviarDocumentoDocenteModal
+      documento={documentoParaEnviar}
+      locale={locale}
+      onFechar={() => setDocumentoParaEnviar(null)}
+      onResultado={() => {
+        if (detalhes?.documento.id === documentoParaEnviar.id) {
+          void carregarDetalhe(detalhes.documento.id, versaoSelecionada).catch(() => {});
+        }
+      }}
+    />}
     <details className="rounded-xl border border-slate-200 p-4 text-xs text-slate-600 dark:border-slate-700 dark:text-slate-300"><summary className="cursor-pointer font-semibold">{t("template")}</summary><p className="mt-2">{t("templateTip")}</p></details>
   </main>;
 }
