@@ -12,6 +12,7 @@ type PhanyxConfirmModalProps = {
   carregando?: boolean;
   mostrarCancelar?: boolean;
   mostrarConfirmar?: boolean;
+  desabilitarConfirmar?: boolean;
   tipo?: "perigo" | "normal";
   onConfirmar: () => void;
   onCancelar: () => void;
@@ -28,6 +29,7 @@ export default function PhanyxConfirmModal({
   carregando = false,
   mostrarCancelar = true,
   mostrarConfirmar = true,
+  desabilitarConfirmar = false,
   tipo = "normal",
   onConfirmar,
   onCancelar,
@@ -73,7 +75,7 @@ export default function PhanyxConfirmModal({
               type="button"
               onClick={onConfirmar}
               autoFocus={!mostrarCancelar}
-              disabled={carregando}
+              disabled={carregando || desabilitarConfirmar}
               className={`rounded-xl px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 ${
                 tipo === "perigo"
                   ? "bg-red-600 hover:bg-red-700"

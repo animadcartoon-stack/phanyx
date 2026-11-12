@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { eventosEmailDocente } from "@/lib/documentos-docentes/destinos-email";
 import { documentoAutorizado, lerCampos } from "@/lib/documentos-docentes/seguranca";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +17,7 @@ export async function GET(req: Request, { params }: Params) {
     prisma.documentoDocenteMensagem.findMany({ where: { documentoId: auth.documento.id }, orderBy: { criadoEm: "asc" }, take: 200 }),
     prisma.documentoDocenteAnexo.findMany({ where: { documentoId: auth.documento.id }, select: { id: true, versao: true, nomeOriginal: true, tamanho: true, mime: true, criadoEm: true, enviadoPorId: true, mensagemId: true }, orderBy: { criadoEm: "asc" }, take: 100 }),
     prisma.documentoDocenteAssinatura.findMany({ where: { documentoId: auth.documento.id }, select: { id: true, versao: true, papel: true, assinanteId: true, nomeAssinante: true, tipo: true, hashConteudo: true, assinadoEm: true }, orderBy: { assinadoEm: "asc" } }),
-    prisma.documentoDocenteEvento.findMany({ where: { documentoId: auth.documento.id }, orderBy: { criadoEm: "asc" }, take: 250 }),
+    prisma.documentoDocenteEvento.findMany({ where: { documentoId: auth.documento.id, ...(auth.ctx.papel === "PROFESSOR" ? { tipo: { notIn: [...eventosEmailDocente] } } : {}) }, orderBy: { criadoEm: "asc" }, take: 250 }),
     prisma.professor.findFirst({ where: { id: auth.documento.professorId, instituicaoId: auth.ctx.instituicaoId }, select: { nome: true } }),
   ]);
   if (!versao) return NextResponse.json({ error: "Versão não encontrada" }, { status: 404 });
@@ -77,4 +78,30 @@ export async function PATCH(req: Request, { params }: Params) {
     return true;
   });
   return ok ? NextResponse.json({ ok: true, status: regra.novo }) : NextResponse.json({ error: "Documento alterado simultaneamente" }, { status: 409 });
+}
+
+export async function DELETE(req: Request, { params }: Params) {
+  const auth = await documentoAutorizado(Number(params.id));
+  if (!auth) return NextResponse.json({ error: "Documento não encontrado ou sem permissão." }, { status: 404 });
+  const { ctx, documento } = auth;
+  if (ctx.papel !== "ADMIN") return NextResponse.json({ error: "Apenas a administração pode excluir documentos." }, { status: 403 });
+  const versao = Number(new URL(req.url).searchParams.get("versao"));
+  if (!Number.isSafeInteger(versao) || versao < 1 || versao !== documento.versaoAtual) {
+    return NextResponse.json({ error: "O documento mudou. Atualize a lista antes de excluir." }, { status: 409 });
+  }
+  if (documento.status === "CANCELADO") return NextResponse.json({ ok: true });
+  const removido = await prisma.$transaction(async tx => {
+    const resultado = await tx.documentoDocente.updateMany({
+      where: { id: documento.id, instituicaoId: ctx.instituicaoId, versaoAtual: versao, status: documento.status },
+      data: { status: "CANCELADO" },
+    });
+    if (resultado.count !== 1) return false;
+    await tx.documentoDocenteEvento.create({
+      data: { documentoId: documento.id, usuarioId: ctx.usuario.id, tipo: "EXCLUIDO", versao, descricao: documento.status },
+    });
+    return true;
+  });
+  return removido
+    ? NextResponse.json({ ok: true })
+    : NextResponse.json({ error: "O documento mudou. Atualize a lista antes de excluir." }, { status: 409 });
 }

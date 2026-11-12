@@ -19,7 +19,7 @@ export async function documentoAutorizado(id: number) {
   const ctx = await contextoDocumentosDocentes();
   if (!ctx || !Number.isSafeInteger(id) || id <= 0) return null;
   const documento = await prisma.documentoDocente.findFirst({
-    where: { id, instituicaoId: ctx.instituicaoId, ...(ctx.professorId ? { professorId: ctx.professorId } : {}) },
+    where: { id, instituicaoId: ctx.instituicaoId, ...(ctx.professorId ? { professorId: ctx.professorId, status: { not: "CANCELADO" } } : {}) },
   });
   return documento ? { ctx, documento } : null;
 }

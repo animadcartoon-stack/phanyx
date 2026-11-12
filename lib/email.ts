@@ -1286,3 +1286,10 @@ export async function enviarEmailBoletoInstitucional({
     }
   );
 }
+
+export async function prepararEmailDocumentoDocente(instituicaoId: number) {
+  const institucional = await criarTransporterEmailInstituicao(instituicaoId).catch(() => null);
+  const transporter = institucional?.transporter ?? criarTransporter();
+  const from = institucional ? montarRemetenteEmail(institucional.remetente) : process.env.EMAIL_FROM;
+  return (opcoes: Omit<SendMailOptions, "from">) => transporter.sendMail({ ...opcoes, from });
+}
