@@ -14,11 +14,12 @@ type Props = {
   onPagina?: (pagina: number) => void;
   onPonto?: (ponto: PontoPdf) => void;
   ponto?: PontoPdf | null;
+  onPdfPronto?: (pdf: PDFDocumentProxy | null) => void;
 };
 
 export const botaoLeitorPdf = "rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium disabled:opacity-40 dark:border-slate-600";
 
-export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, ponto }: Props) {
+export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, ponto, onPdfPronto }: Props) {
   const t = useTranslations("ReaderLibrary");
   const [pdf, setPdf] = useState<PDFDocumentProxy | null>(null);
   const [pagInterna, setPagInterna] = useState(1);
@@ -63,6 +64,11 @@ export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, pon
       if (tarefa) void tarefa.destroy().catch(() => undefined);
     };
   }, [url, tentativa]);
+
+  useEffect(() => {
+    onPdfPronto?.(pdf);
+    return () => onPdfPronto?.(null);
+  }, [pdf, onPdfPronto]);
 
   useEffect(() => {
     const elemento = quadro.current;

@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import type { PDFDocument } from "pdf-lib";
+import type { PDFDocumentProxy } from "pdfjs-dist";
 import LeitorPdfDocumento, { botaoLeitorPdf, type PontoPdf } from "./LeitorPdfDocumento";
 import { textosEditorPdf } from "@/lib/documentos-docentes/i18n-editor-pdf";
 import { textosEditorTextoPdf } from "@/lib/documentos-docentes/i18n-editor-texto-pdf";
@@ -15,11 +16,26 @@ import { bytesImagemPdf, dimensoesImagemPdf, lerImagemPdf } from "@/lib/document
 const EditorTextoPdf = dynamic(() => import("./EditorTextoPdf"), { ssr: false });
 
 const LIMITE_ARQUIVO = 30 * 1024 * 1024;
-type DadosPdf = { bytes: Uint8Array<ArrayBuffer>; total: number; nome: string };
+type DadosPdf = { bytes: Uint8Array<ArrayBuffer>; total: number; nome: string; modificado?: boolean };
 type OperacaoPdf = (documento: PDFDocument, biblioteca: typeof import("pdf-lib")) => Promise<void> | void;
+type OrigemPdf = {
+  url: string;
+  nome: string;
+  versao: string;
+  permiteEdicao: boolean;
+};
+
+type Props = {
+  onVoltar: () => void;
+  origem?: OrigemPdf;
+  rotuloVoltar?: string;
+  acoesLeitura?: ReactNode;
+  avisoLeitura?: ReactNode;
+};
+
 const campo = "rounded-lg border border-slate-300 bg-transparent px-2 py-1 text-sm dark:border-slate-600";
 
-export default function EditorPdfLocal({ onVoltar }: { onVoltar: () => void }) {
+export default function EditorPdfLocal({ onVoltar, origem, rotuloVoltar, acoesLeitura, avisoLeitura }: Props) {
   const locale = useLocale();
   const t = textosEditorPdf(locale);
   const tTexto = textosEditorTextoPdf(locale);
@@ -28,6 +44,8 @@ export default function EditorPdfLocal({ onVoltar }: { onVoltar: () => void }) {
   const [imagemSelecionada, setImagemSelecionada] = useState<File | null>(null);
   const [larguraImagem, setLarguraImagem] = useState("");
   const [dados, setDados] = useState<DadosPdf | null>(null);
+  const [pdfLido, setPdfLido] = useState<PDFDocumentProxy | null>(null);
+  const [edicao, setEdicao] = useState(false);
   const [arquivo, setArquivo] = useState<{ dados: DadosPdf; url: string } | null>(null);
   const [pagina, setPagina] = useState(1);
   const [texto, setTexto] = useState("");
@@ -52,6 +70,31 @@ export default function EditorPdfLocal({ onVoltar }: { onVoltar: () => void }) {
     try { await fn(); }
     catch { setErro(t.falha); }
     finally { setOcupado(false); }
+  }
+
+  function habilitarEdicao() {
+    if (ocupado || (origem && !origem.permiteEdicao)) return;
+    if (dados) {
+      setEdicao(true);
+      return;
+    }
+    if (!origem || !pdfLido) return;
+    void executar(async () => {
+      // Usa os bytes da versão já carregada no leitor, sem solicitar outra geração.
+      const bytes = await pdfLido.getData();
+      if (bytes.byteLength > LIMITE_ARQUIVO) {
+        setErro(t.arquivo);
+        return;
+      }
+      setDados({ bytes: new Uint8Array(bytes), total: pdfLido.numPages, nome: origem.nome });
+      setEdicao(true);
+    });
+  }
+
+  function voltarLeitura() {
+    setX("");
+    setY("");
+    setEdicao(false);
   }
 
   async function editarTexto() {
@@ -93,6 +136,7 @@ export default function EditorPdfLocal({ onVoltar }: { onVoltar: () => void }) {
       navegar(1);
       setImagemSelecionada(null);
       setLarguraImagem("");
+      setEdicao(false);
       setDados({ bytes, total: pdf.getPageCount(), nome: file.name });
     });
   }
@@ -106,7 +150,7 @@ export default function EditorPdfLocal({ onVoltar }: { onVoltar: () => void }) {
       const bytes = await pdf.save({ updateFieldAppearances: false });
       if (bytes.byteLength > LIMITE_ARQUIVO) throw new Error("Tamanho inválido");
       navegar(Math.min(proximaPagina, pdf.getPageCount()));
-      setDados({ bytes: new Uint8Array(bytes), total: pdf.getPageCount(), nome: dados.nome });
+      setDados({ bytes: new Uint8Array(bytes), total: pdf.getPageCount(), nome: dados.nome, modificado: true });
     });
   }
 
@@ -185,34 +229,54 @@ export default function EditorPdfLocal({ onVoltar }: { onVoltar: () => void }) {
     setTextoEditavel({ documento: { conteudo: documentoTextoVazio, paginasSemTexto: [] }, nome: "documento-phanyx", importado: false });
   }
 
+  const copiaModificada = dados?.modificado === true;
+  const urlVisivel = origem && !copiaModificada ? origem.url : arquivo?.url;
+  const nomeCopia = dados && `${dados.nome.replace(/\.pdf$/i, "")}-phanyx.pdf`;
+  const nomeVisivel = origem?.nome ?? dados?.nome;
+  const podeHabilitar = origem?.permiteEdicao ?? true;
+
   if (textoEditavel) return <EditorTextoPdf {...textoEditavel} onVoltar={() => setTextoEditavel(null)} />;
 
   return (
     <main ref={tela.principal} className={`space-y-5 text-slate-900 dark:text-slate-100 ${tela.telaCheia ? "fixed inset-0 z-[1000] overflow-auto bg-white p-4 dark:bg-slate-950" : "mx-auto max-w-7xl"}`}>
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">{t.editor}</h1>
-          <p className="text-sm">{t.ajuda}</p>
+          <h1 className="text-2xl font-bold">{nomeVisivel ?? t.leitor}</h1>
+          {origem && <p className="text-sm">{copiaModificada ? t.copiaLocal : origem.versao}</p>}
+          {urlVisivel && <p className="text-sm">{edicao ? t.ajuda : t.modoLeitura}</p>}
         </div>
         <div className="flex flex-wrap gap-2">
-          <button type="button" disabled={ocupado} className={botaoLeitorPdf} onClick={() => void abrirTextoVazio()}>{tTexto.novo}</button>
-          <button type="button" className={botaoLeitorPdf} onClick={() => void tela.alternar()}>{tela.telaCheia ? tTexto.sairTelaCheia : leitor("fullscreen")}</button>
-          <button type="button" disabled={ocupado} className={botaoLeitorPdf} onClick={() => { void tela.fechar().then(onVoltar); }}>{t.descartar}</button>
+          {!origem && (!urlVisivel || edicao) && <button type="button" disabled={ocupado} className={botaoLeitorPdf} onClick={() => void abrirTextoVazio()}>{tTexto.novo}</button>}
+          {urlVisivel && <button type="button" className={botaoLeitorPdf} onClick={() => void tela.alternar()}>{tela.telaCheia ? tTexto.sairTelaCheia : leitor("fullscreen")}</button>}
+          {edicao && <button type="button" disabled={ocupado} className={botaoLeitorPdf} onClick={voltarLeitura}>{t.voltarLeitura}</button>}
+          {!edicao && !copiaModificada && acoesLeitura}
+          {!edicao && urlVisivel && podeHabilitar && (
+            <button type="button" disabled={ocupado || (!dados && !pdfLido)}
+              className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+              onClick={habilitarEdicao}>{t.habilitar}</button>
+          )}
+          <button type="button" disabled={ocupado} className={botaoLeitorPdf} onClick={() => { void tela.fechar().then(onVoltar); }}>{rotuloVoltar ?? t.descartar}</button>
         </div>
       </header>
-      <label className="block text-sm font-semibold">
+      {!origem && <label className="block text-sm font-semibold">
         {t.abrir}
         <input type="file" accept="application/pdf,.pdf" disabled={ocupado} className="mt-1 block max-w-full text-sm"
           onChange={e => { const file = e.target.files?.[0]; if (file) abrir(file); e.target.value = ""; }} />
         <span className="font-normal">{t.arquivo}</span>
-      </label>
+      </label>}
+      {!edicao && !copiaModificada && avisoLeitura}
+      {!edicao && origem && !podeHabilitar && <p className="text-sm">{t.leituraAssinado}</p>}
+      {!edicao && arquivo && (!origem || copiaModificada) && (
+        <a href={arquivo.url} download={copiaModificada ? nomeCopia : dados?.nome} className={`inline-block ${botaoLeitorPdf}`}>{t.baixar}</a>
+      )}
       {erro && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{erro}</p>}
       {progresso && <p role="status" className="text-sm">{progresso}</p>}
-      {dados && arquivo?.dados === dados && (
-        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-          <LeitorPdfDocumento url={arquivo.url} pagina={pagina} onPagina={n => { if (!ocupado) navegar(n); }}
-            onPonto={p => { if (!ocupado) selecionarPonto(p); }} ponto={ponto} />
-          <section className="space-y-4 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
+      {urlVisivel && (
+        <div className={edicao ? "grid items-start gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]" : ""}>
+          <LeitorPdfDocumento url={urlVisivel} pagina={pagina} onPagina={n => { if (!ocupado) navegar(n); }}
+            onPdfPronto={origem ? setPdfLido : undefined}
+            onPonto={edicao ? p => { if (!ocupado) selecionarPonto(p); } : undefined} ponto={edicao ? ponto : null} />
+          {edicao && dados && arquivo?.dados === dados && <section className="space-y-4 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
             <p className="break-all text-sm font-semibold">{dados.nome}</p>
             <button type="button" disabled={ocupado} onClick={() => void editarTexto()}
               className={`${botaoLeitorPdf} border-blue-600 text-blue-700 dark:text-blue-300`}>{tTexto.editar}</button>
@@ -254,11 +318,11 @@ export default function EditorPdfLocal({ onVoltar }: { onVoltar: () => void }) {
                   onClick={inserirImagem}>{tTexto.aplicarImagem}</button>
               </div>}
             </fieldset>
-            <a href={arquivo.url} download={`${dados.nome.replace(/\.pdf$/i, "")}-phanyx.pdf`}
+            <a href={arquivo.url} download={nomeCopia}
               className="inline-block rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white">
               {t.baixar}
             </a>
-          </section>
+          </section>}
         </div>
       )}
     </main>
