@@ -1,10 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
-import type { PDFDocumentLoadingTask, PDFDocumentProxy, RenderTask, PageViewport } from "pdfjs-dist";
+import { useLocale, useTranslations } from "next-intl";
+import type { PDFDocumentLoadingTask, PDFDocumentProxy, PDFPageProxy, RenderTask, PageViewport, TextLayer } from "pdfjs-dist";
 import { carregarBibliotecaPdf, obterWorkerBibliotecaPdf, raizPdfBiblioteca } from "@/lib/biblioteca-pdf-client";
 import { localizarTermoPdf } from "@/lib/biblioteca-busca-pdf";
+import { areasSelecaoPdf, type AreaAnotacaoLeitor } from "@/lib/biblioteca-anotacoes-leitor";
+import { CORES_MARCACOES, pintarMarcacoesPdf } from "@/lib/biblioteca-cores-marcacoes";
+import { textosMarcadoresPdf } from "@/lib/documentos-docentes/i18n-marcadores-pdf";
+import styles from "./LeitorPdfDocumento.module.css";
 
 export type PontoPdf = { x: number; y: number };
 
@@ -14,12 +18,25 @@ type Props = {
   onPagina?: (pagina: number) => void;
   onPonto?: (ponto: PontoPdf) => void;
   ponto?: PontoPdf | null;
+  onPdfPronto?: (pdf: PDFDocumentProxy | null) => void;
+  permitirMarcacoes?: boolean;
 };
+
+type Destaque = { cor: string; areas: AreaAnotacaoLeitor[] };
+type PaginaRenderizada = {
+  canvas: HTMLCanvasElement;
+  viewport: PageViewport;
+  paginaPdf: PDFPageProxy;
+  original?: HTMLCanvasElement;
+};
+
+const coresExtras = ["#ff8a26", "#2ea8ff", "#a56bff", "#ff3b3b", "#bdff00", "#00efc4"];
 
 export const botaoLeitorPdf = "rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium disabled:opacity-40 dark:border-slate-600";
 
-export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, ponto }: Props) {
+export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, ponto, onPdfPronto, permitirMarcacoes = false }: Props) {
   const t = useTranslations("ReaderLibrary");
+  const textosMarcacao = textosMarcadoresPdf(useLocale());
   const [pdf, setPdf] = useState<PDFDocumentProxy | null>(null);
   const [pagInterna, setPagInterna] = useState(1);
   const [zoom, setZoom] = useState(100);
@@ -30,9 +47,24 @@ export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, pon
   const [busca, setBusca] = useState("");
   const [resultado, setResultado] = useState<number[] | "erro" | null>(null);
   const quadro = useRef<HTMLDivElement>(null);
-  const paginaRenderizada = useRef<{ canvas: HTMLCanvasElement; viewport: PageViewport } | null>(null);
+  const folha = useRef<HTMLDivElement>(null);
+  const camadaTexto = useRef<HTMLDivElement>(null);
+  const paginaRenderizada = useRef<PaginaRenderizada | null>(null);
   const [viewportAtual, setViewportAtual] = useState<PageViewport | null>(null);
   const numero = Math.min(pagina ?? pagInterna, pdf?.numPages ?? 1);
+  const [marcaTexto, setMarcaTexto] = useState(false);
+  const [cor, setCor] = useState(CORES_MARCACOES.AMARELO);
+  const [destaques, setDestaques] = useState<Record<number, Destaque[]>>({});
+  const [selecao, setSelecao] = useState<AreaAnotacaoLeitor[]>([]);
+  const [textoPronto, setTextoPronto] = useState<boolean | null>(null);
+  const podeMarcar = permitirMarcacoes && !onPonto;
+  const selecionarTexto = podeMarcar && marcaTexto;
+  const destaquesPagina = destaques[numero];
+
+  useEffect(() => {
+    setDestaques({});
+    setMarcaTexto(false);
+  }, [url]);
 
   useEffect(() => {
     let ativo = true;
@@ -65,6 +97,11 @@ export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, pon
   }, [url, tentativa]);
 
   useEffect(() => {
+    onPdfPronto?.(pdf);
+    return () => onPdfPronto?.(null);
+  }, [pdf, onPdfPronto]);
+
+  useEffect(() => {
     const elemento = quadro.current;
     if (!elemento) return;
     const observador = new ResizeObserver(() => setLargura(elemento.clientWidth));
@@ -73,7 +110,7 @@ export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, pon
   }, []);
 
   useEffect(() => {
-    const elemento = quadro.current;
+    const elemento = folha.current;
     if (!pdf || !elemento || !largura || !numero) return;
     let ativo = true;
     let render: RenderTask | null = null;
@@ -100,7 +137,7 @@ export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, pon
         await render.promise;
         if (!ativo) return;
         elemento!.replaceChildren(canvas);
-        paginaRenderizada.current = { canvas, viewport };
+        paginaRenderizada.current = { canvas, viewport, paginaPdf };
         setViewportAtual(viewport);
       } catch {
         if (ativo) setFalha(true);
@@ -113,6 +150,64 @@ export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, pon
       canvas.remove();
     };
   }, [pdf, numero, zoom, largura]);
+
+  useEffect(() => {
+    const atual = paginaRenderizada.current;
+    if (!atual || atual.viewport !== viewportAtual) return;
+    const marcacoes = podeMarcar ? destaquesPagina ?? [] : [];
+    if (!atual.original && !marcacoes.length) return;
+    const ctx = atual.canvas.getContext("2d");
+    if (!ctx) return;
+    if (!atual.original) {
+      const original = document.createElement("canvas");
+      original.width = atual.canvas.width;
+      original.height = atual.canvas.height;
+      const ctxOriginal = original.getContext("2d");
+      if (!ctxOriginal) return;
+      ctxOriginal.drawImage(atual.canvas, 0, 0);
+      atual.original = original;
+    }
+    pintarMarcacoesPdf(ctx, atual.original, { x: 0, y: 0, w: 1, h: 1 }, marcacoes);
+  }, [viewportAtual, podeMarcar, destaquesPagina]);
+
+  useEffect(() => {
+    setSelecao([]);
+    setTextoPronto(null);
+    const atual = paginaRenderizada.current;
+    const camada = camadaTexto.current;
+    if (!selecionarTexto || !camada || !atual || atual.viewport !== viewportAtual) return;
+    const { paginaPdf, viewport, canvas } = atual;
+    let ativo = true;
+    let layer: TextLayer | null = null;
+
+    async function montarTexto() {
+      const lib = await carregarBibliotecaPdf();
+      if (!ativo || !camada) return;
+      camada.style.setProperty("--total-scale-factor", String(viewport.scale * paginaPdf.userUnit));
+      layer = new lib.TextLayer({ textContentSource: paginaPdf.streamTextContent(), container: camada, viewport });
+      await layer.render();
+      if (ativo) setTextoPronto(Boolean(camada.textContent?.trim()));
+    }
+
+    function capturarSelecao() {
+      const selecionado = window.getSelection();
+      if (!selecionado || selecionado.isCollapsed || !selecionado.rangeCount || !selecionado.toString().trim()) {
+        setSelecao([]);
+        return;
+      }
+      const trecho = selecionado.getRangeAt(0);
+      setSelecao(camada?.contains(trecho.commonAncestorContainer) ? areasSelecaoPdf(trecho, canvas) : []);
+    }
+
+    void montarTexto().catch(() => { if (ativo) setTextoPronto(false); });
+    document.addEventListener("selectionchange", capturarSelecao);
+    return () => {
+      ativo = false;
+      layer?.cancel();
+      camada.replaceChildren();
+      document.removeEventListener("selectionchange", capturarSelecao);
+    };
+  }, [viewportAtual, selecionarTexto]);
 
   useEffect(() => {
     setResultado(null);
@@ -142,6 +237,17 @@ export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, pon
     onPagina?.(valor);
   }
 
+  function destacar() {
+    if (!selecao.length) return;
+    setDestaques(atuais => ({ ...atuais, [numero]: [...(atuais[numero] ?? []), { cor, areas: selecao }] }));
+    setSelecao([]);
+    window.getSelection()?.removeAllRanges();
+  }
+
+  function desfazerDestaque() {
+    setDestaques(atuais => ({ ...atuais, [numero]: atuais[numero]?.slice(0, -1) ?? [] }));
+  }
+
   const marca = ponto && viewportAtual ? viewportAtual.convertToViewportPoint(ponto.x, ponto.y) : null;
   return (
     <section className="min-w-0 space-y-3">
@@ -163,7 +269,30 @@ export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, pon
             <button type="button" className={botaoLeitorPdf} disabled={zoom <= 50} onClick={() => setZoom(v => v - 25)} aria-label={t("zoomOut")}>−</button>
             <button type="button" className={botaoLeitorPdf} onClick={() => setZoom(100)} aria-label={t("fitPage")}>{zoom}%</button>
             <button type="button" className={botaoLeitorPdf} disabled={zoom >= 200} onClick={() => setZoom(v => v + 25)} aria-label={t("zoomIn")}>+</button>
+            {podeMarcar && <button type="button" className={botaoLeitorPdf} aria-pressed={marcaTexto}
+              onClick={() => setMarcaTexto(ativo => !ativo)}>{textosMarcacao.marcaTexto}</button>}
           </div>
+          {selecionarTexto && <div className="space-y-2 rounded-lg border border-slate-300 p-2 dark:border-slate-600">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap gap-1" role="group" aria-label={textosMarcacao.marcaTexto}>
+                {[
+                  ...Object.entries(CORES_MARCACOES).map(([codigo, valor]) => ({ valor, nome: t(`highlightColors.${codigo}`) })),
+                  ...coresExtras.map((valor, indice) => ({ valor, nome: textosMarcacao.cores[indice] })),
+                ].map(({ valor, nome }) => (
+                  <button type="button" key={valor} className={`grid h-9 w-9 place-items-center rounded-md border ${cor === valor ? "border-blue-600 ring-1 ring-blue-600" : "border-transparent"}`}
+                    aria-label={t("annotationTools.penColor", { color: nome })} aria-pressed={cor === valor} title={nome}
+                    onMouseDown={e => e.preventDefault()} onClick={() => setCor(valor)}>
+                    <span aria-hidden className="h-5 w-5 rounded-sm border border-slate-500" style={{ backgroundColor: valor }} />
+                  </button>
+                ))}
+              </div>
+              <button type="button" className={botaoLeitorPdf} disabled={!textoPronto || !selecao.length}
+                onMouseDown={e => e.preventDefault()} onClick={destacar}>{t("highlightSelection")}</button>
+              <button type="button" className={botaoLeitorPdf} disabled={!destaquesPagina?.length}
+                onClick={desfazerDestaque}>{textosMarcacao.desfazer}</button>
+            </div>
+            <p className="text-sm" role="status">{textoPronto === false ? textosMarcacao.semTexto : textosMarcacao.selecione}</p>
+          </div>}
           {!onPonto && <form className="flex flex-wrap gap-2" onSubmit={e => { e.preventDefault(); setBusca(termo.trim()); }}>
             <input type="search" className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm dark:border-slate-600"
               aria-label={t("documentSearch")} placeholder={t("documentSearch")} maxLength={120} value={termo}
@@ -179,14 +308,16 @@ export default function LeitorPdfDocumento({ url, pagina, onPagina, onPonto, pon
         </>
       )}
       <div className="max-h-[72vh] overflow-auto rounded-lg bg-slate-100 dark:bg-slate-950" hidden={falha}>
-        <div className="relative min-h-40 py-2">
-          <div ref={quadro} className={onPonto ? "cursor-crosshair" : undefined} onClick={onPonto ? e => {
+        <div ref={quadro} className="relative min-h-40 py-2">
+          <div ref={folha} className={onPonto ? "cursor-crosshair" : undefined} onClick={onPonto ? e => {
             const atual = paginaRenderizada.current;
             if (!atual || e.target !== atual.canvas) return;
             const borda = atual.canvas.getBoundingClientRect();
             const [x, y] = atual.viewport.convertToPdfPoint(e.clientX - borda.left, e.clientY - borda.top);
             onPonto({ x, y });
           } : undefined} />
+          {selecionarTexto && viewportAtual && <div ref={camadaTexto} className={styles.camadaTexto}
+            style={{ top: 8, left: Math.max(0, (largura - viewportAtual.width) / 2) }} />}
           {marca && viewportAtual && <div aria-hidden className="pointer-events-none absolute top-2"
             style={{ width: viewportAtual.width, left: Math.max(0, (largura - viewportAtual.width) / 2) }}>
             <span className="absolute h-3 w-3 rounded-full bg-blue-600 ring-2 ring-white"

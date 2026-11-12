@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import FolhaFlexivelBiblioteca from "./FolhaFlexivelBiblioteca";
 import PainelAnotacoesBiblioteca, { CanetasBiblioteca } from "./PainelAnotacoesBiblioteca";
-import { anotacaoTemTrecho, type AnotacaoLeitor } from "@/lib/biblioteca-anotacoes-leitor";
+import { anotacaoTemTrecho, areasSelecaoPdf, type AnotacaoLeitor } from "@/lib/biblioteca-anotacoes-leitor";
 import { pintarMarcacoesPdf } from "@/lib/biblioteca-cores-marcacoes";
 import { LIMITE_TRECHO_BIBLIOTECA, LIMITE_PAGINAS_BIBLIOTECA } from "@/lib/biblioteca-direitos-leitura";
 import { carregarBibliotecaPdf, obterWorkerBibliotecaPdf, raizPdfBiblioteca, workerPdfBiblioteca, type BibliotecaPdf } from "@/lib/biblioteca-pdf-client";
@@ -531,12 +531,7 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
     const numero = esquerda ? faces.esquerda : faces.direita;
     if (!camada?.contains(range.commonAncestorContainer) || !numero) { setSelecao(null); return; }
     const trecho = selected.toString().trim(); if (!trecho || trecho.length > 2000) { setSelecao(null); return; }
-    const bounds = camada.getBoundingClientRect();
-    const areas = Array.from(range.getClientRects()).filter((r) => r.width > 1 && r.height > 1).slice(0, 100).map((r) => {
-      const x = Math.max(0, Math.min(1, (r.left - bounds.left) / bounds.width));
-      const y = Math.max(0, Math.min(1, (r.top - bounds.top) / bounds.height));
-      return { x, y, largura: Math.min(1 - x, r.width / bounds.width), altura: Math.min(1 - y, r.height / bounds.height) };
-    }).filter((r) => r.largura > 0 && r.altura > 0);
+    const areas = areasSelecaoPdf(range, camada);
     setPagina(numero); setSelecao({ trecho, areas, pagina: numero });
   }, [faces.esquerda, faces.direita]);
   useEffect(() => {

@@ -8,7 +8,6 @@ import { camposModeloDocente, renderizarCamposDocentes } from "@/lib/documentos-
 import { traduzirDocumentoDocente, type ChaveDocumentoDocente } from "@/lib/documentos-docentes/i18n";
 import { traducaoDocentesEtapa3, type ChaveDocentesEtapa3 } from "@/lib/documentos-docentes/i18n-etapa3";
 import { professorPodeEditarDocumentoDocente } from "@/lib/documentos-docentes/fluxo";
-import LeitorPdfDocumento from "./LeitorPdfDocumento";
 import EditorPdfLocal from "./EditorPdfLocal";
 import { textosEditorPdf } from "@/lib/documentos-docentes/i18n-editor-pdf";
 import AssinaturaDocumentoDocenteModal from "@/components/documentos-docentes/AssinaturaDocumentoDocenteModal";
@@ -215,25 +214,27 @@ export default function CentralDocentes({ papel, documentoInicial = null }: { pa
   if (painelPdf === "editor") return <EditorPdfLocal onVoltar={() => setPainelPdf(null)} />;
   if (painelPdf === "leitor" && detalhes) {
     const pdf = `/api/documentos-docentes/${detalhes.documento.id}/pdf?versao=${detalhes.versao.numero}`;
+    const permiteEdicao = !detalhes.assinaturas.some(assinatura => assinatura.versao === detalhes.versao.numero);
     return (
-      <main className="mx-auto max-w-7xl space-y-4 text-slate-900 dark:text-slate-100">
-        <header className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className="text-xl font-bold">{detalhes.documento.titulo}</h1>
-            <p className="text-sm">{t("version")} {detalhes.versao.numero}</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button type="button" className={`${botaoBase} border`} onClick={() => setPainelPdf(null)}>{t3("backToDocument")}</button>
-            <a href={`${pdf}&baixar=1`} className={`${botaoBase} border`}>{t3("downloadPdf")}</a>
-            {podeAssinarProfessor && (
-              <Link href={`/professor/documentos/${detalhes.documento.id}/assinar?versao=${detalhes.documento.versaoAtual}`}
-                className={`${botaoBase} bg-blue-700 text-white`}>{t3("signWithPhanyx")}</Link>
-            )}
-          </div>
-        </header>
-        {camposNaoSalvos && <p className="text-sm text-amber-800 dark:text-amber-300">{t3("savedBeforeSign")}</p>}
-        <LeitorPdfDocumento url={pdf} />
-      </main>
+      <EditorPdfLocal
+        key={pdf}
+        origem={{
+          url: pdf,
+          nome: detalhes.documento.titulo,
+          versao: `${t("version")} ${detalhes.versao.numero}`,
+          permiteEdicao,
+        }}
+        rotuloVoltar={t3("backToDocument")}
+        onVoltar={() => setPainelPdf(null)}
+        avisoLeitura={camposNaoSalvos && <p className="text-sm text-amber-800 dark:text-amber-300">{t3("savedBeforeSign")}</p>}
+        acoesLeitura={<>
+          <a href={`${pdf}&baixar=1`} className={`${botaoBase} border`}>{t3("downloadPdf")}</a>
+          {podeAssinarProfessor && (
+            <Link href={`/professor/documentos/${detalhes.documento.id}/assinar?versao=${detalhes.documento.versaoAtual}`}
+              className={`${botaoBase} bg-blue-700 text-white`}>{t3("signWithPhanyx")}</Link>
+          )}
+        </>}
+      />
     );
   }
 

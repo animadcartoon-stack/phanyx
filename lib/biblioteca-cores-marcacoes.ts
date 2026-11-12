@@ -2,8 +2,13 @@ export const CORES_MARCACOES: Record<string, string> = {
   AMARELO: "#ffff00", VERDE: "#00e676", AZUL: "#102a56", ROSA: "#ff40c8",
 };
 
+function hexMarcacao(cor: string) {
+  if (/^#[0-9a-f]{6}$/i.test(cor)) return cor;
+  return Object.hasOwn(CORES_MARCACOES, cor) ? CORES_MARCACOES[cor] : CORES_MARCACOES.AMARELO;
+}
+
 export function rgbMarcacao(cor: string): [number, number, number] {
-  const hex = CORES_MARCACOES[cor] || CORES_MARCACOES.AMARELO;
+  const hex = hexMarcacao(cor);
   return [1, 3, 5].map(i => Number.parseInt(hex.slice(i, i + 2), 16)) as [number, number, number];
 }
 
@@ -26,7 +31,7 @@ export function pintarMarcacoesPdf(ctx: CanvasRenderingContext2D, fonte: HTMLCan
   ctx.save(); ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over"; ctx.filter = "none";
   ctx.drawImage(fonte, 0, 0, largura, altura);
   for (const marcacao of marcacoes) {
-    const cor = CORES_MARCACOES[marcacao.cor] || CORES_MARCACOES.AMARELO;
+    const cor = hexMarcacao(marcacao.cor);
     const branco = textoMarcacaoBranco(marcacao.cor);
     for (const area of marcacao.areas) {
       const x = Math.max(0, Math.floor((quadro.x + area.x * quadro.w) * largura));
