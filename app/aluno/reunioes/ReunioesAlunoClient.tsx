@@ -88,13 +88,13 @@ export default function ReunioesAlunoClient() {
         <div className="aluno-reunioes-card rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
           {t("loading")}
         </div>
-      ) : reunioes.length === 0 ? (
+      ) : reunioes.filter((r) => r.status === "AGENDADA").length === 0 ? (
         <div className="aluno-reunioes-card rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
           {t("empty")}
         </div>
       ) : (
         <div className="grid gap-4">
-          {reunioes.map((reuniao) => (
+          {reunioes.filter((r) => r.status === "AGENDADA").map((reuniao) => (
             <div
               key={reuniao.id}
               className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900"
@@ -128,6 +128,18 @@ export default function ReunioesAlunoClient() {
             </div>
           ))}
         </div>
+      )}
+      {reunioes.some((r) => r.status === "CANCELADA") && (
+        <section className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
+          <h2 className="mb-3 text-lg font-bold text-slate-900 dark:text-white">{locale.startsWith("pt") ? "Reuniões canceladas" : locale.startsWith("es") ? "Reuniones canceladas" : locale.startsWith("fr") ? "Réunions annulées" : "Cancelled meetings"}</h2>
+          {reunioes.filter((r) => r.status === "CANCELADA").map((r) => (
+            <div key={r.id} className="mb-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700">
+              <p className="font-semibold text-slate-900 dark:text-white">{r.titulo}</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300">{formatarData(r.dataHora)}</p>
+              <p className="mt-1 font-semibold text-red-600 dark:text-red-300">{locale.startsWith("pt") ? "Cancelada" : locale.startsWith("es") ? "Cancelada" : locale.startsWith("fr") ? "Annulée" : "Cancelled"}</p>
+            </div>
+          ))}
+        </section>
       )}
     </div>
   );

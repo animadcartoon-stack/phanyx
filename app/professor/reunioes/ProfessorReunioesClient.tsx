@@ -1178,7 +1178,7 @@ export default function ProfessorReunioesClient() {
         )}
 
         {!carregandoDados &&
-          reunioes.length ===
+          reunioes.filter((r) => r.status === "AGENDADA").length ===
             0 && (
             <div className="phanyx-prof-reunioes-detalhes rounded-2xl border p-4 text-sm">
               {t(
@@ -1188,10 +1188,10 @@ export default function ProfessorReunioesClient() {
           )}
 
         {!carregandoDados &&
-          reunioes.length >
+          reunioes.filter((r) => r.status === "AGENDADA").length >
             0 && (
             <div className="space-y-3">
-              {reunioes.map(
+              {reunioes.filter((r) => r.status === "AGENDADA").map(
                 (reuniao) => (
                   <div
                     key={
@@ -1263,6 +1263,18 @@ export default function ProfessorReunioesClient() {
             </div>
           )}
       </div>
+        {reunioes.some((r) => r.status === "CANCELADA") && (
+          <section className="phanyx-prof-reunioes-card mt-6 rounded-3xl border p-6 shadow-sm">
+            <h2 className="mb-4 text-lg font-semibold">{locale.startsWith("pt") ? "Reuniões canceladas" : locale.startsWith("es") ? "Reuniones canceladas" : locale.startsWith("fr") ? "Réunions annulées" : "Cancelled meetings"}</h2>
+            {reunioes.filter((r) => r.status === "CANCELADA").map((r) => (
+              <div key={r.id} className="phanyx-prof-reunioes-item mb-3 rounded-xl border p-4">
+                <p className="font-semibold">{r.titulo}</p>
+                <p className="text-sm">{formatarDataHora(r.dataHora, locale)}</p>
+                <p className="mt-2 font-semibold text-red-600 dark:text-red-300">{locale.startsWith("pt") ? "Cancelada" : locale.startsWith("es") ? "Cancelada" : locale.startsWith("fr") ? "Annulée" : "Cancelled"}</p>
+              </div>
+            ))}
+          </section>
+        )}
     </div>
   );
 }

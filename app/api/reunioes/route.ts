@@ -104,6 +104,9 @@ export async function POST(req: NextRequest) {
     if (!dataHora || Number.isNaN(dataHora.getTime())) {
       return NextResponse.json({ error: "Informe data e hora válidas." }, { status: 400 });
     }
+    if (dataHora.getTime() <= Date.now()) {
+      return NextResponse.json({ error: "A reunião precisa ter data e horário futuros." }, { status: 400 });
+    }
 
     if (!publicoTipo) {
       return NextResponse.json({ error: "Escolha o público da reunião." }, { status: 400 });
@@ -444,10 +447,15 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const dataFormatada = new Date(reuniao.dataHora).toLocaleString("pt-BR", {
-      dateStyle: "short",
-      timeStyle: "short",
+    const configuracaoHorario = await prisma.configuracaoInstituicao.findFirst({
+      where: { instituicaoId: user.instituicaoId }, select: { fusoHorario: true },
     });
+    let fusoAgendamento = configuracaoHorario?.fusoHorario || "America/Sao_Paulo";
+    try { new Intl.DateTimeFormat("pt-BR", { timeZone: fusoAgendamento }); }
+    catch { fusoAgendamento = "America/Sao_Paulo"; }
+    const dataFormatada = new Intl.DateTimeFormat("pt-BR", {
+      timeZone: fusoAgendamento, dateStyle: "short", timeStyle: "short",
+    }).format(reuniao.dataHora);
 
     function linkReuniaoPorTipo(tipo: string) {
       if (tipo === "ALUNO") return "/aluno/reunioes";
@@ -455,19 +463,24 @@ export async function POST(req: NextRequest) {
       return "/admin/reunioes";
     }
 
-    const notificacoes = reuniao.participantes
-      .filter((participante) => participante.userId)
-      .map((participante) => ({
+    const participantesParaNotificar = Array.from(new Map<number, (typeof reuniao.participantes)[number]>(
+      reuniao.participantes
+        .filter((participante) => participante.userId)
+        .map((participante) => [participante.userId!, participante] as const)
+    ).values());
+    const notificacoes = participantesParaNotificar.map((participante) => ({
         usuarioId: participante.userId!,
         tipo: "REUNIAO",
         titulo: "📅 Nova reunião agendada",
         descricao: `${reuniao.titulo} • ${dataFormatada}`,
         link: linkReuniaoPorTipo(participante.tipo),
+        chaveAgrupada: `REUNIAO:${reuniao.id}:CONVITE:USUARIO:${participante.userId!}`,
       }));
 
     if (notificacoes.length > 0) {
       await prisma.notificacao.createMany({
         data: notificacoes,
+        skipDuplicates: true,
       });
     }
 
@@ -569,96 +582,102 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const user = await getUserFromToken();
+    if (!user) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
 
-    if (!user) {
-      return NextResponse.json(
-        { error: "Não autorizado." },
-        { status: 401 }
-      );
+    const id = Number(req.nextUrl.searchParams.get("id"));
+    if (!Number.isInteger(id) || id <= 0) {
+      return NextResponse.json({ error: "Reunião inválida." }, { status: 400 });
+    }
+    const reuniao = await prisma.reuniao.findFirst({
+      where: { id, instituicaoId: user.instituicaoId },
+      include: { participantes: true },
+    });
+    if (!reuniao) return NextResponse.json({ error: "Reunião não encontrada." }, { status: 404 });
+    if (user.role !== "ADMIN" && reuniao.criadoPorId !== user.id) {
+      return NextResponse.json({ error: "Sem permissão para cancelar esta reunião." }, { status: 403 });
+    }
+    if (reuniao.status === "CANCELADA") {
+      return NextResponse.json({ sucesso: true, jaCancelada: true, mensagem: "Reunião já cancelada." });
+    }
+    if (reuniao.status !== "AGENDADA") {
+      return NextResponse.json({ error: "Esta reunião não está agendada." }, { status: 409 });
     }
 
-    const id = Number(
-      req.nextUrl.searchParams.get("id")
+    const configuracao = await prisma.configuracaoInstituicao.findFirst({
+      where: { instituicaoId: user.instituicaoId }, select: { fusoHorario: true },
+    });
+    let fuso = configuracao?.fusoHorario || "America/Sao_Paulo";
+    try { new Intl.DateTimeFormat("pt-BR", { timeZone: fuso }); }
+    catch { fuso = "America/Sao_Paulo"; }
+    const dataFormatada = new Intl.DateTimeFormat("pt-BR", {
+      timeZone: fuso, dateStyle: "short", timeStyle: "short",
+    }).format(reuniao.dataHora);
+
+    const usuariosPorId = new Map<number, (typeof reuniao.participantes)[number]>(
+      reuniao.participantes.filter(p => p.userId != null).map(p => [p.userId!, p] as const)
     );
+    const usuariosIds = Array.from(usuariosPorId.keys());
+    const feita = await prisma.$transaction(async (tx) => {
+      // updateMany com filtro de status impede dois cancelamentos simultâneos.
+      const atualizada = await tx.reuniao.updateMany({
+        where: { id, instituicaoId: user.instituicaoId, status: "AGENDADA" },
+        data: { status: "CANCELADA" },
+      });
+      if (atualizada.count !== 1) return false;
 
-    if (
-      !Number.isInteger(id) ||
-      id <= 0
-    ) {
-      return NextResponse.json(
-        { error: "Reunião inválida." },
-        { status: 400 }
-      );
-    }
-
-    const reuniao =
-      await prisma.reuniao.findFirst({
-        where: {
-          id,
-          instituicaoId:
-            user.instituicaoId,
-        },
-        select: {
-          id: true,
-          criadoPorId: true,
-          titulo: true,
-        },
+      // Remove lembretes e convites ativos. O histórico da reunião é preservado.
+      await tx.notificacao.deleteMany({
+        where: { chaveAgrupada: { startsWith: `REUNIAO:${id}:` } },
       });
 
-    if (!reuniao) {
-      return NextResponse.json(
-        {
-          error:
-            "Reunião não encontrada.",
-        },
-        { status: 404 }
-      );
+      const avisos = Array.from(usuariosPorId.values()).map((pessoa) => ({
+        instituicaoId: user.instituicaoId,
+        usuarioId: pessoa.userId!,
+        tipo: "REUNIAO_CANCELADA",
+        titulo: "❌ Reunião cancelada",
+        descricao: `${reuniao.titulo} • ${dataFormatada}`,
+        link: pessoa.tipo === "ALUNO" ? "/aluno/reunioes" :
+          pessoa.tipo === "PROFESSOR" ? "/professor/reunioes" : "/admin/reunioes",
+        chaveAgrupada: `REUNIAO:${id}:CANCELAMENTO:USUARIO:${pessoa.userId}`,
+      }));
+      if (avisos.length) await tx.notificacao.createMany({ data: avisos, skipDuplicates: true });
+      return true;
+    });
+    if (!feita) {
+      return NextResponse.json({ erro: "A reunião já foi alterada ou cancelada." }, { status: 409 });
     }
 
-    /*
-     * ADMIN pode excluir reuniões
-     * da própria instituição.
-     *
-     * Demais perfis somente podem
-     * excluir reuniões que criaram.
-     */
-    if (
-      user.role !== "ADMIN" &&
-      reuniao.criadoPorId !== user.id
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Você não tem permissão para excluir esta reunião.",
-        },
-        { status: 403 }
-      );
+    // Canal complementar; falha ou ausência de template não desfaz o aviso interno.
+    try {
+      const resultados = await Promise.allSettled(reuniao.participantes.map((p) =>
+        enviarComunicacaoWhatsapp({
+          instituicaoId: user.instituicaoId!,
+          usuarioId: p.userId ?? null,
+          tipoComunicacao: TipoComunicacaoWhatsApp.REUNIAO_CANCELADA,
+          chaveIdempotencia: `instituicao:${user.instituicaoId}:reuniao:${id}:cancelamento:participante:${p.id}`,
+          telefone: p.telefone ?? null,
+          nomeDestinatario: p.nome ?? null,
+          parametros: {
+            reuniaoId: id, titulo: reuniao.titulo,
+            dataHora: reuniao.dataHora.toISOString(), dataFormatada,
+            participanteId: p.id,
+          },
+          componentes: [{ type: "body", parameters: [
+            { type: "text", text: p.nome?.trim() || "Participante" },
+            { type: "text", text: reuniao.titulo },
+            { type: "text", text: dataFormatada },
+          ] }],
+        })
+      ));
+      const falhas = resultados.filter(item => item.status === "rejected").length;
+      if (falhas) console.error("Falhas ao processar WhatsApp de cancelamento:", falhas);
+    } catch (erroWhatsapp) {
+      console.error("WhatsApp de cancelamento não concluído:", erroWhatsapp);
     }
 
-    await prisma.reuniao.delete({
-      where: {
-        id: reuniao.id,
-      },
-    });
-
-    return NextResponse.json({
-      sucesso: true,
-      mensagem:
-        "Reunião excluída com sucesso.",
-    });
-  } catch (error: any) {
-    console.error(
-      "Erro ao excluir reunião:",
-      error
-    );
-
-    return NextResponse.json(
-      {
-        error:
-          error?.message ||
-          "Erro ao excluir reunião.",
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ sucesso: true, mensagem: "Reunião cancelada; participantes avisados no PHANYX.", avisos: usuariosIds.length });
+  } catch (error: unknown) {
+    console.error("Erro ao cancelar reunião:", error);
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Erro ao cancelar reunião." }, { status: 500 });
   }
 }

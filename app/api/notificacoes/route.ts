@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { filtroNotificacoesDoUsuario } from "@/lib/notificacoes/filtro-notificacoes-reunioes";
 
 export const dynamic = "force-dynamic";
 
@@ -30,23 +31,9 @@ export async function GET() {
       return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
     }
 
-    const role = String(usuarioBanco.role || "").toUpperCase();
-
-    const whereBase =
-      role === "ADMIN" || role === "SUPER_ADMIN" || usuarioBanco.isMasterAdmin
-        ? {
-            OR: [
-              { usuarioId: usuarioBanco.id },
-              {
-                instituicaoId: usuarioBanco.instituicaoId,
-                usuarioId: null,
-              },
-            ],
-          }
-        : {
-            usuarioId: usuarioBanco.id,
-          };
-
+    const whereBase = await filtroNotificacoesDoUsuario(
+      usuarioBanco.id, usuarioBanco.instituicaoId
+    );
     const notificacoes = await prisma.notificacao.findMany({
       where: whereBase,
       orderBy: [{ lida: "asc" }, { criadoEm: "desc" }],
@@ -54,10 +41,7 @@ export async function GET() {
     });
 
     const totalNaoLidas = await prisma.notificacao.count({
-      where: {
-        ...whereBase,
-        lida: false,
-      },
+      where: { AND: [whereBase, { lida: false }] },
     });
 
     return NextResponse.json({
@@ -93,7 +77,7 @@ export async function PATCH(req: NextRequest) {
         id,
         OR: [
           { usuarioId: user.id },
-          { instituicaoId: user.instituicaoId },
+          { usuarioId: null, instituicaoId: user.instituicaoId },
         ],
       },
     });

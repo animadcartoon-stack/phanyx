@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import { gerarNotificacoesSistema } from "@/lib/notificacoes/gerarNotificacoesSistema";
+import { filtroNotificacoesDoUsuario } from "@/lib/notificacoes/filtro-notificacoes-reunioes";
 
 export async function GET(request: Request) {
   try {
@@ -41,25 +42,16 @@ export async function GET(request: Request) {
       await gerarNotificacoesSistema(usuarioBanco.instituicaoId);
     }
 
+    const whereVisivel = await filtroNotificacoesDoUsuario(
+      usuarioBanco.id, usuarioBanco.instituicaoId
+    );
     const notificacoes = await prisma.notificacao.findMany({
-      where: {
-        OR: [
-          { instituicaoId: usuarioBanco.instituicaoId },
-          { usuarioId: usuarioBanco.id },
-        ],
-      },
+      where: whereVisivel,
       orderBy: [{ lida: "asc" }, { criadoEm: "desc" }],
       take: 20,
     });
-
     const totalNaoLidas = await prisma.notificacao.count({
-      where: {
-        OR: [
-          { instituicaoId: usuarioBanco.instituicaoId },
-          { usuarioId: usuarioBanco.id },
-        ],
-        lida: false,
-      },
+      where: { AND: [whereVisivel, { lida: false }] },
     });
 
     return NextResponse.json({
@@ -167,7 +159,10 @@ export async function PATCH(req: Request) {
     const existente = await prisma.notificacao.findFirst({
       where: {
         id,
-        instituicaoId: user.instituicaoId,
+        OR: [
+          { usuarioId: user.id },
+          { usuarioId: null, instituicaoId: user.instituicaoId },
+        ],
       },
     });
 

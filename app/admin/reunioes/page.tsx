@@ -51,6 +51,17 @@ type Reuniao = {
 };
 
 
+const CANCELAMENTO_REUNIAO: Record<string, {
+  action: string; running: string; success: string; error: string;
+  ask: string; warning: string; history: string; status: string;
+}> = {
+  "en-US": { action: "Cancel meeting", running: "Cancelling...", success: "Meeting cancelled. Participants notified.", error: "Could not cancel meeting.", ask: "Cancel the meeting ‘{title}’?", warning: "Participants will be notified immediately. The meeting will remain in the history.", history: "Cancelled meetings", status: "Cancelled" },
+  "pt-BR": { action: "Cancelar reunião", running: "Cancelando...", success: "Reunião cancelada. Participantes notificados.", error: "Não foi possível cancelar a reunião.", ask: "Cancelar a reunião ‘{title}’?", warning: "Os participantes serão avisados imediatamente. A reunião permanecerá no histórico.", history: "Reuniões canceladas", status: "Cancelada" },
+  "pt-PT": { action: "Cancelar reunião", running: "A cancelar...", success: "Reunião cancelada. Participantes notificados.", error: "Não foi possível cancelar a reunião.", ask: "Cancelar a reunião ‘{title}’?", warning: "Os participantes serão avisados imediatamente. A reunião permanecerá no histórico.", history: "Reuniões canceladas", status: "Cancelada" },
+  "es-ES": { action: "Cancelar reunión", running: "Cancelando...", success: "Reunión cancelada. Participantes notificados.", error: "No se pudo cancelar la reunión.", ask: "¿Cancelar la reunión ‘{title}’?", warning: "Se notificará inmediatamente a los participantes. La reunión permanecerá en el historial.", history: "Reuniones canceladas", status: "Cancelada" },
+  "fr-FR": { action: "Annuler la réunion", running: "Annulation...", success: "Réunion annulée. Participants informés.", error: "Impossible d’annuler la réunion.", ask: "Annuler la réunion « {title} » ?", warning: "Les participants seront avertis immédiatement. La réunion restera dans l’historique.", history: "Réunions annulées", status: "Annulée" },
+};
+
 function normalizarTexto(texto: string) {
   return texto
     .toLowerCase()
@@ -63,6 +74,7 @@ function normalizarTexto(texto: string) {
 export default function AdminReunioesPage() {
   const t = useTranslations("AdminOperations");
   const locale = useLocale();
+  const cancelamento = CANCELAMENTO_REUNIAO[locale] || CANCELAMENTO_REUNIAO["en-US"];
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
   const [link, setLink] = useState("");
@@ -308,26 +320,22 @@ export default function AdminReunioesPage() {
 
       if (!res.ok) {
         throw new Error(
-          (locale.startsWith("pt") ? (data?.error || t("meetingsDeleteError")) : t("meetingsDeleteError"))
+          (locale.startsWith("pt") ? (data?.error || cancelamento.error) : cancelamento.error)
         );
       }
 
       setReunioes((atuais) =>
-        atuais.filter(
-          (item) =>
-            item.id !==
-            reuniaoParaExcluir.id
-        )
+        atuais.map((item) => item.id === reuniaoParaExcluir.id
+          ? { ...item, status: "CANCELADA" } : item)
       );
+      window.dispatchEvent(new Event("phanyx:notificacoes-atualizar"));
 
-      setMensagem(
-        t("meetingsDeleted")
-      );
+      setMensagem(cancelamento.success);
 
       setReuniaoParaExcluir(null);
     } catch (error: any) {
       setErro(
-        (locale.startsWith("pt") ? (error?.message || t("meetingsDeleteError")) : t("meetingsDeleteError"))
+        (locale.startsWith("pt") ? (error?.message || cancelamento.error) : cancelamento.error)
       );
     } finally {
       setExcluindoId(null);
@@ -615,13 +623,13 @@ export default function AdminReunioesPage() {
           {t("meetingsScheduled")}
         </h2>
 
-        {reunioes.length === 0 ? (
+        {reunioes.filter((item) => item.status === "AGENDADA").length === 0 ? (
           <p className="text-sm text-slate-500 dark:text-slate-300">
             {t("meetingsEmpty")}
           </p>
         ) : (
           <div className="space-y-3">
-            {reunioes.map((reuniao) => (
+            {reunioes.filter((item) => item.status === "AGENDADA").map((reuniao) => (
               <div
                 key={reuniao.id}
                 className="phanyx-reuniao-card-marcada rounded-2xl border p-4"
@@ -702,6 +710,22 @@ export default function AdminReunioesPage() {
         )}
       </div>
 
+
+      {reunioes.some((item) => item.status === "CANCELADA") && (
+        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">{cancelamento.history}</h2>
+          <div className="space-y-3">
+            {reunioes.filter((item) => item.status === "CANCELADA").map((item) => (
+              <div key={item.id} className="rounded-xl border border-slate-200 p-4 dark:border-slate-700">
+                <p className="font-semibold text-slate-900 dark:text-white">{item.titulo}</p>
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{new Date(item.dataHora).toLocaleString(locale)}</p>
+                <p className="mt-1 text-sm font-semibold text-red-700 dark:text-red-300">{cancelamento.status}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {reuniaoParaExcluir && (
         <div
           className="
@@ -731,15 +755,18 @@ export default function AdminReunioesPage() {
           >
             <div className="mb-4">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                {t("meetingsDelete")}
+                {cancelamento.action}
               </h3>
 
               <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                {t("meetingsDeleteAsk", { title: reuniaoParaExcluir.titulo })}
+                {cancelamento.ask.replace("{title}", reuniaoParaExcluir.titulo)}
+              </p>
+              <p className="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200">
+                {t("meetingsDate")}: {new Date(reuniaoParaExcluir.dataHora).toLocaleString(locale)}
               </p>
 
               <p className="mt-2 text-sm text-red-600 dark:text-red-300">
-                {t("meetingsDeleteWarning")}
+                {cancelamento.warning}
               </p>
             </div>
 
@@ -788,8 +815,8 @@ export default function AdminReunioesPage() {
           "
               >
                 {excluindoId !== null
-                  ? t("meetingsDeleting")
-                  : t("meetingsDelete")}
+                  ? cancelamento.running
+                  : cancelamento.action}
               </button>
             </div>
           </div>
