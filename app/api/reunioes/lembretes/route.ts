@@ -79,6 +79,12 @@ function adicionarDiasDataIso(
   return data.toISOString().slice(0, 10);
 }
 
+function formatarDataReuniao(data: Date, fusoHorario: string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    timeZone: fusoHorario, day: "2-digit", month: "2-digit", year: "numeric",
+  }).format(data);
+}
+
 function formatarHoraReuniao(
   data: Date,
   fusoHorario: string
@@ -222,10 +228,7 @@ export async function GET(req: Request) {
      * Isso evita depender do timezone do servidor
      * da Vercel.
      */
-    const inicioJanela = new Date(
-      agora.getTime() -
-      24 * 60 * 60 * 1000
-    );
+    const inicioJanela = agora; // Nunca avisar sobre reunião que já começou/terminou.
 
     const fimJanela = new Date(
       agora.getTime() +
@@ -324,11 +327,9 @@ export async function GET(req: Request) {
 
           tipo: "REUNIAO_LEMBRETE_AMANHA",
 
-          titulo:
-            "⏰ Amanhã você tem reunião",
+          titulo: "⏰ Lembrete de reunião",
 
-          descricao:
-            `${reuniao.titulo} • amanhã às ${hora}`,
+          descricao: `${reuniao.titulo} • ${formatarDataReuniao(reuniao.dataHora, obterFusoInstituicao(reuniao.instituicaoId))} às ${hora}`,
 
           link: linkPorTipo(
             participante.tipo
@@ -364,11 +365,9 @@ export async function GET(req: Request) {
 
           tipo: "REUNIAO_LEMBRETE_HOJE",
 
-          titulo:
-            "📅 Hoje você tem reunião",
+          titulo: "📅 Lembrete de reunião",
 
-          descricao:
-            `${reuniao.titulo} • hoje às ${hora}`,
+          descricao: `${reuniao.titulo} • ${formatarDataReuniao(reuniao.dataHora, obterFusoInstituicao(reuniao.instituicaoId))} às ${hora}`,
 
           link: linkPorTipo(
             participante.tipo
@@ -387,9 +386,11 @@ export async function GET(req: Request) {
      * Impede que uma nova execução da rota
      * recrie lembretes que já existem.
      */
-    const chaves = candidatas.map(
-      (item) => item.chaveAgrupada
+    // Um aviso por usuário/reunião/período, mesmo em caso de participante repetido.
+    const candidatasUnicas = Array.from(
+      new Map(candidatas.map((item) => [item.chaveAgrupada, item])).values()
     );
+    const chaves = candidatasUnicas.map((item) => item.chaveAgrupada);
 
     const jaExistentes =
       chaves.length > 0
@@ -415,7 +416,7 @@ export async function GET(req: Request) {
     );
 
     const notificacoesParaCriar =
-      candidatas.filter(
+      candidatasUnicas.filter(
         (item) =>
           !chavesExistentes.has(
             item.chaveAgrupada
@@ -447,7 +448,7 @@ export async function GET(req: Request) {
           notificacoesParaCriar.length,
 
         notificacoesJaExistentes:
-          candidatas.length -
+          candidatasUnicas.length -
           notificacoesParaCriar.length,
 
         whatsapp: {
@@ -462,6 +463,7 @@ export async function GET(req: Request) {
     if (notificacoesParaCriar.length > 0) {
       await prisma.notificacao.createMany({
         data: notificacoesParaCriar,
+        skipDuplicates: true,
       });
     }
 
@@ -694,7 +696,7 @@ export async function GET(req: Request) {
         notificacoesParaCriar.length,
 
       notificacoesIgnoradas:
-        candidatas.length -
+        candidatasUnicas.length -
         notificacoesParaCriar.length,
 
       whatsapp: {

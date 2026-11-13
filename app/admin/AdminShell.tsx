@@ -543,13 +543,14 @@ export default function AdminShell({
 
     const intervaloNotificacoes = window.setInterval(
       atualizarNotificacoesVisiveis,
-      60000,
+      15000,
     );
 
     document.addEventListener(
       "visibilitychange",
       atualizarNotificacoesVisiveis,
     );
+    window.addEventListener("phanyx:notificacoes-atualizar", atualizarNotificacoesVisiveis);
 
     return () => {
       window.clearInterval(intervaloNotificacoes);
@@ -557,6 +558,7 @@ export default function AdminShell({
         "visibilitychange",
         atualizarNotificacoesVisiveis,
       );
+      window.removeEventListener("phanyx:notificacoes-atualizar", atualizarNotificacoesVisiveis);
     };
   }, []);
 
@@ -3116,7 +3118,7 @@ export default function AdminShell({
                     <div className="max-h-96 overflow-y-auto">
                       {notificacoesAdmin.map((item) => (
                         <a
-                          key={item.titulo}
+                          key={item.id ?? `${item.titulo}-${item.criadoEm}`}
                           href={item.link}
                           className="flex gap-3 border-b border-white/5 px-4 py-3 transition hover:bg-white/10"
                         >
