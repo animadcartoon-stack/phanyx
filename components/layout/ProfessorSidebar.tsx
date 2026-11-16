@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import ChatGlobalWidget from "@/components/chat/ChatGlobalWidget";
-import PhanyxNotificationBell from "@/components/notificacoes/PhanyxNotificationBell";
 import { useTranslations, useLocale } from "next-intl";
 import { traduzirDocumentoDocente } from "@/lib/documentos-docentes/i18n";
 
@@ -183,7 +182,6 @@ export default function ProfessorSidebar({
         </button>
       </aside>
 
-      <PhanyxNotificationBell />
       <ChatGlobalWidget />
     </>
   );
