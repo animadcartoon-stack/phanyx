@@ -12,7 +12,7 @@ type Notificacao = {
   criadoEm: string;
 };
 
-export default function PhanyxNotificationBell() {
+export default function PhanyxNotificationBell({ modoSuporte = false, mostrarLinkTodas = true }: { modoSuporte?: boolean; mostrarLinkTodas?: boolean } = {}) {
   const [aberto, setAberto] = useState(false);
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [totalNaoLidas, setTotalNaoLidas] = useState(0);
@@ -47,7 +47,7 @@ export default function PhanyxNotificationBell() {
   }, []);
 
   return (
-    <div className="fixed right-6 top-6 z-[9998]">
+    <div className={`fixed right-6 z-[9998] ${modoSuporte ? "top-48 md:top-32" : "top-6"}`}>
       <button
         type="button"
         onClick={() => setAberto((prev) => !prev)}
@@ -168,7 +168,7 @@ export default function PhanyxNotificationBell() {
             </button>
           ))}
 
-<div className="mt-3 border-t border-slate-800 pt-3">
+{mostrarLinkTodas && (<div className="mt-3 border-t border-slate-800 pt-3">
   <button
     type="button"
     onClick={() => {
@@ -179,7 +179,7 @@ export default function PhanyxNotificationBell() {
   >
     Ver todas as notificações →
   </button>
-</div>
+</div>)}
 
         </div>
       )}

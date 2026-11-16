@@ -16,6 +16,7 @@ import { chavePaginaProfessorPorRota } from "@/lib/rota-portal-professor";
 import { headers } from "next/headers";
 import { CHAVE_MOBILIDADE_DOCENTE } from "@/lib/mobilidade-docente-config";
 import ImpersonacaoBanner from "@/components/suporte/ImpersonacaoBanner";
+import PhanyxNotificationBell from "@/components/notificacoes/PhanyxNotificationBell";
 import { getTranslations, getLocale } from "next-intl/server";
 import { traduzirDocumentoDocente } from "@/lib/documentos-docentes/i18n";
 import { bibliotecaDisponivel } from "@/lib/biblioteca-catalogo-leitor";
@@ -164,6 +165,9 @@ export default async function ProfessorLayout({
   return (
     <>
       <ImpersonacaoBanner />
+      <PhanyxNotificationBell mostrarLinkTodas={false}
+        modoSuporte={Boolean((decoded as typeof decoded & { impersonacao?: boolean }).impersonacao)}
+      />
 
       <ProfessorProvider>
         <InstallPromptPHANYX />
