@@ -82,6 +82,7 @@ export async function getUserFromToken(): Promise<UsuarioLogado | null> {
         nome: true,
         email: true,
         role: true,
+        ativo: true,
         instituicaoId: true,
         isMasterAdmin: true,
         precisaTrocarSenha: true,
@@ -123,7 +124,7 @@ export async function getUserFromToken(): Promise<UsuarioLogado | null> {
       },
     });
 
-    if (!usuario) return null;
+    if (!usuario || usuario.ativo === false) return null;
 
     const tokenEhImpersonacao = decoded.impersonacao === true;
 
