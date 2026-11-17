@@ -2549,15 +2549,18 @@ export async function POST(request: Request) {
     }
 
     if (!poloIdFinal) {
-      return NextResponse.json(
-        {
-          error:
-            "Não foi possível determinar o polo desta matrícula. Vincule o aluno ou a turma a um polo antes de concluir a matrícula.",
-        },
-        {
-          status: 400,
-        }
-      );
+      const quantidadePolosAtivos = await prisma.polo.count({
+        where: { instituicaoId: user.instituicaoId, ativo: true },
+      });
+      if (quantidadePolosAtivos > 0) {
+        return NextResponse.json(
+          {
+            error:
+              "Não foi possível determinar o polo desta matrícula. Vincule o aluno ou a turma a um polo antes de concluir a matrícula.",
+          },
+          { status: 400 }
+        );
+      }
     }
 
     const valorMatricula = planoEscolhido ? planoEscolhido.cotacao.antecipacaoCentavos / 100 : Number(

@@ -4,6 +4,7 @@ import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
 import {
   TipoMovimentacaoLotacaoRH,
   TipoRemuneracaoRH,
+  StatusComercialPolo,
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
@@ -15,6 +16,8 @@ import {
 import { enviarEmailPrimeiroAcessoInstitucional } from "@/lib/email";
 import {
   obterPoloAtivoVisivelParaInstituicao,
+  obterContextoGestaoPolos,
+  filtroPolosVisiveis,
 } from "@/lib/polos-rede";
 
 async function gerarCodigoFuncionario(instituicaoId: number) {
@@ -463,26 +466,47 @@ export async function POST(request: Request) {
           textoOpcional(body.pisPasep, 120)
         : textoOpcional(body.pisPasep, 120);
 
-    const poloId =
-      numeroInteiroOuNull(body.poloId);
+    const poloId = numeroInteiroOuNull(body.poloId);
+    const poloInformado = limparTexto(body.poloId);
 
-    if (!poloId) {
+    // Um polo informado deve ser um ID inteiro valido.
+    if (poloInformado && !poloId) {
       return NextResponse.json(
-        {
-          error:
-            "Selecione o polo de lotação do funcionário.",
-        },
+        { error: "Polo informado inválido." },
         { status: 400 }
       );
     }
 
-    const poloSelecionado =
-      await obterPoloAtivoVisivelParaInstituicao(
-        instituicaoId,
-        poloId
-      );
+    if (!poloId) {
+      // Nao exige unidade ficticia quando a empresa usa apenas instituicaoId.
+      const contextoPolos = await obterContextoGestaoPolos(instituicaoId);
+      if (!contextoPolos || !contextoPolos.instituicaoAtiva) {
+        return NextResponse.json(
+          { error: "Instituição não encontrada ou inativa." },
+          { status: 400 }
+        );
+      }
+      const quantidadePolosAtivos = await prisma.polo.count({
+        where: {
+          AND: [
+            filtroPolosVisiveis(contextoPolos),
+            { ativo: true, statusComercial: StatusComercialPolo.ATIVO },
+          ],
+        },
+      });
+      if (quantidadePolosAtivos > 0) {
+        return NextResponse.json(
+          { error: "Selecione o polo de lotação do funcionário." },
+          { status: 400 }
+        );
+      }
+    }
 
-    if (!poloSelecionado) {
+    const poloSelecionado = poloId
+      ? await obterPoloAtivoVisivelParaInstituicao(instituicaoId, poloId)
+      : null;
+
+    if (poloId && !poloSelecionado) {
       return NextResponse.json(
         {
           error:
@@ -1167,6 +1191,7 @@ export async function POST(request: Request) {
             ) ||
             `Usuário ${user.id}`;
 
+          if (poloSelecionado) {
           await tx.funcionarioLotacaoRH.create({
             data: {
               funcionarioId: funcionario.id,
@@ -1225,6 +1250,7 @@ export async function POST(request: Request) {
                 null,
             },
           });
+          }
 
           const dadosRemuneracaoInicial = {
             tipoRemuneracao,

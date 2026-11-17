@@ -230,9 +230,14 @@ export async function POST(req: Request) {
        * com segurança onde ela pertence.
        */
       if (!poloId) {
-        throw new Error(
-          "Não foi possível determinar o polo desta matrícula. Informe o polo do aluno ou utilize uma turma vinculada a um polo."
-        );
+        const quantidadePolosAtivos = await tx.polo.count({
+          where: { instituicaoId: user.instituicaoId, ativo: true },
+        });
+        if (quantidadePolosAtivos > 0) {
+          throw new Error(
+            "Não foi possível determinar o polo desta matrícula. Informe o polo do aluno ou utilize uma turma vinculada a um polo."
+          );
+        }
       }
 
       await validarRequisitosCursos(tx, user.instituicaoId, { alunoId: Number(alunoId), cursoIds: [Number(cursoId)],

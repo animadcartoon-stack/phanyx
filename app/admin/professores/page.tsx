@@ -843,7 +843,7 @@ function AdminProfessoresPage() {
 
   async function carregarPolos() {
     try {
-      const res = await fetch("/api/admin/polos", {
+      const res = await fetch("/api/admin/polos/opcoes", {
         credentials: "include",
         cache: "no-store",
       });
