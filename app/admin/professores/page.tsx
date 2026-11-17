@@ -10,6 +10,7 @@ import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import withAuth from "@/components/auth/withAuth";
 import BuscaBanco from "@/components/rh/BuscaBanco";
+import CorrecaoProfessorAdminModal, { rotuloCorrecaoProfessor } from "@/components/admin/CorrecaoProfessorAdminModal";
 
 interface Polo {
   id: number;
@@ -640,6 +641,8 @@ function AdminProfessoresPage() {
   const [salvandoId, setSalvandoId] = useState<number | null>(null);
   const [excluindoId, setExcluindoId] = useState<number | null>(null);
   const [professorParaExcluir, setProfessorParaExcluir] =
+    useState<Professor | null>(null);
+  const [professorParaCorrigir, setProfessorParaCorrigir] =
     useState<Professor | null>(null);
 
   useEffect(() => {
@@ -3830,6 +3833,16 @@ function AdminProfessoresPage() {
                         {t("actions.edit")}
                       </button>
 
+                      {Boolean(p.funcionarioId || p.funcionario?.id) && (
+                        <button
+                          type="button"
+                          onClick={() => setProfessorParaCorrigir(p)}
+                          className="text-sm font-semibold text-amber-700 dark:text-amber-300"
+                        >
+                          {rotuloCorrecaoProfessor(locale)}
+                        </button>
+                      )}
+
                       <button
                         onClick={() => setProfessorParaExcluir(p)}
                         className="text-sm text-red-600"
@@ -3902,6 +3915,14 @@ function AdminProfessoresPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {professorParaCorrigir && (
+        <CorrecaoProfessorAdminModal
+          professor={professorParaCorrigir}
+          onClose={() => setProfessorParaCorrigir(null)}
+          onConcluido={carregarProfessores}
+        />
       )}
 
       {professorParaExcluir && (
