@@ -1043,6 +1043,7 @@ function AdminFuncionariosPage() {
   const [estadoLista, setEstadoLista] = useState<EstadoConsulta>("inicial");
   const [estadoDepartamentos, setEstadoDepartamentos] = useState<EstadoConsulta>("inicial");
   const [estadoPolos, setEstadoPolos] = useState<EstadoConsulta>("inicial");
+  const existePoloDisponivel = polos.some((polo) => polo.ativo === true && polo.statusComercial === "ATIVO");
   const [formularioAberto, setFormularioAberto] = useState(false);
   const [complementosMontados, setComplementosMontados] = useState(false);
   const ultimaConsultaLista = useRef(0);
@@ -1530,7 +1531,7 @@ function AdminFuncionariosPage() {
     setEstadoPolos("carregando");
 
     try {
-      const res = await fetch("/api/admin/polos", {
+      const res = await fetch("/api/admin/polos/opcoes", {
         credentials: "include",
         cache: "no-store",
       });
@@ -2327,10 +2328,8 @@ function AdminFuncionariosPage() {
       return;
     }
 
-    if (!poloId) {
-      setErro(
-        t("errors.campusRequired")
-      );
+    if (existePoloDisponivel && !poloId) {
+      setErro(t("errors.campusRequired"));
       return;
     }
 
@@ -2407,7 +2406,7 @@ function AdminFuncionariosPage() {
           departamentoId:
             departamentoId || null,
 
-          poloId: Number(poloId),
+          poloId: poloId ? Number(poloId) : null,
 
           statusFuncionario,
           motivoStatus,
@@ -2998,11 +2997,12 @@ dark:text-white
               )}
           </div>
 
-          {/* POLO DE LOTAÇÃO */}
+          {/* POLO DE LOTAÇÃO: somente se há polos ou a consulta ainda nao terminou */}
+          {(estadoPolos !== "pronto" || polos.length > 0 || Boolean(editandoId)) && (
           <div className="space-y-1">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
               {t("fields.campus")}
-              {!editandoId && (
+              {!editandoId && existePoloDisponivel && (
                 <span className="ml-1 text-red-600">
                   *
                 </span>
@@ -3016,7 +3016,7 @@ dark:text-white
               }
               disabled={Boolean(editandoId) || estadoPolos !== "pronto"}
               aria-busy={estadoPolos === "carregando"}
-              required={!editandoId}
+              required={!editandoId && existePoloDisponivel}
               className="
       w-full
       rounded-lg
@@ -3095,6 +3095,7 @@ dark:text-white
               </Link>
             )}
           </div>
+          )}
 
           {complementosMontados && (
           <>
