@@ -16,10 +16,10 @@ test('corrigir perfil exige autenticação ADMIN real e rejeita suporte imperson
 });
 
 test('corrigir exige confirmação explícita e ID de funcionário', () => {
-  assert.match(route, /const CONFIRMACAO = "CORRIGIR CADASTRO"/);
+  assert.match(route, /const CONFIRMACAO = "RECLASSIFICAR"/);
   assert.match(route, /body\?\.confirmacao !== CONFIRMACAO/);
   assert.match(route, /professor\.funcionarioId !== Number\(body\.funcionarioId\)/);
-  assert.match(modal, /confirmacao\.trim\(\) !== "CORRIGIR CADASTRO"/);
+  assert.match(modal, /confirmacao\.trim\(\)\.toLocaleUpperCase\(locale\) !== t\.palavraConfirmacao/);
 });
 
 test('corrigir bloqueia vínculo acadêmico antes da exclusão', () => {
@@ -91,4 +91,20 @@ test('painel oferece confirmação via modal Phanyx, não popup do navegador', (
 test('não há alteração do esquema nem migração para correção cadastral', () => {
   assert.match(route, /tx\.historicoRH\.create/);
   assert.match(route, /tx\.professor\.delete/);
+});
+
+
+test('reclassificação usa rótulos profissionais nos cinco idiomas', () => {
+  for (const token of ['"pt-BR"', '"pt-PT"', '"en-US"', '"es-ES"', '"fr-FR"']) {
+    assert.ok(modal.includes(token), 'Idioma ausente: ' + token);
+  }
+  for (const antiga of ['Corrigir cadastro indevido','Correct incorrect registration','Corregir registro incorrecto','Corriger une inscription erronée']) {
+    assert.ok(!modal.includes(antiga), 'Rótulo antigo permaneceu: ' + antiga);
+  }
+  assert.match(modal, /Reclassificar vínculo e acesso/);
+  assert.match(modal, /Reclassificação de vínculo e perfil de acesso/);
+  assert.match(modal, /confirmacao: "RECLASSIFICAR"/);
+  assert.match(modal, /palavraConfirmacao: "CONFIRMER"/);
+  assert.match(modal, /palavraConfirmacao: "CONFIRM"/);
+  assert.match(route, /const CONFIRMACAO = "RECLASSIFICAR"/);
 });

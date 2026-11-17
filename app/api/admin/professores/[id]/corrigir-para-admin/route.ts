@@ -7,7 +7,7 @@ import { getUserFromToken } from "@/lib/server-auth";
 
 export const dynamic = "force-dynamic";
 
-const CONFIRMACAO = "CORRIGIR CADASTRO";
+const CONFIRMACAO = "RECLASSIFICAR";
 
 function identificadorValido(id: string) {
   const valor = Number(id);
