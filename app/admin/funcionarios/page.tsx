@@ -13,6 +13,8 @@ import {
   type CountryCode,
 } from "libphonenumber-js";
 import CampoTelefoneInternacional from "@/components/internacionalizacao/CampoTelefoneInternacional";
+import MovimentacaoFuncionalModal from "@/components/admin/MovimentacaoFuncionalModal";
+import EnviarCredenciaisFuncionarioModal from "@/components/admin/EnviarCredenciaisFuncionarioModal";
 
 type EstadoConsulta = "inicial" | "carregando" | "pronto" | "erro";
 
@@ -1036,6 +1038,8 @@ function AdminFuncionariosPage() {
     }
   }
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
+  const [funcionarioParaMovimentar, setFuncionarioParaMovimentar] = useState<Funcionario | null>(null);
+  const [funcionarioParaEnviarAcesso, setFuncionarioParaEnviarAcesso] = useState<Funcionario | null>(null);
   const [departamentos, setDepartamentos] = useState<Departamento[]>([]);
   const [polos, setPolos] = useState<Polo[]>([]);
   const [busca, setBusca] = useState("");
@@ -4663,6 +4667,19 @@ dark:bg-slate-900
                   {t("buttons.edit")}
                 </Link>
 
+                <button type="button"
+                  onClick={() => setFuncionarioParaMovimentar(f)}
+                  className="rounded-lg border border-blue-300 px-3 py-1.5 text-sm font-semibold text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-200 dark:hover:bg-slate-800">
+                  {locale.startsWith("pt") ? "Movimentação funcional" : locale.startsWith("es") ? "Movimiento funcional" : locale.startsWith("fr") ? "Mobilité fonctionnelle" : "Employee transfer"}
+                </button>
+
+                {f.user?.ativo !== false && f.user && (
+                  <button type="button" onClick={() => setFuncionarioParaEnviarAcesso(f)}
+                    className="rounded-lg border border-emerald-300 px-3 py-1.5 text-sm font-semibold text-emerald-800 hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-300 dark:hover:bg-slate-800">
+                    {locale.startsWith("pt") ? "Enviar credenciais" : locale.startsWith("es") ? "Enviar credenciales" : locale.startsWith("fr") ? "Envoyer les identifiants" : "Send login credentials"}
+                  </button>
+                )}
+
                 {f.user &&
                   podeGerenciarPermissoesIndividuais() && (
                     <Link
@@ -4722,6 +4739,15 @@ dark:bg-slate-900
           </nav>
         )}
       </div>
+      {funcionarioParaMovimentar && <MovimentacaoFuncionalModal
+        funcionario={{ id: funcionarioParaMovimentar.id, nome: funcionarioParaMovimentar.nome }}
+        onClose={() => setFuncionarioParaMovimentar(null)}
+        onConcluido={carregarFuncionarios}
+      />}
+      {funcionarioParaEnviarAcesso?.user && <EnviarCredenciaisFuncionarioModal
+        funcionario={{ id: funcionarioParaEnviarAcesso.id, nome: funcionarioParaEnviarAcesso.nome, email: funcionarioParaEnviarAcesso.user.email }}
+        onClose={() => setFuncionarioParaEnviarAcesso(null)}
+      />}
       <PhanyxConfirmModal
         aberto={confirmModalAberto}
         titulo={confirmTitulo}
