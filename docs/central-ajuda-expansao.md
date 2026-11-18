@@ -47,3 +47,9 @@ A preparação local não publica a atualização. A disponibilização depende 
 - Nenhuma conta financeira, polo ou acesso institucional foi criado durante a captura. Os dados demonstrativos da instituição foram preenchidos sem salvar e descartados ao sair da página.
 
 Pendências: a revisão campo a campo dos demais guias, inclusive todas as funções dos portais do professor e aluno, ainda não foi concluída. Prints de logos institucionais, e-mail, WhatsApp e demais operações continuam pendentes; falhas de captura de tela impediram algumas capturas nesta etapa. A existência dos 202 guias não significa que todos já tenham este grau de detalhe.
+
+## Prints de apoio docente e coordenação
+
+Os oito guias do módulo receberam imagens em português do Brasil, apresentadas nos cinco idiomas. Foram incluídas 12 imagens de navegação, abas de acompanhamento, exigências, busca e seletores de acesso, publicações acadêmicas, substituições e editor de texto/PDF. Os exemplos de planejamento e desenvolvimento mostram listas vazias, pois não existem itens nessa instituição. Os botões condicionais de revisão ainda precisam de exemplos em uma instituição de demonstração.
+
+Nenhuma publicação, substituição, exigência ou permissão foi salva. O texto do editor é demonstrativo e não foi enviado. O formulário de criação de documento com a lista de nomes reais dos professores não foi incluído nas capturas. Persistem pendências nas demais áreas: execute `node scripts/auditar-prints-ajuda.mjs` para atualizar o inventário.

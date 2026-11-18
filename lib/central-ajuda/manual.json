@@ -36629,8 +36629,8 @@
         "intro": "Find the teacher in individual access settings. For each page, choose the institution default or an explicit enabled or disabled override. Save and check the access history. This setting complements the institution-wide portal visibility rules.",
         "before": "Open this page using the link below. If you cannot see the menu, ask the institution administrator to check your department permissions and the availability of the module.",
         "steps": [
-          "Use the search and the available filters to locate the relevant record. Apply the filter and check the selected person, course or period before opening a result.",
-          "Find the teacher in individual access settings. For each page, choose the institution default or an explicit enabled or disabled override. Save and check the access history. This setting complements the institution-wide portal visibility rules.",
+          "Open Academic → Individual teacher access. Search by name, ID or specialty. Open Configure pages for the correct teacher. The screenshot uses a fictional search with no result; search an existing teacher to reach the selectors.",
+          "For each page, choose Default to follow the institution, Enabled for an individual release or Disabled for an individual block. Contract and security restrictions still apply. Click Save permissions and check confirmation; open Access change history to review previous changes.",
           "Choose the student or teacher portal and review each available page. Enable or disable the institutional defaults and save. Pages connected to academic periods can also follow configured dates. Test with the intended profile after saving."
         ],
         "check": "After saving, wait for the confirmation message. Reopen the record and check the values that were stored. If validation fails, correct the fields indicated before trying again.",
@@ -37397,8 +37397,8 @@
         "intro": "Localize o professor em Acessos individuais. Para cada página, escolha o padrão da instituição ou uma liberação ou bloqueio específico. Salve e confira o histórico de acessos. Essa configuração complementa a visibilidade geral dos portais.",
         "before": "Abra a página pelo link abaixo. Se o menu não aparecer, peça ao administrador que confira as permissões do seu departamento e a disponibilidade do módulo.",
         "steps": [
-          "Use a busca e os filtros disponíveis para localizar o registro. Aplique o filtro e confira a pessoa, o curso ou o período antes de abrir o resultado.",
-          "Localize o professor em Acessos individuais. Para cada página, escolha o padrão da instituição ou uma liberação ou bloqueio específico. Salve e confira o histórico de acessos. Essa configuração complementa a visibilidade geral dos portais.",
+          "Abra Acadêmico → Acesso individual dos professores. Pesquise por nome, ID ou especialidade. Abra Configurar páginas no professor correto. O print usa uma busca fictícia sem resultado; pesquise um professor cadastrado para abrir os seletores.",
+          "Para cada página, escolha Padrão para seguir a instituição, Habilitada para uma liberação individual ou Desabilitada para um bloqueio individual. Restrições de contratação e segurança continuam valendo. Clique em Salvar permissões e confira a confirmação; abra Histórico de alterações de acesso para consultar mudanças anteriores.",
           "Escolha o portal do aluno ou do professor e confira cada página disponível. Habilite ou desabilite os padrões institucionais e salve. Páginas ligadas a períodos acadêmicos também podem seguir as datas configuradas. Confira com o perfil correspondente depois de salvar."
         ],
         "check": "Depois de salvar, aguarde a confirmação. Reabra o registro e confira os valores gravados. Se a validação impedir o salvamento, corrija os campos indicados e tente novamente.",
@@ -38160,8 +38160,8 @@
         "intro": "Localize o docente nos acessos individuais. Para cada página, escolha o padrão institucional ou uma ativação ou desativação específica. Guarde e consulte o histórico de acessos. Esta definição complementa a visibilidade geral dos portais.",
         "before": "Abra a página pela ligação abaixo. Se o menu não aparecer, peça ao administrador que verifique as permissões do seu departamento e a disponibilidade do módulo.",
         "steps": [
-          "Utilize a pesquisa e os filtros disponíveis para localizar o registo. Aplique o filtro e confirme a pessoa, o curso ou o período antes de abrir o resultado.",
-          "Localize o docente nos acessos individuais. Para cada página, escolha o padrão institucional ou uma ativação ou desativação específica. Guarde e consulte o histórico de acessos. Esta definição complementa a visibilidade geral dos portais.",
+          "Abra Académico → Acesso individual dos professores. Pesquise por nome, ID ou especialidade e abra Configurar páginas no docente correto. O print usa uma pesquisa fictícia sem resultado; selecione um docente registado para abrir os seletores.",
+          "Em cada página, escolha Padrão para seguir a instituição, Habilitada para autorizar ou Desabilitada para bloquear individualmente. Restrições contratuais e de segurança continuam válidas. Guarde as permissões e consulte a confirmação e o Histórico de alterações de acesso.",
           "Escolha o portal do estudante ou do docente e reveja as páginas disponíveis. Ative ou desative as predefinições e guarde. As páginas ligadas a períodos académicos também podem respeitar as datas configuradas. Confira com o perfil correspondente."
         ],
         "check": "Depois de guardar, aguarde a confirmação. Reabra o registo e confirme os valores guardados. Se a validação impedir a gravação, corrija os campos indicados e tente novamente.",
@@ -38928,8 +38928,8 @@
         "intro": "Busca al docente en los accesos individuales. Para cada página, elige el valor institucional o una activación o desactivación específica. Guarda y revisa el historial. Esta configuración complementa la visibilidad general de los portales.",
         "before": "Abre la página mediante el enlace inferior. Si el menú no aparece, pide al administrador que revise los permisos de tu departamento y la disponibilidad del módulo.",
         "steps": [
-          "Usa la búsqueda y los filtros disponibles para localizar el registro. Aplica el filtro y comprueba la persona, el curso o el período antes de abrirlo.",
-          "Busca al docente en los accesos individuales. Para cada página, elige el valor institucional o una activación o desactivación específica. Guarda y revisa el historial. Esta configuración complementa la visibilidad general de los portales.",
+          "Abre Académico → Acceso individual de docentes. Busca por nombre, ID o especialidad y abre Configurar páginas del docente correcto. La captura usa una búsqueda ficticia sin resultados; busca un docente registrado para abrir los selectores.",
+          "En cada página, elige Predeterminado para seguir a la institución, Habilitada para autorizar o Deshabilitada para bloquear individualmente. Las restricciones contractuales y de seguridad siguen vigentes. Guarda los permisos, comprueba la confirmación y consulta el Historial de cambios.",
           "Elige el portal del estudiante o del docente y revisa sus páginas. Activa o desactiva los valores institucionales y guarda. Las páginas ligadas a períodos académicos también pueden seguir las fechas configuradas. Comprueba el resultado con el perfil correspondiente."
         ],
         "check": "Después de guardar, espera la confirmación. Vuelve a abrir el registro y comprueba los valores guardados. Si la validación impide guardarlo, corrige los campos indicados y vuelve a intentarlo.",
@@ -39686,8 +39686,8 @@
         "intro": "Retrouvez l’enseignant dans les accès individuels. Pour chaque page, choisissez la valeur de l’établissement ou une activation ou désactivation spécifique. Enregistrez et consultez l’historique. Ce réglage complète la visibilité générale des portails.",
         "before": "Ouvrez la page avec le lien ci-dessous. Si le menu est absent, demandez à l’administrateur de vérifier les autorisations de votre service et la disponibilité du module.",
         "steps": [
-          "Utilisez la recherche et les filtres disponibles pour retrouver la fiche. Appliquez le filtre et vérifiez la personne, le cours ou la période avant d’ouvrir le résultat.",
-          "Retrouvez l’enseignant dans les accès individuels. Pour chaque page, choisissez la valeur de l’établissement ou une activation ou désactivation spécifique. Enregistrez et consultez l’historique. Ce réglage complète la visibilité générale des portails.",
+          "Ouvrez Académique → Accès individuel des enseignants. Recherchez par nom, ID ou spécialité et ouvrez Configurer les pages du bon enseignant. La capture utilise une recherche fictive sans résultat ; sélectionnez un enseignant enregistré pour ouvrir les sélecteurs.",
+          "Pour chaque page, choisissez Par défaut pour suivre l’établissement, Activée pour autoriser ou Désactivée pour bloquer individuellement. Les restrictions contractuelles et de sécurité demeurent. Enregistrez les droits, vérifiez la confirmation et consultez l’historique des modifications.",
           "Choisissez le portail étudiant ou enseignant et examinez les pages disponibles. Activez ou désactivez les valeurs institutionnelles et enregistrez. Les pages liées aux périodes académiques peuvent suivre les dates configurées. Vérifiez avec le profil concerné."
         ],
         "check": "Après l’enregistrement, attendez la confirmation. Rouvrez la fiche et vérifiez les valeurs enregistrées. Si la validation bloque l’enregistrement, corrigez les champs indiqués avant de réessayer.",
@@ -44287,9 +44287,10 @@
         "intro": "Select a document or send a template to the intended teachers. Review the requested fields, signature requirement, attachments and delivery status. Open an individual document to inspect its filled content and return or complete the workflow using its available actions.",
         "before": "Open this page using the link below. If you cannot see the menu, ask the institution administrator to check your department permissions and the availability of the module.",
         "steps": [
-          "Select a document or send a template to the intended teachers. Review the requested fields, signature requirement, attachments and delivery status. Open an individual document to inspect its filled content and return or complete the workflow using its available actions.",
-          "Load a base template or write the content in the editor. Open the variable catalogue, choose the correct category and copy the exact token into the text. Institution, student, enrollment and employee variables use the source records when the document is generated.",
-          "Use the PDF preview to check variable values, line breaks, margins, letterhead and signature position. Save the template and reopen it from the registered list. Generate a sample with the intended record to check the final substituted values."
+          "Open the teacher document centre. Use Status to filter drafts, documents waiting for the teacher, submitted, approved, returned, completed or deleted items. Refresh reloads the list. Configure permissions opens the individual teacher-access settings.",
+          "Click New document. Choose a model or No model for guidance, enter a Title, select 1–30 recipients and write the initial instructions. Check the recipients before Create and send. Each teacher receives an individual document and history. Cancel closes the form.",
+          "The PDF editor can open a PDF or create a new text document. Type in Document content, review page layout, letterhead, rulers and zoom, then use Print or save PDF for a local copy. Creating a local file does not send it to a teacher.",
+          "Open a received document to review content, versions, attachments, signatures and conversation. Use the available approve, return or complete action for its status. Explain corrections when returning and check the resulting status and event history."
         ],
         "check": "Confirm the selected period, filters, people and statuses before using the information. An empty result can reflect the filters or your access permissions.",
         "reference": [
@@ -44535,9 +44536,10 @@
         "intro": "Selecione um documento ou envie um modelo aos professores desejados. Confira campos solicitados, assinatura, anexos e status de entrega. Abra o documento individual para revisar o preenchimento e devolver ou concluir pelas ações disponíveis.",
         "before": "Abra a página pelo link abaixo. Se o menu não aparecer, peça ao administrador que confira as permissões do seu departamento e a disponibilidade do módulo.",
         "steps": [
-          "Selecione um documento ou envie um modelo aos professores desejados. Confira campos solicitados, assinatura, anexos e status de entrega. Abra o documento individual para revisar o preenchimento e devolver ou concluir pelas ações disponíveis.",
-          "Carregue um modelo base ou escreva no editor. Abra o catálogo de variáveis, escolha a categoria e copie a marcação exata para o texto. As variáveis de instituição, aluno, matrícula e funcionário usam os cadastros de origem na geração.",
-          "Use Visualizar PDF para conferir variáveis, quebras, margens, papel timbrado e posição da assinatura. Salve o template e reabra pela lista. Gere uma conferência com o cadastro pretendido para revisar os valores substituídos."
+          "Abra a Central de documentos docentes. Use Situação para filtrar rascunhos, documentos aguardando professor, enviados, aprovados, devolvidos, concluídos ou excluídos. Atualizar recarrega a lista. Configurar permissões abre os acessos individuais dos professores.",
+          "Clique em Novo documento. Escolha um Modelo ou Sem modelo para uma orientação, informe Título, selecione de 1 a 30 destinatários e escreva a mensagem inicial. Confira os professores antes de Criar e enviar. Cada destinatário terá documento e histórico próprios. Cancelar fecha o formulário.",
+          "O Editor de PDF permite abrir um PDF ou criar um Novo documento de texto. Escreva em Conteúdo do documento, confira layout, papel timbrado, réguas e zoom e use Imprimir ou salvar PDF para obter uma cópia local. Criar esse arquivo não o envia a um professor.",
+          "Abra um documento recebido para conferir conteúdo, versões, anexos, assinaturas e conversa. Use a ação disponível de aprovar, devolver ou concluir conforme a situação. Explique a correção ao devolver e confira o novo status e o histórico de eventos."
         ],
         "check": "Confira o período, os filtros, as pessoas e os status antes de usar as informações. Uma lista vazia pode refletir os filtros escolhidos ou as permissões do usuário.",
         "reference": [
@@ -44783,9 +44785,10 @@
         "intro": "Selecione um documento ou envie um modelo aos docentes pretendidos. Confira campos, assinatura, anexos e estado da entrega. Abra o documento individual para rever o conteúdo e devolver ou concluir pelas ações disponíveis.",
         "before": "Abra a página pela ligação abaixo. Se o menu não aparecer, peça ao administrador que verifique as permissões do seu departamento e a disponibilidade do módulo.",
         "steps": [
-          "Selecione um documento ou envie um modelo aos docentes pretendidos. Confira campos, assinatura, anexos e estado da entrega. Abra o documento individual para rever o conteúdo e devolver ou concluir pelas ações disponíveis.",
-          "Carregue um modelo base ou escreva no editor. Abra o catálogo de variáveis, escolha a categoria e copie a marcação exata para o texto. As variáveis institucionais, do estudante, da inscrição e do funcionário utilizam os registos de origem.",
-          "Utilize a pré-visualização PDF para conferir variáveis, quebras, margens, papel timbrado e assinatura. Guarde o modelo e reabra pela lista. Gere uma conferência com o registo pretendido para rever os valores."
+          "Abra a central docente. Use Situação para filtrar rascunhos, documentos pendentes, enviados, aprovados, devolvidos, concluídos ou excluídos. Atualizar recarrega a lista. Configurar permissões abre os acessos individuais.",
+          "Escolha Novo documento, selecione Modelo ou Sem modelo, indique Título, marque de 1 a 30 destinatários e escreva as orientações. Confira antes de Criar e enviar. Cada docente recebe documento e histórico próprios. Cancelar fecha o formulário.",
+          "O Editor de PDF abre PDFs ou cria um Novo documento de texto. Escreva o conteúdo e confira layout, papel, réguas e zoom. Imprimir ou guardar PDF cria uma cópia local; não envia o ficheiro ao docente.",
+          "Abra um documento recebido e confira conteúdo, versões, anexos, assinaturas e conversa. Aprove, devolva ou conclua conforme as ações disponíveis. Explique a correção e confira o estado e o histórico."
         ],
         "check": "Confirme o período, os filtros, as pessoas e os estados antes de utilizar a informação. Uma lista vazia pode resultar dos filtros escolhidos ou das permissões do utilizador.",
         "reference": [
@@ -45031,9 +45034,10 @@
         "intro": "Selecciona un documento o envía una plantilla a los docentes. Revisa campos, firma, archivos y estado de entrega. Abre el documento individual para revisar su contenido y devolverlo o completarlo con las acciones disponibles.",
         "before": "Abre la página mediante el enlace inferior. Si el menú no aparece, pide al administrador que revise los permisos de tu departamento y la disponibilidad del módulo.",
         "steps": [
-          "Selecciona un documento o envía una plantilla a los docentes. Revisa campos, firma, archivos y estado de entrega. Abre el documento individual para revisar su contenido y devolverlo o completarlo con las acciones disponibles.",
-          "Carga un modelo base o escribe en el editor. Abre el catálogo de variables, elige la categoría y copia el identificador exacto al texto. Las variables usan las fichas de institución, estudiante, matrícula y empleado al generar.",
-          "Usa la vista PDF para revisar variables, saltos, márgenes, membrete y firma. Guarda y vuelve a abrir la plantilla. Genera una comprobación con el registro deseado para revisar los valores sustituidos."
+          "Abre el centro documental docente. Usa Estado para filtrar borradores, pendientes, enviados, aprobados, devueltos, completados o eliminados. Actualizar recarga la lista. Configurar permisos abre los accesos individuales.",
+          "Pulsa Nuevo documento. Elige Plantilla o Sin plantilla, introduce Título, selecciona 1–30 destinatarios y escribe instrucciones. Revisa antes de Crear y enviar. Cada docente recibe documento e historial propios. Cancelar cierra el formulario.",
+          "El editor abre PDF o crea un Nuevo documento de texto. Escribe el contenido y revisa diseño, membrete, reglas y zoom. Imprimir o guardar PDF crea una copia local; no envía el archivo al docente.",
+          "Abre un documento recibido y revisa contenido, versiones, archivos, firmas y conversación. Aprueba, devuelve o completa según las acciones disponibles. Explica la corrección y comprueba estado e historial."
         ],
         "check": "Comprueba el período, los filtros, las personas y los estados antes de usar la información. Una lista vacía puede deberse a los filtros o a los permisos del usuario.",
         "reference": [
@@ -45279,9 +45283,10 @@
         "intro": "Sélectionnez un document ou envoyez un modèle aux enseignants concernés. Vérifiez champs, signature, pièces jointes et statut. Ouvrez le document individuel pour relire le contenu et poursuivre les actions de retour ou de finalisation.",
         "before": "Ouvrez la page avec le lien ci-dessous. Si le menu est absent, demandez à l’administrateur de vérifier les autorisations de votre service et la disponibilité du module.",
         "steps": [
-          "Sélectionnez un document ou envoyez un modèle aux enseignants concernés. Vérifiez champs, signature, pièces jointes et statut. Ouvrez le document individuel pour relire le contenu et poursuivre les actions de retour ou de finalisation.",
-          "Chargez un modèle de base ou rédigez dans l’éditeur. Ouvrez le catalogue des variables, choisissez la catégorie et copiez le marqueur exact dans le texte. Les variables utilisent les fiches de l’établissement, de l’étudiant, de l’inscription et de l’employé à la génération.",
-          "Utilisez l’aperçu PDF pour vérifier variables, sauts, marges, en-tête et signature. Enregistrez et rouvrez le modèle. Générez un contrôle avec la fiche prévue pour examiner les valeurs remplacées."
+          "Ouvrez le centre documentaire enseignant. Filtrez par Statut : brouillon, en attente, envoyé, approuvé, renvoyé, terminé ou supprimé. Actualiser recharge la liste. Configurer les droits ouvre les accès individuels.",
+          "Cliquez sur Nouveau document. Choisissez Modèle ou Sans modèle, saisissez Titre, sélectionnez 1–30 destinataires et rédigez les consignes. Vérifiez avant Créer et envoyer. Chaque enseignant reçoit son document et historique. Annuler ferme le formulaire.",
+          "L’éditeur ouvre un PDF ou crée un Nouveau document texte. Rédigez le contenu et vérifiez mise en page, en-tête, règles et zoom. Imprimer ou enregistrer PDF crée une copie locale ; le fichier n’est pas envoyé à l’enseignant.",
+          "Ouvrez un document reçu et vérifiez contenu, versions, pièces, signatures et échanges. Approuvez, renvoyez ou terminez selon les actions disponibles. Expliquez les corrections et vérifiez statut et historique."
         ],
         "check": "Vérifiez la période, les filtres, les personnes et les statuts avant d’utiliser les informations. Une liste vide peut résulter des filtres ou des autorisations.",
         "reference": [
@@ -45536,7 +45541,7 @@
         "intro": "Select the original teacher’s class and subject, then choose the substitute, start and end dates, reason and notes. Register the substitution and check whether it is scheduled or active. The substitute uses their own account for the temporary assignment.",
         "before": "Open this page using the link below. If you cannot see the menu, ask the institution administrator to check your department permissions and the availability of the module.",
         "steps": [
-          "Use the search and the available filters to locate the relevant record. Apply the filter and check the selected person, course or period before opening a result.",
+          "Open Academic → Teacher substitutions. Review the status counters. Search by teacher, class, subject, course or reason and use the status selector. Click New substitution to open the form; this alone does not create an assignment.",
           "Select the original teacher’s class and subject, then choose the substitute, start and end dates, reason and notes. Register the substitution and check whether it is scheduled or active. The substitute uses their own account for the temporary assignment.",
           "Open the substitution details to review scope and dates. Use Suspend, Reactivate or End when appropriate. At the end of the permitted period or assignment, verify the substitute’s remaining assignments before scheduling a new substitution."
         ],
@@ -45694,7 +45699,7 @@
         "intro": "Selecione a turma e a disciplina do titular, escolha o substituto e informe início, fim, motivo e observações. Cadastre e confira se a substituição está agendada ou ativa. O substituto usa sua própria conta para o vínculo temporário.",
         "before": "Abra a página pelo link abaixo. Se o menu não aparecer, peça ao administrador que confira as permissões do seu departamento e a disponibilidade do módulo.",
         "steps": [
-          "Use a busca e os filtros disponíveis para localizar o registro. Aplique o filtro e confira a pessoa, o curso ou o período antes de abrir o resultado.",
+          "Abra Acadêmico → Substituições Docentes. Confira os contadores de situação. Pesquise por professor, turma, disciplina, curso ou motivo e use o seletor de status. Clique em Nova Substituição para abrir o formulário; apenas abri-lo não cria o vínculo.",
           "Selecione a turma e a disciplina do titular, escolha o substituto e informe início, fim, motivo e observações. Cadastre e confira se a substituição está agendada ou ativa. O substituto usa sua própria conta para o vínculo temporário.",
           "Abra os detalhes para conferir abrangência e datas. Use Suspender, Reativar ou Encerrar conforme a necessidade. Ao terminar o período permitido ou o vínculo, confira as demais atribuições do substituto antes de programar outra substituição."
         ],
@@ -45872,7 +45877,7 @@
         "intro": "Selecione a turma e a disciplina do titular, escolha o substituto e indique início, fim, motivo e observações. Registe e confirme se está agendada ou ativa. O substituto utiliza a sua própria conta.",
         "before": "Abra a página pela ligação abaixo. Se o menu não aparecer, peça ao administrador que verifique as permissões do seu departamento e a disponibilidade do módulo.",
         "steps": [
-          "Utilize a pesquisa e os filtros disponíveis para localizar o registo. Aplique o filtro e confirme a pessoa, o curso ou o período antes de abrir o resultado.",
+          "Abra Académico → Substituições Docentes. Confira os contadores. Pesquise por docente, turma, disciplina, curso ou motivo e escolha o estado. Nova Substituição abre o formulário sem criar o vínculo.",
           "Selecione a turma e a disciplina do titular, escolha o substituto e indique início, fim, motivo e observações. Registe e confirme se está agendada ou ativa. O substituto utiliza a sua própria conta.",
           "Abra os detalhes para confirmar âmbito e datas. Utilize Suspender, Reativar ou Encerrar conforme necessário. No fim do período ou do vínculo, confira as outras atribuições do substituto antes de programar novo apoio."
         ],
@@ -46050,7 +46055,7 @@
         "intro": "Selecciona el grupo y la asignatura del titular, elige el sustituto e indica inicio, fin, motivo y observaciones. Registra y comprueba si está programada o activa. El sustituto usa su propia cuenta.",
         "before": "Abre la página mediante el enlace inferior. Si el menú no aparece, pide al administrador que revise los permisos de tu departamento y la disponibilidad del módulo.",
         "steps": [
-          "Usa la búsqueda y los filtros disponibles para localizar el registro. Aplica el filtro y comprueba la persona, el curso o el período antes de abrirlo.",
+          "Abre Académico → Sustituciones docentes. Revisa contadores, busca por docente, grupo, asignatura, curso o motivo y elige el estado. Nueva sustitución abre el formulario sin crear una asignación.",
           "Selecciona el grupo y la asignatura del titular, elige el sustituto e indica inicio, fin, motivo y observaciones. Registra y comprueba si está programada o activa. El sustituto usa su propia cuenta.",
           "Abre los detalles para revisar el alcance y las fechas. Usa Suspender, Reactivar o Finalizar según corresponda. Al terminar el período o vínculo, revisa las demás asignaciones antes de programar otra sustitución."
         ],
@@ -46228,7 +46233,7 @@
         "intro": "Sélectionnez la classe et la matière du titulaire, le remplaçant, les dates, le motif et les observations. Enregistrez et vérifiez si le remplacement est prévu ou actif. Le remplaçant utilise son compte personnel.",
         "before": "Ouvrez la page avec le lien ci-dessous. Si le menu est absent, demandez à l’administrateur de vérifier les autorisations de votre service et la disponibilité du module.",
         "steps": [
-          "Utilisez la recherche et les filtres disponibles pour retrouver la fiche. Appliquez le filtre et vérifiez la personne, le cours ou la période avant d’ouvrir le résultat.",
+          "Ouvrez Académique → Remplacements enseignants. Vérifiez les compteurs, recherchez par enseignant, classe, matière, cours ou motif et choisissez le statut. Nouveau remplacement ouvre le formulaire sans créer d’affectation.",
           "Sélectionnez la classe et la matière du titulaire, le remplaçant, les dates, le motif et les observations. Enregistrez et vérifiez si le remplacement est prévu ou actif. Le remplaçant utilise son compte personnel.",
           "Ouvrez les détails pour vérifier le périmètre et les dates. Utilisez Suspendre, Réactiver ou Terminer selon le besoin. À la fin de la période ou de l’affectation, vérifiez les autres missions avant de programmer un remplacement."
         ],
@@ -49388,7 +49393,7 @@
         "intro": "Review and publication queue for activities and assignments submitted by teachers.",
         "before": "Open this page using the link below. If you cannot see the menu, ask the institution administrator to check your department permissions and the availability of the module.",
         "steps": [
-          "Use the search and the available filters to locate the relevant record. Apply the filter and check the selected person, course or period before opening a result.",
+          "Open Academic → Academic publications to review the queue. An empty list means no item is waiting in this view. Use New academic publication to register material received from a teacher.",
           "For support on behalf of a teacher, create an academic publication and select the responsible teacher, class and subject. Enter the title, the teacher’s instructions, deadline and maximum grade. Check these associations before uploading files or adding an external link.",
           "Choose whether to publish immediately to students or keep the publication awaiting review. Open the publication queue, check the responsible teacher and audience, review the files and publish when approved. Check the final status in the list."
         ],
@@ -49496,7 +49501,7 @@
         "intro": "Fila de atividades e trabalhos enviados pelos professores para conferência e publicação.",
         "before": "Abra a página pelo link abaixo. Se o menu não aparecer, peça ao administrador que confira as permissões do seu departamento e a disponibilidade do módulo.",
         "steps": [
-          "Use a busca e os filtros disponíveis para localizar o registro. Aplique o filtro e confira a pessoa, o curso ou o período antes de abrir o resultado.",
+          "Abra Acadêmico → Publicações acadêmicas para conferir a fila. Uma lista vazia indica que não há item aguardando nessa visualização. Use Nova publicação acadêmica para cadastrar o material recebido de um professor.",
           "Para auxiliar o professor, crie uma publicação acadêmica e selecione professor responsável, turma e disciplina. Informe título, instruções do professor, prazo e nota máxima. Confira esses vínculos antes de anexar arquivos ou adicionar um link externo.",
           "Escolha entre publicar imediatamente aos alunos ou deixar aguardando revisão. Na fila de publicações, confira professor, público e arquivos e publique quando a conferência estiver concluída. Confira o status final na lista."
         ],
@@ -49604,7 +49609,7 @@
         "intro": "Fila de atividades e trabalhos enviados pelos professores para verificação e publicação.",
         "before": "Abra a página pela ligação abaixo. Se o menu não aparecer, peça ao administrador que verifique as permissões do seu departamento e a disponibilidade do módulo.",
         "steps": [
-          "Utilize a pesquisa e os filtros disponíveis para localizar o registo. Aplique o filtro e confirme a pessoa, o curso ou o período antes de abrir o resultado.",
+          "Abra Académico → Publicações académicas para conferir a fila. Uma lista vazia indica que não há itens nessa vista. Use Nova publicação académica para registar o material recebido de um docente.",
           "Para apoiar o docente, crie uma publicação académica e selecione docente, turma e disciplina. Indique título, instruções, prazo e classificação máxima. Confira as associações antes de anexar ficheiros ou adicionar uma ligação externa.",
           "Escolha publicar imediatamente aos estudantes ou aguardar revisão. Na fila de publicações, confira docente, público e ficheiros e publique após a conferência. Confirme o estado final na lista."
         ],
@@ -49712,7 +49717,7 @@
         "intro": "Cola de actividades y trabajos enviados por los profesores para su revisión y publicación.",
         "before": "Abre la página mediante el enlace inferior. Si el menú no aparece, pide al administrador que revise los permisos de tu departamento y la disponibilidad del módulo.",
         "steps": [
-          "Usa la búsqueda y los filtros disponibles para localizar el registro. Aplica el filtro y comprueba la persona, el curso o el período antes de abrirlo.",
+          "Abre Académico → Publicaciones académicas para revisar la cola. Una lista vacía indica que no hay elementos pendientes en esta vista. Usa Nueva publicación académica para registrar el material del docente.",
           "Para ayudar al docente, crea una publicación y selecciona docente responsable, grupo y asignatura. Introduce título, instrucciones, plazo y nota máxima. Comprueba estos vínculos antes de adjuntar archivos o añadir un enlace.",
           "Elige entre publicar inmediatamente para estudiantes o dejar en revisión. En la cola, revisa docente, destinatarios y archivos, y publica al terminar la comprobación. Verifica el estado final."
         ],
@@ -49820,7 +49825,7 @@
         "intro": "File d’attente des activités et des devoirs envoyés par les enseignants pour vérification et publication.",
         "before": "Ouvrez la page avec le lien ci-dessous. Si le menu est absent, demandez à l’administrateur de vérifier les autorisations de votre service et la disponibilité du module.",
         "steps": [
-          "Utilisez la recherche et les filtres disponibles pour retrouver la fiche. Appliquez le filtre et vérifiez la personne, le cours ou la période avant d’ouvrir le résultat.",
+          "Ouvrez Académique → Publications académiques pour consulter la file. Une liste vide indique qu’aucun élément n’attend dans cette vue. Utilisez Nouvelle publication académique pour enregistrer le contenu reçu d’un enseignant.",
           "Pour aider l’enseignant, créez une publication et sélectionnez l’enseignant responsable, la classe et la matière. Renseignez titre, consignes, échéance et note maximale. Vérifiez les associations avant d’ajouter fichiers ou lien.",
           "Choisissez la publication immédiate ou la mise en attente. Dans la file, vérifiez l’enseignant, le public et les fichiers, puis publiez après validation. Contrôlez le statut final."
         ],
@@ -49937,9 +49942,8 @@
         "intro": "Create activities, assignments, links, or instructions received from teachers and publish them to the correct class and subject.",
         "before": "Open this page using the link below. If you cannot see the menu, ask the institution administrator to check your department permissions and the availability of the module.",
         "steps": [
-          "Use the search and the available filters to locate the relevant record. Apply the filter and check the selected person, course or period before opening a result.",
-          "For support on behalf of a teacher, create an academic publication and select the responsible teacher, class and subject. Enter the title, the teacher’s instructions, deadline and maximum grade. Check these associations before uploading files or adding an external link.",
-          "Choose whether to publish immediately to students or keep the publication awaiting review. Open the publication queue, check the responsible teacher and audience, review the files and publish when approved. Check the final status in the list."
+          "In New academic publication, enter the activity Title and the instructions students will read in Description. Select the responsible teacher and target Class. Choose the Subject, or keep No specific subject when appropriate. Check these links before saving.",
+          "Set Deadline and Maximum grade. Add an optional external link and choose the publication files; review their names and the displayed file-size limit. Keep Publish immediately enabled to release on save, or disable it to leave the item queued. Click Save publication once and check the result. Cancel returns to the list without saving this form."
         ],
         "check": "After saving, wait for the confirmation message. Reopen the record and check the values that were stored. If validation fails, correct the fields indicated before trying again.",
         "reference": [
@@ -50050,9 +50054,8 @@
         "intro": "Cadastre atividades, trabalhos, links ou orientações recebidas dos professores e publique na turma e na disciplina corretas.",
         "before": "Abra a página pelo link abaixo. Se o menu não aparecer, peça ao administrador que confira as permissões do seu departamento e a disponibilidade do módulo.",
         "steps": [
-          "Use a busca e os filtros disponíveis para localizar o registro. Aplique o filtro e confira a pessoa, o curso ou o período antes de abrir o resultado.",
-          "Para auxiliar o professor, crie uma publicação acadêmica e selecione professor responsável, turma e disciplina. Informe título, instruções do professor, prazo e nota máxima. Confira esses vínculos antes de anexar arquivos ou adicionar um link externo.",
-          "Escolha entre publicar imediatamente aos alunos ou deixar aguardando revisão. Na fila de publicações, confira professor, público e arquivos e publique quando a conferência estiver concluída. Confira o status final na lista."
+          "Em Nova publicação acadêmica, preencha Título da atividade e as instruções que os alunos lerão em Descrição. Selecione Professor responsável e Turma. Escolha a Disciplina ou mantenha Sem disciplina específica quando adequado. Confira esses vínculos antes de salvar.",
+          "Defina Prazo e Nota máxima. Inclua Link externo opcional e escolha os Arquivos da publicação; confira os nomes e o limite de tamanho exibido. Mantenha Publicar imediatamente ligado para disponibilizar ao salvar ou desligue para deixar na fila. Clique uma vez em Salvar publicação e confira o resultado. Cancelar volta à lista sem salvar este formulário."
         ],
         "check": "Depois de salvar, aguarde a confirmação. Reabra o registro e confira os valores gravados. Se a validação impedir o salvamento, corrija os campos indicados e tente novamente.",
         "reference": [
@@ -50163,9 +50166,8 @@
         "intro": "Registe atividades, trabalhos, ligações ou orientações recebidas dos professores e publique na turma e na disciplina corretas.",
         "before": "Abra a página pela ligação abaixo. Se o menu não aparecer, peça ao administrador que verifique as permissões do seu departamento e a disponibilidade do módulo.",
         "steps": [
-          "Utilize a pesquisa e os filtros disponíveis para localizar o registo. Aplique o filtro e confirme a pessoa, o curso ou o período antes de abrir o resultado.",
-          "Para apoiar o docente, crie uma publicação académica e selecione docente, turma e disciplina. Indique título, instruções, prazo e classificação máxima. Confira as associações antes de anexar ficheiros ou adicionar uma ligação externa.",
-          "Escolha publicar imediatamente aos estudantes ou aguardar revisão. Na fila de publicações, confira docente, público e ficheiros e publique após a conferência. Confirme o estado final na lista."
+          "Em Nova publicação académica, preencha Título da atividade e Descrição com as instruções para os estudantes. Selecione Docente responsável e Turma. Escolha a Disciplina ou Sem disciplina específica quando adequado. Confira os vínculos antes de guardar.",
+          "Defina Prazo e Nota máxima. Inclua Ligação externa e escolha os ficheiros; confira nomes e limite de tamanho. Ative Publicar imediatamente para disponibilizar ao guardar ou desative para deixar na fila. Escolha Guardar publicação e confira o resultado. Cancelar regressa sem guardar o formulário."
         ],
         "check": "Depois de guardar, aguarde a confirmação. Reabra o registo e confirme os valores guardados. Se a validação impedir a gravação, corrija os campos indicados e tente novamente.",
         "reference": [
@@ -50276,9 +50278,8 @@
         "intro": "Registra actividades, trabajos, enlaces u orientaciones recibidas de los profesores y publícalos en la clase y asignatura correctas.",
         "before": "Abre la página mediante el enlace inferior. Si el menú no aparece, pide al administrador que revise los permisos de tu departamento y la disponibilidad del módulo.",
         "steps": [
-          "Usa la búsqueda y los filtros disponibles para localizar el registro. Aplica el filtro y comprueba la persona, el curso o el período antes de abrirlo.",
-          "Para ayudar al docente, crea una publicación y selecciona docente responsable, grupo y asignatura. Introduce título, instrucciones, plazo y nota máxima. Comprueba estos vínculos antes de adjuntar archivos o añadir un enlace.",
-          "Elige entre publicar inmediatamente para estudiantes o dejar en revisión. En la cola, revisa docente, destinatarios y archivos, y publica al terminar la comprobación. Verifica el estado final."
+          "En Nueva publicación académica, completa Título y Descripción con instrucciones para estudiantes. Selecciona Docente responsable y Grupo. Elige Asignatura o Sin asignatura específica cuando corresponda. Revisa los vínculos antes de guardar.",
+          "Define Plazo y Nota máxima. Añade enlace externo y archivos; revisa nombres y límite de tamaño. Activa Publicar inmediatamente para publicar al guardar o desactívalo para dejarlo en cola. Pulsa Guardar publicación una vez y comprueba el resultado. Cancelar vuelve sin guardar el formulario."
         ],
         "check": "Después de guardar, espera la confirmación. Vuelve a abrir el registro y comprueba los valores guardados. Si la validación impide guardarlo, corrige los campos indicados y vuelve a intentarlo.",
         "reference": [
@@ -50389,9 +50390,8 @@
         "intro": "Créez des activités, des devoirs, des liens ou des consignes reçues des enseignants et publiez-les dans la classe et la matière appropriées.",
         "before": "Ouvrez la page avec le lien ci-dessous. Si le menu est absent, demandez à l’administrateur de vérifier les autorisations de votre service et la disponibilité du module.",
         "steps": [
-          "Utilisez la recherche et les filtres disponibles pour retrouver la fiche. Appliquez le filtre et vérifiez la personne, le cours ou la période avant d’ouvrir le résultat.",
-          "Pour aider l’enseignant, créez une publication et sélectionnez l’enseignant responsable, la classe et la matière. Renseignez titre, consignes, échéance et note maximale. Vérifiez les associations avant d’ajouter fichiers ou lien.",
-          "Choisissez la publication immédiate ou la mise en attente. Dans la file, vérifiez l’enseignant, le public et les fichiers, puis publiez après validation. Contrôlez le statut final."
+          "Dans Nouvelle publication académique, renseignez Titre et Description avec les consignes destinées aux étudiants. Sélectionnez Enseignant responsable et Classe. Choisissez Matière ou Sans matière spécifique si adapté. Vérifiez les liens avant d’enregistrer.",
+          "Définissez Échéance et Note maximale. Ajoutez lien externe et fichiers ; vérifiez noms et limite de taille. Activez Publier immédiatement pour diffuser à l’enregistrement ou désactivez pour laisser en file. Cliquez une fois sur Enregistrer la publication et vérifiez. Annuler revient sans enregistrer le formulaire."
         ],
         "check": "Après l’enregistrement, attendez la confirmation. Rouvrez la fiche et vérifiez les valeurs enregistrées. Si la validation bloque l’enregistrement, corrigez les champs indiqués avant de réessayer.",
         "reference": [
@@ -259516,9 +259516,8 @@
         "intro": "In Development, review the student, description, assessment, attachments and links. Confirm image authorisation when the page requests it. Approve to publish, return with feedback or remove a previously published record from the student portal using the available action.",
         "before": "Open this page using the link below. If you cannot see the menu, ask the institution administrator to check your department permissions and the availability of the module.",
         "steps": [
-          "Use the search and the available filters to locate the relevant record. Apply the filter and check the selected person, course or period before opening a result.",
-          "In Development, review the student, description, assessment, attachments and links. Confirm image authorisation when the page requests it. Approve to publish, return with feedback or remove a previously published record from the student portal using the available action.",
-          "In Coordination requirements, choose the whole institution or a specific course. Define weekly, monthly or annual periodicity and whether approval is required. Save and review the selected scope before informing teachers of their requirements."
+          "Open Academic → Class monitoring → Development and tasks. The view contains student observations, assessments and tasks submitted for coordination review. If No record appears, no item is available in this view; the review buttons appear on eligible records.",
+          "In Development, review the student, description, assessment, attachments and links. Confirm image authorisation when the page requests it. Approve to publish, return with feedback or remove a previously published record from the student portal using the available action."
         ],
         "check": "Confirm the selected period, filters, people and statuses before using the information. An empty result can reflect the filters or your access permissions.",
         "reference": [
@@ -260284,9 +260283,8 @@
         "intro": "Em Desenvolvimento, confira aluno, descrição, avaliação, anexos e links. Confirme a autorização de imagem quando solicitada. Aprove para publicar, devolva com orientação ou retire do portal um registro já publicado pela ação disponível.",
         "before": "Abra a página pelo link abaixo. Se o menu não aparecer, peça ao administrador que confira as permissões do seu departamento e a disponibilidade do módulo.",
         "steps": [
-          "Use a busca e os filtros disponíveis para localizar o registro. Aplique o filtro e confira a pessoa, o curso ou o período antes de abrir o resultado.",
-          "Em Desenvolvimento, confira aluno, descrição, avaliação, anexos e links. Confirme a autorização de imagem quando solicitada. Aprove para publicar, devolva com orientação ou retire do portal um registro já publicado pela ação disponível.",
-          "Em Tarefas e exigências da coordenação, escolha toda a instituição ou um curso. Defina periodicidade semanal, mensal ou anual e a exigência de aprovação. Salve e confira o alcance da regra antes de orientar os professores."
+          "Abra Acadêmico → Acompanhamento de aulas → Desenvolvimento e tarefas. A aba reúne observações, avaliações e tarefas enviadas para a coordenação. Se aparecer Nenhum registro, não há item disponível nessa visualização; os botões de revisão aparecem nos registros que permitem a ação.",
+          "Em Desenvolvimento, confira aluno, descrição, avaliação, anexos e links. Confirme a autorização de imagem quando solicitada. Aprove para publicar, devolva com orientação ou retire do portal um registro já publicado pela ação disponível."
         ],
         "check": "Confira o período, os filtros, as pessoas e os status antes de usar as informações. Uma lista vazia pode refletir os filtros escolhidos ou as permissões do usuário.",
         "reference": [
@@ -261047,9 +261045,8 @@
         "intro": "Em Desenvolvimento, confira estudante, descrição, avaliação, anexos e ligações. Confirme a autorização de imagem quando solicitada. Aprove para publicar, devolva com orientação ou retire do portal um registo publicado.",
         "before": "Abra a página pela ligação abaixo. Se o menu não aparecer, peça ao administrador que verifique as permissões do seu departamento e a disponibilidade do módulo.",
         "steps": [
-          "Utilize a pesquisa e os filtros disponíveis para localizar o registo. Aplique o filtro e confirme a pessoa, o curso ou o período antes de abrir o resultado.",
-          "Em Desenvolvimento, confira estudante, descrição, avaliação, anexos e ligações. Confirme a autorização de imagem quando solicitada. Aprove para publicar, devolva com orientação ou retire do portal um registo publicado.",
-          "Em Exigências da coordenação, escolha toda a instituição ou um curso. Defina periodicidade semanal, mensal ou anual e a aprovação. Guarde e confirme o âmbito da regra antes de informar os docentes."
+          "Abra Académico → Acompanhamento de aulas → Desenvolvimento e tarefas. A vista reúne observações, avaliações e tarefas enviadas à coordenação. Sem registos, não existem itens nessa vista; os botões de revisão aparecem nos registos elegíveis.",
+          "Em Desenvolvimento, confira estudante, descrição, avaliação, anexos e ligações. Confirme a autorização de imagem quando solicitada. Aprove para publicar, devolva com orientação ou retire do portal um registo publicado."
         ],
         "check": "Confirme o período, os filtros, as pessoas e os estados antes de utilizar a informação. Uma lista vazia pode resultar dos filtros escolhidos ou das permissões do utilizador.",
         "reference": [
@@ -261815,9 +261812,8 @@
         "intro": "En Desarrollo, revisa estudiante, descripción, evaluación, archivos y enlaces. Confirma la autorización de imagen cuando se solicite. Aprueba para publicar, devuelve con instrucciones o retira del portal un registro publicado.",
         "before": "Abre la página mediante el enlace inferior. Si el menú no aparece, pide al administrador que revise los permisos de tu departamento y la disponibilidad del módulo.",
         "steps": [
-          "Usa la búsqueda y los filtros disponibles para localizar el registro. Aplica el filtro y comprueba la persona, el curso o el período antes de abrirlo.",
-          "En Desarrollo, revisa estudiante, descripción, evaluación, archivos y enlaces. Confirma la autorización de imagen cuando se solicite. Aprueba para publicar, devuelve con instrucciones o retira del portal un registro publicado.",
-          "En Requisitos de coordinación, elige toda la institución o un curso. Define periodicidad semanal, mensual o anual y si exige aprobación. Guarda y revisa el alcance antes de informar a los docentes."
+          "Abre Académico → Seguimiento de clases → Desarrollo y tareas. Reúne observaciones, evaluaciones y tareas enviadas a coordinación. Si no hay registros, los botones de revisión aparecerán cuando existan elementos que permitan la acción.",
+          "En Desarrollo, revisa estudiante, descripción, evaluación, archivos y enlaces. Confirma la autorización de imagen cuando se solicite. Aprueba para publicar, devuelve con instrucciones o retira del portal un registro publicado."
         ],
         "check": "Comprueba el período, los filtros, las personas y los estados antes de usar la información. Una lista vacía puede deberse a los filtros o a los permisos del usuario.",
         "reference": [
@@ -262573,9 +262569,8 @@
         "intro": "Dans Développement, examinez étudiant, description, évaluation, pièces jointes et liens. Confirmez l’autorisation d’image si demandée. Approuvez pour publier, renvoyez avec consignes ou retirez une fiche publiée du portail.",
         "before": "Ouvrez la page avec le lien ci-dessous. Si le menu est absent, demandez à l’administrateur de vérifier les autorisations de votre service et la disponibilité du module.",
         "steps": [
-          "Utilisez la recherche et les filtres disponibles pour retrouver la fiche. Appliquez le filtre et vérifiez la personne, le cours ou la période avant d’ouvrir le résultat.",
-          "Dans Développement, examinez étudiant, description, évaluation, pièces jointes et liens. Confirmez l’autorisation d’image si demandée. Approuvez pour publier, renvoyez avec consignes ou retirez une fiche publiée du portail.",
-          "Dans Exigences de coordination, choisissez l’établissement entier ou un cours. Définissez une périodicité hebdomadaire, mensuelle ou annuelle et l’approbation requise. Enregistrez et vérifiez la portée avant d’informer les enseignants."
+          "Ouvrez Académique → Suivi des cours → Développement et tâches. La vue réunit observations, évaluations et tâches envoyées à la coordination. Sans enregistrement, les boutons de révision apparaîtront sur les éléments admissibles.",
+          "Dans Développement, examinez étudiant, description, évaluation, pièces jointes et liens. Confirmez l’autorisation d’image si demandée. Approuvez pour publier, renvoyez avec consignes ou retirez une fiche publiée du portail."
         ],
         "check": "Vérifiez la période, les filtres, les personnes et les statuts avant d’utiliser les informations. Une liste vide peut résulter des filtres ou des autorisations.",
         "reference": [
@@ -263345,9 +263340,8 @@
         "intro": "In Coordination requirements, choose the whole institution or a specific course. Define weekly, monthly or annual periodicity and whether approval is required. Save and review the selected scope before informing teachers of their requirements.",
         "before": "Open this page using the link below. If you cannot see the menu, ask the institution administrator to check your department permissions and the availability of the module.",
         "steps": [
-          "Use the search and the available filters to locate the relevant record. Apply the filter and check the selected person, course or period before opening a result.",
-          "In Coordination requirements, choose the whole institution or a specific course. Define weekly, monthly or annual periodicity and whether approval is required. Save and review the selected scope before informing teachers of their requirements.",
-          "Create the planning or report record with class, period, objectives, content, methodology and assessment. Save a draft while preparing, then submit for coordination review. Read returned feedback and correct the record before submitting again."
+          "Open Academic → Class monitoring → Coordination requirements. In Apply to, choose Whole institution for the general rule or a specific course for an exception. A course rule overrides the institutional rule; the initial default is weekly when no rule exists.",
+          "In Coordination requirements, choose the whole institution or a specific course. Define weekly, monthly or annual periodicity and whether approval is required. Save and review the selected scope before informing teachers of their requirements."
         ],
         "check": "After saving, wait for the confirmation message. Reopen the record and check the values that were stored. If validation fails, correct the fields indicated before trying again.",
         "reference": [
@@ -264113,9 +264107,8 @@
         "intro": "Em Tarefas e exigências da coordenação, escolha toda a instituição ou um curso. Defina periodicidade semanal, mensal ou anual e a exigência de aprovação. Salve e confira o alcance da regra antes de orientar os professores.",
         "before": "Abra a página pelo link abaixo. Se o menu não aparecer, peça ao administrador que confira as permissões do seu departamento e a disponibilidade do módulo.",
         "steps": [
-          "Use a busca e os filtros disponíveis para localizar o registro. Aplique o filtro e confira a pessoa, o curso ou o período antes de abrir o resultado.",
-          "Em Tarefas e exigências da coordenação, escolha toda a instituição ou um curso. Defina periodicidade semanal, mensal ou anual e a exigência de aprovação. Salve e confira o alcance da regra antes de orientar os professores.",
-          "Crie planejamento ou relatório com turma, período, objetivos, conteúdo, metodologia e avaliação. Salve rascunho durante a preparação e envie à coordenação. Leia a devolutiva e corrija antes de reenviar."
+          "Abra Acadêmico → Acompanhamento de aulas → Exigências da coordenação. Em Aplicar a, escolha Toda a instituição para a regra geral ou um curso para uma exceção. A regra do curso substitui a institucional; sem regra cadastrada, o padrão inicial é semanal.",
+          "Em Tarefas e exigências da coordenação, escolha toda a instituição ou um curso. Defina periodicidade semanal, mensal ou anual e a exigência de aprovação. Salve e confira o alcance da regra antes de orientar os professores."
         ],
         "check": "Depois de salvar, aguarde a confirmação. Reabra o registro e confira os valores gravados. Se a validação impedir o salvamento, corrija os campos indicados e tente novamente.",
         "reference": [
@@ -264876,9 +264869,8 @@
         "intro": "Em Exigências da coordenação, escolha toda a instituição ou um curso. Defina periodicidade semanal, mensal ou anual e a aprovação. Guarde e confirme o âmbito da regra antes de informar os docentes.",
         "before": "Abra a página pela ligação abaixo. Se o menu não aparecer, peça ao administrador que verifique as permissões do seu departamento e a disponibilidade do módulo.",
         "steps": [
-          "Utilize a pesquisa e os filtros disponíveis para localizar o registo. Aplique o filtro e confirme a pessoa, o curso ou o período antes de abrir o resultado.",
-          "Em Exigências da coordenação, escolha toda a instituição ou um curso. Defina periodicidade semanal, mensal ou anual e a aprovação. Guarde e confirme o âmbito da regra antes de informar os docentes.",
-          "Crie o planeamento ou relatório com turma, período, objetivos, conteúdo, metodologia e avaliação. Guarde rascunho e envie à coordenação. Leia a devolutiva e corrija antes de reenviar."
+          "Abra Académico → Acompanhamento de aulas → Exigências da coordenação. Em Aplicar a, escolha Toda a instituição ou um curso. A regra do curso substitui a institucional; sem regra, o padrão inicial é semanal.",
+          "Em Exigências da coordenação, escolha toda a instituição ou um curso. Defina periodicidade semanal, mensal ou anual e a aprovação. Guarde e confirme o âmbito da regra antes de informar os docentes."
         ],
         "check": "Depois de guardar, aguarde a confirmação. Reabra o registo e confirme os valores guardados. Se a validação impedir a gravação, corrija os campos indicados e tente novamente.",
         "reference": [
@@ -265644,9 +265636,8 @@
         "intro": "En Requisitos de coordinación, elige toda la institución o un curso. Define periodicidad semanal, mensual o anual y si exige aprobación. Guarda y revisa el alcance antes de informar a los docentes.",
         "before": "Abre la página mediante el enlace inferior. Si el menú no aparece, pide al administrador que revise los permisos de tu departamento y la disponibilidad del módulo.",
         "steps": [
-          "Usa la búsqueda y los filtros disponibles para localizar el registro. Aplica el filtro y comprueba la persona, el curso o el período antes de abrirlo.",
-          "En Requisitos de coordinación, elige toda la institución o un curso. Define periodicidad semanal, mensual o anual y si exige aprobación. Guarda y revisa el alcance antes de informar a los docentes.",
-          "Crea la planificación o informe con grupo, período, objetivos, contenido, metodología y evaluación. Guarda borrador y envía a coordinación. Lee la devolución y corrige antes de reenviar."
+          "Abre Académico → Seguimiento de clases → Exigencias de coordinación. En Aplicar a, elige Toda la institución o un curso. La regla del curso sustituye a la institucional; sin regla, el valor inicial es semanal.",
+          "En Requisitos de coordinación, elige toda la institución o un curso. Define periodicidad semanal, mensual o anual y si exige aprobación. Guarda y revisa el alcance antes de informar a los docentes."
         ],
         "check": "Después de guardar, espera la confirmación. Vuelve a abrir el registro y comprueba los valores guardados. Si la validación impide guardarlo, corrige los campos indicados y vuelve a intentarlo.",
         "reference": [
@@ -266402,9 +266393,8 @@
         "intro": "Dans Exigences de coordination, choisissez l’établissement entier ou un cours. Définissez une périodicité hebdomadaire, mensuelle ou annuelle et l’approbation requise. Enregistrez et vérifiez la portée avant d’informer les enseignants.",
         "before": "Ouvrez la page avec le lien ci-dessous. Si le menu est absent, demandez à l’administrateur de vérifier les autorisations de votre service et la disponibilité du module.",
         "steps": [
-          "Utilisez la recherche et les filtres disponibles pour retrouver la fiche. Appliquez le filtre et vérifiez la personne, le cours ou la période avant d’ouvrir le résultat.",
-          "Dans Exigences de coordination, choisissez l’établissement entier ou un cours. Définissez une périodicité hebdomadaire, mensuelle ou annuelle et l’approbation requise. Enregistrez et vérifiez la portée avant d’informer les enseignants.",
-          "Créez planification ou rapport avec classe, période, objectifs, contenu, méthode et évaluation. Enregistrez le brouillon, puis envoyez à la coordination. Lisez les retours et corrigez avant renvoi."
+          "Ouvrez Académique → Suivi des cours → Exigences de coordination. Dans Appliquer à, choisissez Tout l’établissement ou un cours. La règle du cours remplace celle de l’établissement ; sans règle, la valeur initiale est hebdomadaire.",
+          "Dans Exigences de coordination, choisissez l’établissement entier ou un cours. Définissez une périodicité hebdomadaire, mensuelle ou annuelle et l’approbation requise. Enregistrez et vérifiez la portée avant d’informer les enseignants."
         ],
         "check": "Après l’enregistrement, attendez la confirmation. Rouvrez la fiche et vérifiez les valeurs enregistrées. Si la validation bloque l’enregistrement, corrigez les champs indiqués avant de réessayer.",
         "reference": [
