@@ -1,0 +1,962 @@
+{
+  "en": [
+    [
+      "admin-login",
+      "Sign in as an administrator",
+      "Open the administrative area with your institutional account.",
+      "PHANYX › Administration",
+      "Open the PHANYX sign-in page and check that **Administration** is displayed.",
+      "Enter your email and password, then select **Sign in**.",
+      "After signing in, use the side menu to find courses, classes, enrollments, or documents.",
+      "If the account belongs to a different portal, open the link for that profile."
+    ],
+    [
+      "teacher-login",
+      "Sign in to the teacher portal",
+      "Access the tools your institution has enabled for teachers.",
+      "PHANYX › Teacher portal",
+      "Open the sign-in page for the **Teacher portal**.",
+      "Enter your teacher account email and password, then select **Sign in**.",
+      "Use the side menu to open your classes or documents.",
+      "Ask your institution to confirm your teacher account and permissions if an expected menu is missing."
+    ],
+    [
+      "student-login",
+      "Sign in to the student portal",
+      "Access your subjects, assignments, and academic records.",
+      "PHANYX › Student portal",
+      "Open the sign-in page for the **Student portal**.",
+      "Enter the email and password registered with your institution, then select **Sign in**.",
+      "Open the section you need from the side menu.",
+      "Use the email associated with your student account."
+    ],
+    [
+      "reset",
+      "Reset your password",
+      "Request a reset link from the sign-in page for your role.",
+      "Sign-in page › Forgot password",
+      "Select the forgot-password link on the sign-in page for your portal.",
+      "Enter the email registered with your institution and select **Send link**.",
+      "Open the email and follow the link to choose a new password. Return to the same portal to sign in.",
+      "Check your spam folder. If the message is still missing, confirm your registered email with the institution."
+    ],
+    [
+      "courses",
+      "Create a course",
+      "Add a course so it can be offered to students.",
+      "Administration › Courses",
+      "Open **Courses** and locate the new course form.",
+      "Enter the course name and complete the fields for the course type and delivery format offered by your institution.",
+      "Save the course and check that it appears in the list of registered courses.",
+      "Open the saved course to review its specific settings before using it in an enrollment."
+    ],
+    [
+      "classes",
+      "Create a class",
+      "Set up a class for a registered course.",
+      "Administration › Classes",
+      "Open **Classes** and locate the new class form.",
+      "Select the course and fill in the class details and the schedule or academic period shown for that course.",
+      "Save and verify the new class in the list, including its course and schedule.",
+      "For a standalone class without a curriculum, use the schedule fields for the relevant days and times."
+    ],
+    [
+      "enrollment",
+      "Create an enrollment",
+      "Enroll a student and review the academic and payment details.",
+      "Administration › Enrollments",
+      "Open **Enrollments** and select the option to start a new enrollment. Find the student and check the record you selected.",
+      "Choose the course and the class or subjects requested by the form. Review electives or additional courses when offered.",
+      "Review the displayed payment plan, dates, and contracting party. Confirm the enrollment and locate it in the list.",
+      "If the payment preview or the contracting party differs from what was agreed, review those selections before confirming."
+    ],
+    [
+      "templates",
+      "Create a lesson plan template",
+      "Give teachers a reusable model with fields they can complete.",
+      "Administration › Documents › Templates",
+      "Create or open a template. For a lesson plan, select the teacher lesson plan context under the **Other** document type.",
+      "In the fillable fields section, name each field, such as Objectives or Methodology, and insert it where the teacher should complete it.",
+      "Save the template and preview the PDF. Check the order and spacing of the fields.",
+      "A field can have blank lines for handwritten completion when the document is printed."
+    ],
+    [
+      "send-plan",
+      "Send a document to teachers",
+      "Assign a lesson plan or another document from the teacher document center.",
+      "Administration › Teacher documents",
+      "Open **Teacher documents** and select **New document**.",
+      "Choose the template, enter a title, select the recipients, and add any instructions or due-date guidance.",
+      "Select **Create and send**. Find the document in the list and review its status.",
+      "Each recipient has a separate document and version history. The teacher needs access to the Documents menu."
+    ],
+    [
+      "attendance",
+      "Record class attendance",
+      "Mark students for the correct session and check that the record was saved.",
+      "Teacher portal › Classes › Attendance",
+      "Open **Classes**, locate the class, and open attendance from the class or subject card.",
+      "Confirm the subject where applicable, select the session date and time, then open the attendance list.",
+      "Mark every student, add observations if needed, and save. Reopen the session from the history to verify the record.",
+      "For a standalone class, use its own attendance option and select a time from its scheduled sessions."
+    ],
+    [
+      "teacher-docs",
+      "Complete and submit a lesson plan",
+      "Fill out a lesson plan and send it to the coordinator.",
+      "Teacher portal › Documents",
+      "Open **Documents** and select the lesson plan from your list. Read the instructions from your coordinator.",
+      "Complete the requested fields and choose **Save new version**. Review the preview for the saved version.",
+      "If a signature is required, sign the saved version. Then select **Submit to administration** and check the status.",
+      "If you receive a correction request, open the latest version and read the reason before saving a revision."
+    ],
+    [
+      "materials",
+      "Find materials for a class",
+      "Locate a lesson and its materials in the teacher portal.",
+      "Teacher portal › Materials",
+      "Open the menu for classes or teaching materials.",
+      "Use the course, class, or subject information to find the relevant lesson.",
+      "Open the lesson’s materials area to review its resources or use the action for a new material when available.",
+      "If you cannot find a lesson, verify your assignment to that class with the coordinator."
+    ],
+    [
+      "subjects",
+      "Open your subjects and lessons",
+      "Find the learning materials associated with an enrolled subject.",
+      "Student portal › Subjects",
+      "Open **Subjects** from the student menu.",
+      "Locate the subject you want to study and open its available content.",
+      "Choose a lesson or material and follow the instructions shown by your institution.",
+      "If a subject or lesson is missing, check your enrollment and ask the institution about publication."
+    ],
+    [
+      "assignments",
+      "Submit an assignment",
+      "Send your work in the format requested by your teacher.",
+      "Student portal › Assignments",
+      "Open **Assignments** and select the relevant assignment.",
+      "Read the instructions and deadline. Add the requested text, link, or file using the available fields.",
+      "Submit your work, then reopen the assignment and verify the recorded submission.",
+      "Keep the uploaded file until you have confirmed that the submission has been recorded."
+    ],
+    [
+      "grades",
+      "Check grades and attendance",
+      "Find published grades and your attendance history.",
+      "Student portal › Grades / Attendance",
+      "Open **Grades** in the side menu and locate the subject you want to review.",
+      "Read the visible grades and assessments. To review attendance, open **Attendance** from the side menu.",
+      "Check the summary and the individual dates or sessions. Contact your teacher if you have a question about a specific record.",
+      "Your institution controls which academic sections are available in your account."
+    ],
+    [
+      "certificates",
+      "Download a certificate",
+      "Save an issued certificate from the student portal.",
+      "Student portal › Certificates",
+      "Open **Certificates** from the side menu.",
+      "Find the certificate for the relevant course or activity and select the download option.",
+      "Open the saved PDF and check your name and the course or activity. Use online validation if available for that certificate.",
+      "If the certificate is missing, ask your institution whether it has been issued."
+    ],
+    [
+      "access",
+      "Find a missing menu or portal",
+      "Check your account, profile, and institution settings when a page is unavailable.",
+      "PHANYX › Portal access",
+      "Check the portal title on the sign-in page and use the account registered for that role.",
+      "If you can sign in but cannot see a menu, ask your institution whether the feature is enabled for your account.",
+      "If the problem continues, tell support your role, the page you tried to reach, and the message displayed.",
+      "A screenshot of the error can help. Keep passwords, codes, and other people’s data out of the image."
+    ],
+    [
+      "get-started",
+      "How to access and use PHANYX",
+      "Find the PHANYX sign-in page for administrators, teachers, or students, and choose the guide for your first task.",
+      "PHANYX › Sign-in pages",
+      "Open the PHANYX website and choose the portal that matches your role.",
+      "Sign in with the account registered by your institution. If you need to recover your password, use the recovery option on the same sign-in page.",
+      "In the Help Center, open the guides for your role. Administrators can start with courses and enrollments, teachers with attendance and lesson plans, and students with subjects and assignments.",
+      "If you are unsure which account or portal to use, confirm with your institution."
+    ],
+    [
+      "join",
+      "How to get PHANYX for your institution",
+      "See where to compare plans and get started with PHANYX for a school, college, or training provider.",
+      "PHANYX › Plans",
+      "Open the official PHANYX Plans page and compare the options for your institution.",
+      "Use the contact or sign-up option shown for the plan you are considering. Confirm the plan and terms on the official website.",
+      "After your institution has been set up, open the administration guides to learn how to create courses, classes, and enrollments.",
+      "Teachers and students at an institution that already uses PHANYX can get access information from their institution."
+    ]
+  ],
+  "es": [
+    [
+      "admin-login",
+      "Entrar en el área administrativa",
+      "Accede al área de administración con tu cuenta institucional.",
+      "PHANYX › Área administrativa",
+      "Abre la página de acceso a PHANYX y comprueba que indica **Área administrativa**.",
+      "Introduce el correo y la contraseña y selecciona **Entrar**.",
+      "En el menú lateral puedes encontrar cursos, grupos, matrículas y documentos.",
+      "Si tu cuenta corresponde a otro perfil, utiliza el enlace de ese portal."
+    ],
+    [
+      "teacher-login",
+      "Entrar en el área docente",
+      "Accede a las herramientas que tu institución ha habilitado para docentes.",
+      "PHANYX › Área docente",
+      "Abre la página de acceso del **Área docente**.",
+      "Introduce el correo y la contraseña de tu cuenta docente y selecciona **Entrar**.",
+      "Abre tus grupos o documentos desde el menú lateral.",
+      "Si falta una opción, pide a tu institución que revise tu cuenta y tus permisos."
+    ],
+    [
+      "student-login",
+      "Entrar en el área del estudiante",
+      "Accede a tus asignaturas, trabajos y registros académicos.",
+      "PHANYX › Área del estudiante",
+      "Abre la página de acceso del **Área del estudiante**.",
+      "Introduce el correo y la contraseña registrados en tu institución y selecciona **Entrar**.",
+      "Abre la sección que necesites desde el menú lateral.",
+      "Usa el correo asociado a tu cuenta de estudiante."
+    ],
+    [
+      "reset",
+      "Restablecer tu contraseña",
+      "Solicita un enlace desde la página de acceso de tu perfil.",
+      "Inicio de sesión › ¿Has olvidado tu contraseña?",
+      "En la página de acceso de tu portal, selecciona **¿Has olvidado tu contraseña?**.",
+      "Introduce el correo registrado en tu institución y solicita el enlace.",
+      "Abre el mensaje y sigue el enlace para elegir una nueva contraseña. Vuelve al mismo portal para entrar.",
+      "Revisa la carpeta de correo no deseado. Si el mensaje no llega, confirma tu correo con la institución."
+    ],
+    [
+      "courses",
+      "Crear un curso",
+      "Registra un curso para ofrecerlo a los estudiantes.",
+      "Área administrativa › Cursos",
+      "Abre **Cursos** y localiza el formulario de alta.",
+      "Escribe el nombre y completa los campos del tipo de curso y la modalidad de enseñanza.",
+      "Guarda los cambios y comprueba que el curso aparece en la lista.",
+      "Abre el curso guardado para revisar su configuración antes de usarlo en una matrícula."
+    ],
+    [
+      "classes",
+      "Crear un grupo",
+      "Configura un grupo para un curso registrado.",
+      "Área administrativa › Grupos",
+      "Abre **Grupos** y localiza el formulario para un grupo nuevo.",
+      "Selecciona el curso e indica los datos del grupo, el horario o el periodo académico solicitado.",
+      "Guarda y comprueba que el grupo aparece en la lista con su curso y horario.",
+      "Si el grupo no tiene plan de estudios, indica los días y las horas de sus sesiones en los campos de horario."
+    ],
+    [
+      "enrollment",
+      "Crear una matrícula",
+      "Matricula a un estudiante y comprueba los datos académicos y de pago.",
+      "Área administrativa › Matrículas",
+      "Abre **Matrículas** e inicia una nueva. Busca al estudiante y comprueba el registro seleccionado.",
+      "Elige el curso y el grupo o las asignaturas que solicite el formulario. Revisa las optativas o cursos adicionales si se ofrecen.",
+      "Revisa el plan de pago, las fechas y el titular del contrato. Confirma la matrícula y localízala en la lista.",
+      "Si la previsión de pago o el titular difieren de lo acordado, revisa la selección antes de confirmar."
+    ],
+    [
+      "templates",
+      "Crear una plantilla de plan de clase",
+      "Prepara una plantilla reutilizable con campos que el docente pueda rellenar.",
+      "Área administrativa › Documentos › Plantillas",
+      "Crea o abre una plantilla. Para un plan de clase, selecciona el contexto docente de plan de clase dentro del tipo **Otro**.",
+      "Nombra cada campo, como Objetivos o Metodología, y colócalo donde el docente deba rellenarlo.",
+      "Guarda la plantilla y abre la vista previa del PDF. Comprueba el orden y el espacio de los campos.",
+      "Puedes incluir líneas en blanco para rellenar a mano cuando se imprima el documento."
+    ],
+    [
+      "send-plan",
+      "Enviar un documento a docentes",
+      "Distribuye un plan de clase u otro documento desde el centro de documentos docentes.",
+      "Área administrativa › Documentos docentes",
+      "Abre **Documentos docentes** y selecciona **Nuevo documento**.",
+      "Elige la plantilla, indica un título, selecciona a los destinatarios y añade instrucciones o el plazo.",
+      "Selecciona **Crear y enviar**. Localiza el documento en la lista y comprueba su estado.",
+      "Cada destinatario tiene un documento y un historial propios. El docente necesita acceso al menú Documentos."
+    ],
+    [
+      "attendance",
+      "Registrar la asistencia de un grupo",
+      "Registra la asistencia de la sesión correspondiente y comprueba que se ha guardado.",
+      "Área docente › Grupos › Asistencia",
+      "Abre **Grupos**, localiza el grupo y abre la asistencia desde la ficha del grupo o asignatura.",
+      "Confirma la asignatura cuando corresponda, selecciona la fecha y hora de la sesión y abre la lista.",
+      "Marca a todos los estudiantes, añade observaciones si es necesario y guarda. Abre la sesión desde el historial para comprobarla.",
+      "Si el grupo no tiene plan de estudios, usa su opción de asistencia y selecciona un horario disponible."
+    ],
+    [
+      "teacher-docs",
+      "Rellenar y enviar un plan de clase",
+      "Completa un plan de clase y envíalo a coordinación.",
+      "Área docente › Documentos",
+      "Abre **Documentos**, selecciona el plan de la lista y lee las instrucciones de coordinación.",
+      "Completa los campos y elige **Guardar nueva versión**. Revisa la vista previa de la versión guardada.",
+      "Si se requiere firma, firma la versión guardada. Selecciona **Enviar a coordinación** y comprueba el estado.",
+      "Si solicitan correcciones, abre la versión más reciente y lee el motivo antes de guardar los cambios."
+    ],
+    [
+      "materials",
+      "Encontrar los materiales de una clase",
+      "Localiza una clase y sus materiales en el portal docente.",
+      "Área docente › Clases y materiales",
+      "Abre la opción de clases o materiales en el menú docente.",
+      "Utiliza los datos del curso, grupo o asignatura para localizar la clase.",
+      "Abre los materiales de la clase para consultar los recursos o añadir uno nuevo si está disponible.",
+      "Si la clase no aparece, confirma con coordinación que tienes asignado el grupo."
+    ],
+    [
+      "subjects",
+      "Acceder a tus asignaturas y clases",
+      "Encuentra el contenido de una asignatura en la que estás matriculado.",
+      "Área del estudiante › Asignaturas",
+      "Abre **Asignaturas** en el menú del estudiante.",
+      "Localiza la asignatura que quieres estudiar y abre el contenido disponible.",
+      "Elige una clase o material y sigue las instrucciones de tu institución.",
+      "Si falta una asignatura o una clase, comprueba tu matrícula y consulta cuándo se publica."
+    ],
+    [
+      "assignments",
+      "Entregar un trabajo",
+      "Envía tu trabajo en el formato solicitado por el docente.",
+      "Área del estudiante › Trabajos",
+      "Abre **Trabajos** y elige la actividad correspondiente.",
+      "Lee el enunciado y el plazo. Añade el texto, enlace o archivo solicitado en los campos disponibles.",
+      "Envía el trabajo y vuelve a abrirlo para comprobar que la entrega se ha registrado.",
+      "Conserva el archivo original hasta confirmar el registro de la entrega."
+    ],
+    [
+      "grades",
+      "Consultar calificaciones y asistencia",
+      "Revisa las notas publicadas y el historial de asistencia.",
+      "Área del estudiante › Calificaciones / Asistencia",
+      "Abre la sección de calificaciones en el menú lateral y localiza la asignatura.",
+      "Revisa las notas y evaluaciones visibles. Para ver la asistencia, abre **Asistencia**.",
+      "Comprueba el resumen y las fechas o sesiones. Habla con el docente si tienes dudas sobre un registro.",
+      "La institución determina qué secciones académicas están disponibles en tu cuenta."
+    ],
+    [
+      "certificates",
+      "Descargar un certificado",
+      "Guarda un certificado emitido desde el portal del estudiante.",
+      "Área del estudiante › Certificados",
+      "Abre **Certificados** en el menú lateral.",
+      "Encuentra el certificado del curso o actividad y selecciona la opción de descarga.",
+      "Abre el PDF guardado y comprueba tu nombre y el curso o actividad. Utiliza la validación en línea si está disponible.",
+      "Si no encuentras un certificado, pregunta a tu institución si ya lo ha emitido."
+    ],
+    [
+      "access",
+      "Encontrar un menú o portal que no aparece",
+      "Comprueba tu cuenta, tu perfil y la configuración de la institución si falta una página.",
+      "PHANYX › Acceso a los portales",
+      "Comprueba el título de la página de acceso y utiliza la cuenta registrada para ese perfil.",
+      "Si puedes entrar pero falta un menú, consulta a tu institución si la función está habilitada para tu cuenta.",
+      "Si el problema continúa, indica a soporte tu perfil, la página y el mensaje que aparece.",
+      "Una captura del error puede ayudar. Oculta las contraseñas, códigos y datos de otras personas."
+    ],
+    [
+      "get-started",
+      "Cómo acceder y usar PHANYX",
+      "Encuentra el portal de administración, del docente o del estudiante y elige el tutorial para tu primera tarea.",
+      "PHANYX › Páginas de acceso",
+      "Abre el sitio de PHANYX y elige el portal correspondiente a tu perfil.",
+      "Entra con la cuenta registrada por tu institución. Si necesitas recuperar la contraseña, utiliza la opción de recuperación de esa misma pantalla.",
+      "En el Centro de ayuda, abre las guías de tu perfil. La administración puede comenzar por los cursos y las matrículas, los docentes por la asistencia y los estudiantes por las asignaturas.",
+      "Si tienes dudas sobre la cuenta o el portal, consulta con tu institución."
+    ],
+    [
+      "join",
+      "Cómo contratar PHANYX",
+      "Consulta los planes de PHANYX y descubre dónde empezar a usar la plataforma en tu institución.",
+      "PHANYX › Planes",
+      "Abre la página oficial de planes de PHANYX y compara las opciones disponibles.",
+      "Usa la opción de contacto o contratación que aparece para el plan que estás evaluando. Comprueba las condiciones en el sitio oficial.",
+      "Una vez configurada la institución, sigue las guías de administración para crear cursos, grupos y matrículas.",
+      "Si ya eres docente o estudiante de una institución que usa PHANYX, pídele los datos de acceso."
+    ]
+  ],
+  "fr": [
+    [
+      "admin-login",
+      "Se connecter à l’administration",
+      "Ouvrez l’espace d’administration avec votre compte institutionnel.",
+      "PHANYX › Administration",
+      "Ouvrez la page de connexion et vérifiez que le titre indique **Administration**.",
+      "Saisissez votre adresse e-mail et votre mot de passe, puis sélectionnez **Se connecter**.",
+      "Utilisez le menu latéral pour accéder aux cours, aux classes, aux inscriptions ou aux documents.",
+      "Si votre compte correspond à un autre profil, ouvrez le lien du portail concerné."
+    ],
+    [
+      "teacher-login",
+      "Se connecter à l’espace enseignant",
+      "Accédez aux outils mis à votre disposition par votre établissement.",
+      "PHANYX › Espace enseignant",
+      "Ouvrez la page de connexion de l’**Espace enseignant**.",
+      "Saisissez votre adresse e-mail et votre mot de passe d’enseignant, puis sélectionnez **Se connecter**.",
+      "Ouvrez vos classes ou vos documents depuis le menu latéral.",
+      "Si un menu est absent, demandez à votre établissement de vérifier votre compte et vos autorisations."
+    ],
+    [
+      "student-login",
+      "Se connecter à l’espace étudiant",
+      "Accédez à vos matières, à vos devoirs et à votre dossier scolaire.",
+      "PHANYX › Espace étudiant",
+      "Ouvrez la page de connexion de l’**Espace étudiant**.",
+      "Saisissez l’adresse e-mail et le mot de passe enregistrés auprès de votre établissement, puis sélectionnez **Se connecter**.",
+      "Ouvrez la rubrique souhaitée depuis le menu latéral.",
+      "Utilisez l’adresse e-mail associée à votre compte étudiant."
+    ],
+    [
+      "reset",
+      "Réinitialiser votre mot de passe",
+      "Demandez un lien depuis la page de connexion de votre profil.",
+      "Connexion › Mot de passe oublié ?",
+      "Sur la page de connexion de votre portail, sélectionnez **Mot de passe oublié ?**",
+      "Saisissez l’adresse enregistrée auprès de votre établissement et demandez l’envoi du lien.",
+      "Ouvrez le message et suivez le lien pour définir un nouveau mot de passe. Revenez au même portail pour vous connecter.",
+      "Vérifiez vos courriers indésirables. Si le message n’arrive pas, confirmez votre adresse auprès de l’établissement."
+    ],
+    [
+      "courses",
+      "Créer un cours",
+      "Enregistrez un cours pour pouvoir le proposer aux étudiants.",
+      "Administration › Cours",
+      "Ouvrez **Cours** et repérez le formulaire de création.",
+      "Saisissez le nom et renseignez les champs relatifs au type de cours et au mode d’enseignement.",
+      "Enregistrez le cours et vérifiez qu’il apparaît dans la liste.",
+      "Ouvrez le cours enregistré pour vérifier sa configuration avant toute inscription."
+    ],
+    [
+      "classes",
+      "Créer une classe",
+      "Configurez une classe pour un cours enregistré.",
+      "Administration › Classes",
+      "Ouvrez **Classes** et repérez le formulaire de création.",
+      "Choisissez le cours, puis renseignez les informations de la classe, les horaires ou la période demandée.",
+      "Enregistrez et vérifiez le cours et les horaires de la nouvelle classe dans la liste.",
+      "Pour une classe indépendante sans programme, utilisez les champs correspondant aux jours et heures des séances."
+    ],
+    [
+      "enrollment",
+      "Créer une inscription",
+      "Inscrivez un étudiant et vérifiez les informations scolaires et de paiement.",
+      "Administration › Inscriptions",
+      "Ouvrez **Inscriptions** et démarrez une nouvelle inscription. Recherchez l’étudiant et vérifiez le dossier sélectionné.",
+      "Choisissez le cours et la classe ou les matières demandées. Vérifiez les options ou les cours supplémentaires, le cas échéant.",
+      "Vérifiez l’échéancier, les dates et le titulaire du contrat. Confirmez l’inscription et retrouvez-la dans la liste.",
+      "Si le montant prévisionnel ou le titulaire diffère de ce qui était convenu, vérifiez les choix avant de confirmer."
+    ],
+    [
+      "templates",
+      "Créer un modèle de plan de cours",
+      "Préparez un modèle réutilisable avec des champs à remplir par l’enseignant.",
+      "Administration › Documents › Modèles",
+      "Créez ou ouvrez un modèle. Pour un plan de cours, choisissez le contexte enseignant correspondant dans le type **Autre**.",
+      "Nommez les champs à remplir, par exemple Objectifs ou Méthodologie, et insérez-les à l’endroit voulu.",
+      "Enregistrez le modèle et affichez l’aperçu du PDF. Vérifiez l’ordre et l’espacement des champs.",
+      "Vous pouvez ajouter des lignes vierges pour permettre de remplir le document imprimé à la main."
+    ],
+    [
+      "send-plan",
+      "Envoyer un document aux enseignants",
+      "Transmettez un plan de cours ou un autre document depuis le centre de documents enseignants.",
+      "Administration › Documents enseignants",
+      "Ouvrez **Documents enseignants** et sélectionnez **Nouveau document**.",
+      "Choisissez le modèle, indiquez le titre, sélectionnez les destinataires et ajoutez les consignes ou la date limite.",
+      "Sélectionnez **Créer et envoyer**. Retrouvez le document dans la liste et vérifiez son état.",
+      "Chaque destinataire dispose de son document et de son historique. L’enseignant doit avoir accès au menu Documents."
+    ],
+    [
+      "attendance",
+      "Faire l’appel d’une classe",
+      "Renseignez les présences pour la bonne séance et vérifiez l’enregistrement.",
+      "Espace enseignant › Classes › Présences",
+      "Ouvrez **Classes**, trouvez la classe, puis accédez aux présences depuis la fiche de classe ou de matière.",
+      "Vérifiez la matière, le cas échéant, sélectionnez la date et l’heure de la séance, puis ouvrez la liste.",
+      "Renseignez la présence de chaque étudiant, ajoutez des observations si nécessaire et enregistrez. Rouvrez la séance depuis l’historique pour vérifier.",
+      "Pour une classe indépendante, utilisez son écran de présences et choisissez l’un des horaires prévus."
+    ],
+    [
+      "teacher-docs",
+      "Remplir et transmettre un plan de cours",
+      "Complétez un plan de cours et transmettez-le à la coordination pédagogique.",
+      "Espace enseignant › Documents",
+      "Ouvrez **Documents**, sélectionnez le plan et lisez les consignes de la coordination.",
+      "Remplissez les champs et sélectionnez **Enregistrer une nouvelle version**. Vérifiez l’aperçu de la version enregistrée.",
+      "Si une signature est requise, signez la version enregistrée. Transmettez-la à l’administration et vérifiez son état.",
+      "Si une correction vous est demandée, ouvrez la dernière version et lisez le motif avant d’enregistrer les modifications."
+    ],
+    [
+      "materials",
+      "Trouver les ressources d’une séance",
+      "Repérez une séance et ses ressources dans l’espace enseignant.",
+      "Espace enseignant › Cours et ressources",
+      "Ouvrez le menu des séances ou des ressources pédagogiques.",
+      "Utilisez les informations sur le cours, la classe ou la matière pour trouver la séance.",
+      "Ouvrez les ressources de la séance pour les consulter ou en ajouter une si l’option est disponible.",
+      "Si la séance est absente, vérifiez votre affectation à la classe auprès de la coordination."
+    ],
+    [
+      "subjects",
+      "Accéder à vos matières et séances",
+      "Trouvez les ressources d’une matière dans laquelle vous êtes inscrit.",
+      "Espace étudiant › Matières",
+      "Ouvrez **Matières** depuis le menu étudiant.",
+      "Repérez la matière et ouvrez le contenu disponible.",
+      "Choisissez une séance ou une ressource et suivez les consignes de votre établissement.",
+      "Si une matière ou une séance manque, vérifiez votre inscription et demandez à l’établissement si elle est publiée."
+    ],
+    [
+      "assignments",
+      "Remettre un devoir",
+      "Envoyez votre travail dans le format demandé par l’enseignant.",
+      "Espace étudiant › Devoirs",
+      "Ouvrez **Devoirs** et sélectionnez le travail concerné.",
+      "Lisez les consignes et vérifiez la date limite. Ajoutez le texte, le lien ou le fichier demandé dans les champs disponibles.",
+      "Remettez votre travail, puis rouvrez le devoir pour vérifier que votre dépôt a été enregistré.",
+      "Conservez le fichier d’origine jusqu’à confirmation du dépôt."
+    ],
+    [
+      "grades",
+      "Consulter les notes et les présences",
+      "Retrouvez les notes publiées et l’historique de vos présences.",
+      "Espace étudiant › Notes / Présences",
+      "Ouvrez la rubrique des notes dans le menu latéral et repérez la matière.",
+      "Consultez les notes et les évaluations affichées. Pour vérifier votre assiduité, ouvrez **Présences**.",
+      "Vérifiez le récapitulatif et les dates ou séances. Si une donnée vous semble incorrecte, contactez votre enseignant.",
+      "L’établissement définit les rubriques scolaires disponibles pour votre compte."
+    ],
+    [
+      "certificates",
+      "Télécharger un certificat",
+      "Enregistrez un certificat délivré dans l’espace étudiant.",
+      "Espace étudiant › Certificats",
+      "Ouvrez **Certificats** dans le menu latéral.",
+      "Repérez le certificat du cours ou de l’activité et choisissez l’option de téléchargement.",
+      "Ouvrez le PDF et vérifiez votre nom ainsi que le cours ou l’activité. Utilisez la validation en ligne si elle est disponible.",
+      "Si le certificat n’apparaît pas, demandez à votre établissement s’il a été délivré."
+    ],
+    [
+      "access",
+      "Retrouver un menu ou un portail indisponible",
+      "Vérifiez votre compte, le profil et les paramètres de l’établissement si une page est introuvable.",
+      "PHANYX › Accès aux portails",
+      "Vérifiez le titre de la page de connexion et utilisez le compte enregistré pour ce profil.",
+      "Si vous pouvez vous connecter mais qu’un menu est absent, demandez à votre établissement si la fonction est activée sur votre compte.",
+      "Si le problème persiste, indiquez à l’assistance votre profil, la page et le message affiché.",
+      "Une capture peut aider. Masquez les mots de passe, les codes et les données d’autres personnes."
+    ],
+    [
+      "get-started",
+      "Comment accéder à PHANYX et l’utiliser",
+      "Retrouvez le portail administrateur, enseignant ou étudiant et le guide adapté à votre première tâche.",
+      "PHANYX › Pages de connexion",
+      "Ouvrez le site PHANYX et choisissez l’espace qui correspond à votre profil.",
+      "Connectez-vous avec le compte enregistré par votre établissement. Si nécessaire, utilisez l’option de réinitialisation sur la même page.",
+      "Dans le Centre d’aide, ouvrez les guides de votre profil. L’administration peut commencer par les cours et les inscriptions, les enseignants par l’appel et les étudiants par les matières.",
+      "En cas de doute sur le compte ou le portail, contactez votre établissement."
+    ],
+    [
+      "join",
+      "Comment adopter PHANYX dans votre établissement",
+      "Découvrez où consulter les offres PHANYX et comment commencer à utiliser la plateforme dans votre établissement.",
+      "PHANYX › Offres",
+      "Ouvrez la page officielle des offres et comparez les options pour votre établissement.",
+      "Utilisez l’option de contact ou de souscription indiquée pour l’offre qui vous intéresse. Vérifiez les conditions sur le site officiel.",
+      "Une fois l’établissement configuré, consultez les guides d’administration pour créer les cours, les classes et les inscriptions.",
+      "Si vous êtes déjà enseignant ou étudiant dans un établissement qui utilise PHANYX, demandez-lui vos informations d’accès."
+    ]
+  ],
+  "pt-br": [
+    [
+      "admin-login",
+      "Entrar na área administrativa",
+      "Acesse a administração com sua conta institucional.",
+      "PHANYX › Área administrativa",
+      "Abra a página de login do PHANYX e confira se aparece **Área administrativa**.",
+      "Preencha e-mail e senha e clique em **Entrar**.",
+      "No menu lateral, localize cursos, turmas, matrículas ou documentos.",
+      "Se sua conta pertence a outro perfil, use o endereço desse portal."
+    ],
+    [
+      "teacher-login",
+      "Entrar na área do professor",
+      "Acesse os recursos que sua instituição liberou para professores.",
+      "PHANYX › Área do professor",
+      "Abra a página de login da **Área do professor**.",
+      "Preencha o e-mail e a senha da sua conta docente e clique em **Entrar**.",
+      "Use o menu lateral para abrir suas turmas ou documentos.",
+      "Se faltar um menu, peça à instituição para conferir sua conta e seus acessos."
+    ],
+    [
+      "student-login",
+      "Entrar na área do aluno",
+      "Acesse disciplinas, trabalhos e registros acadêmicos.",
+      "PHANYX › Área do aluno",
+      "Abra a página de login da **Área do aluno**.",
+      "Informe o e-mail e a senha cadastrados na instituição e clique em **Entrar**.",
+      "Abra a opção que você procura no menu lateral.",
+      "Use o e-mail vinculado à sua conta de aluno."
+    ],
+    [
+      "reset",
+      "Recuperar sua senha",
+      "Solicite um link pela página de login do seu perfil.",
+      "Login › Esqueci minha senha",
+      "Na tela de login do seu portal, clique em **Esqueci minha senha**.",
+      "Informe o e-mail cadastrado na instituição e clique em **Enviar link**.",
+      "Abra o e-mail e siga o link para criar uma senha. Volte ao mesmo portal e entre com a nova senha.",
+      "Confira a pasta de spam. Se a mensagem não chegar, confirme qual e-mail está cadastrado na instituição."
+    ],
+    [
+      "courses",
+      "Cadastrar um curso",
+      "Cadastre o curso para ofertá-lo aos alunos.",
+      "Área administrativa › Cursos",
+      "Abra **Cursos** e localize o formulário de cadastro.",
+      "Informe o nome e preencha os campos relativos ao tipo de curso e à modalidade da instituição.",
+      "Salve e confira se o novo curso aparece na lista de cursos cadastrados.",
+      "Abra o curso salvo e confira as configurações específicas antes de usá-lo numa matrícula."
+    ],
+    [
+      "classes",
+      "Criar uma turma",
+      "Configure uma turma para um curso cadastrado.",
+      "Área administrativa › Turmas",
+      "Abra **Turmas** e localize o formulário de nova turma.",
+      "Selecione o curso e preencha os dados da turma, os horários ou o período acadêmico solicitados.",
+      "Salve e confira se a nova turma aparece na lista com o curso e o horário esperados.",
+      "Para turma avulsa sem grade, use os campos de dia e horário dos encontros."
+    ],
+    [
+      "enrollment",
+      "Criar uma matrícula",
+      "Matricule um aluno e confira os dados acadêmicos e de pagamento.",
+      "Área administrativa › Matrículas",
+      "Abra **Matrículas** e inicie uma nova matrícula. Localize o aluno e confira o cadastro selecionado.",
+      "Escolha o curso e a turma ou as disciplinas solicitadas pelo formulário. Confira as optativas ou os cursos adicionais, quando oferecidos.",
+      "Revise o plano de pagamento, as datas e o titular. Confirme a matrícula e localize-a na lista.",
+      "Se a prévia financeira ou o titular estiverem diferentes do combinado, revise a seleção antes de confirmar."
+    ],
+    [
+      "templates",
+      "Criar um modelo de plano de aula",
+      "Prepare um modelo reutilizável com campos que o professor pode preencher.",
+      "Área administrativa › Documentos › Templates",
+      "Crie ou abra um modelo. Para um plano de aula, selecione o contexto docente de plano de aula no tipo **Outro**.",
+      "Em **Campos preenchíveis do professor**, nomeie cada campo, como Objetivos ou Metodologia, e insira-o no ponto em que o professor deve preenchê-lo.",
+      "Salve o modelo e clique em **Visualizar PDF**. Confira a ordem e o espaço dos campos.",
+      "O campo pode ter linhas em branco para preenchimento manual quando o documento é impresso."
+    ],
+    [
+      "send-plan",
+      "Enviar um documento aos professores",
+      "Distribua um plano de aula ou outro documento pela central docente.",
+      "Área administrativa › Documentos docentes",
+      "Abra **Documentos docentes** e clique em **Novo documento**.",
+      "Escolha o modelo, informe o título, selecione os professores e acrescente as orientações ou o prazo.",
+      "Clique em **Criar e enviar**. Localize o documento na lista e confira seu status.",
+      "Cada professor recebe um documento com histórico próprio. O professor precisa ter acesso ao menu Documentos."
+    ],
+    [
+      "attendance",
+      "Registrar a chamada de uma turma",
+      "Marque a frequência do encontro correto e confira o registro salvo.",
+      "Área do professor › Turmas › Chamada",
+      "Abra **Turmas**, localize a turma e abra a chamada pelo cartão da turma ou da disciplina.",
+      "Confira a disciplina quando aplicável, selecione a data e o horário do encontro e abra a lista.",
+      "Marque a frequência de todos, registre observações se necessário e salve. Reabra o encontro pelo histórico para conferir.",
+      "Para turma avulsa, use a chamada da própria turma e selecione um dos horários cadastrados."
+    ],
+    [
+      "teacher-docs",
+      "Preencher e enviar um plano de aula",
+      "Preencha o plano e envie à coordenação.",
+      "Área do professor › Documentos",
+      "Abra **Documentos** e selecione o plano na lista. Leia a orientação da coordenação.",
+      "Preencha os campos e clique em **Salvar nova versão**. Confira a prévia da versão salva.",
+      "Se for exigida assinatura, assine a versão salva. Depois clique em **Enviar à coordenação** e confira o status.",
+      "Se o plano for devolvido, abra a versão mais recente e leia o motivo antes de salvar uma revisão."
+    ],
+    [
+      "materials",
+      "Localizar materiais de uma aula",
+      "Encontre uma aula e seus materiais no portal docente.",
+      "Área do professor › Aulas e materiais",
+      "Abra a opção de aulas ou materiais no menu do professor.",
+      "Use os dados do curso, da turma ou da disciplina para localizar a aula.",
+      "Abra a área de materiais da aula para consultar recursos ou usar a ação de novo material, se disponível.",
+      "Se a aula não aparecer, verifique seu vínculo com a turma junto à coordenação."
+    ],
+    [
+      "subjects",
+      "Acessar suas disciplinas e aulas",
+      "Encontre os conteúdos da disciplina em que você está matriculado.",
+      "Área do aluno › Disciplinas",
+      "Abra **Disciplinas** no menu do aluno.",
+      "Localize a disciplina que você quer estudar e abra os conteúdos disponíveis.",
+      "Escolha a aula ou o material e siga a orientação da instituição.",
+      "Se faltar uma disciplina ou aula, confira sua matrícula e pergunte à instituição sobre a publicação."
+    ],
+    [
+      "assignments",
+      "Entregar um trabalho",
+      "Envie a atividade no formato solicitado pelo professor.",
+      "Área do aluno › Trabalhos",
+      "Abra **Trabalhos** e escolha a atividade correspondente.",
+      "Leia o enunciado e o prazo. Preencha o texto ou anexe o link ou arquivo solicitado nos campos disponíveis.",
+      "Envie a atividade. Em seguida, reabra o trabalho e confira o registro da entrega.",
+      "Mantenha o arquivo original até verificar que a entrega foi registrada."
+    ],
+    [
+      "grades",
+      "Consultar notas e presenças",
+      "Veja notas publicadas e o histórico de frequência.",
+      "Área do aluno › Boletim / Presenças",
+      "Abra **Boletim** no menu e localize a disciplina.",
+      "Confira as notas e avaliações exibidas. Para consultar frequência, abra **Presenças**.",
+      "Confira o resumo e as datas ou encontros. Se tiver dúvida sobre um registro, fale com o professor.",
+      "Sua instituição define quais seções acadêmicas estão disponíveis na sua conta."
+    ],
+    [
+      "certificates",
+      "Baixar um certificado",
+      "Salve um certificado emitido no portal do aluno.",
+      "Área do aluno › Certificados",
+      "Abra **Certificados** no menu lateral.",
+      "Encontre o certificado do curso ou da atividade e selecione a opção de download.",
+      "Abra o PDF salvo e confira seu nome e o curso ou atividade. Use a validação on-line quando estiver disponível.",
+      "Se o certificado não aparecer, pergunte à instituição se já foi emitido."
+    ],
+    [
+      "access",
+      "Encontrar um menu ou portal indisponível",
+      "Confira a conta, o perfil e a configuração da instituição quando uma página não aparece.",
+      "PHANYX › Acesso aos portais",
+      "Confira o título da tela de login e use a conta cadastrada para aquele perfil.",
+      "Se você consegue entrar, mas um menu não aparece, pergunte à instituição se o recurso foi habilitado na sua conta.",
+      "Se o problema continuar, informe ao suporte seu perfil, a página que tentou acessar e a mensagem exibida.",
+      "Um print do erro pode ajudar. Oculte senhas, códigos e dados de outras pessoas."
+    ],
+    [
+      "get-started",
+      "Como acessar e usar o PHANYX",
+      "Descubra onde entrar no PHANYX e encontre o tutorial para a área administrativa, do professor ou do aluno.",
+      "PHANYX › Páginas de acesso",
+      "Abra o site do PHANYX e escolha o portal correspondente ao seu perfil.",
+      "Entre com a conta cadastrada pela sua instituição. Se precisar recuperar a senha, use a opção de recuperação na mesma tela de login.",
+      "Na Central de Ajuda, abra os guias do seu perfil. A administração pode começar por cursos e matrículas, o professor por chamada e plano de aula, e o aluno por disciplinas e trabalhos.",
+      "Se você pesquisou por “Fanics”, procure pelo nome oficial da plataforma, **PHANYX**. Em caso de dúvida sobre a sua conta, fale com a instituição."
+    ],
+    [
+      "join",
+      "Como aderir ao PHANYX",
+      "Saiba onde consultar os planos do PHANYX e começar a usar a plataforma na sua instituição de ensino.",
+      "PHANYX › Planos",
+      "Abra a página oficial de planos do PHANYX e compare as opções para a sua instituição.",
+      "Use a opção de contato ou adesão exibida para o plano que você está avaliando. Confirme as condições no site oficial.",
+      "Depois de configurar a instituição, siga os guias da área administrativa para criar cursos, turmas e matrículas.",
+      "Se você já é professor ou aluno de uma instituição que usa o PHANYX, confirme os dados de acesso com a instituição."
+    ]
+  ],
+  "pt-pt": [
+    [
+      "admin-login",
+      "Entrar na área administrativa",
+      "Aceda à administração com a sua conta institucional.",
+      "PHANYX › Área administrativa",
+      "Abra a página de início de sessão do PHANYX e confirme que indica **Área administrativa**.",
+      "Introduza o e-mail e a palavra-passe e selecione **Entrar**.",
+      "No menu lateral, encontre cursos, turmas, inscrições ou documentos.",
+      "Se a conta pertencer a outro perfil, utilize a ligação desse portal."
+    ],
+    [
+      "teacher-login",
+      "Entrar na área do docente",
+      "Aceda aos recursos que a sua instituição disponibilizou aos docentes.",
+      "PHANYX › Área do docente",
+      "Abra a página de início de sessão da **Área do docente**.",
+      "Introduza o e-mail e a palavra-passe da conta de docente e selecione **Entrar**.",
+      "Use o menu lateral para abrir as suas turmas ou os seus documentos.",
+      "Se faltar um menu, peça à instituição que confirme a sua conta e as permissões."
+    ],
+    [
+      "student-login",
+      "Entrar na área do estudante",
+      "Aceda a disciplinas, trabalhos e registos académicos.",
+      "PHANYX › Área do estudante",
+      "Abra a página de início de sessão da **Área do estudante**.",
+      "Introduza o e-mail e a palavra-passe registados na instituição e selecione **Entrar**.",
+      "Abra a opção pretendida no menu lateral.",
+      "Use o e-mail associado à sua conta de estudante."
+    ],
+    [
+      "reset",
+      "Recuperar a palavra-passe",
+      "Peça uma ligação na página de acesso do seu perfil.",
+      "Início de sessão › Esqueci-me da palavra-passe",
+      "Na página de início de sessão do seu portal, selecione **Esqueci-me da palavra-passe**.",
+      "Introduza o e-mail registado na instituição e envie o pedido.",
+      "Abra a mensagem e siga a ligação para definir uma nova palavra-passe. Regresse ao mesmo portal para entrar.",
+      "Consulte a pasta de correio não solicitado. Se a mensagem não chegar, confirme o e-mail com a instituição."
+    ],
+    [
+      "courses",
+      "Criar um curso",
+      "Registe o curso para o disponibilizar aos estudantes.",
+      "Área administrativa › Cursos",
+      "Abra **Cursos** e encontre o formulário de registo.",
+      "Indique o nome e preencha os campos relativos ao tipo de curso e ao regime de ensino.",
+      "Guarde e verifique se o curso aparece na lista de cursos registados.",
+      "Abra o curso guardado para rever a configuração antes de o utilizar numa inscrição."
+    ],
+    [
+      "classes",
+      "Criar uma turma",
+      "Configure uma turma para um curso registado.",
+      "Área administrativa › Turmas",
+      "Abra **Turmas** e encontre o formulário de nova turma.",
+      "Selecione o curso e indique os dados da turma, o horário ou o período académico solicitado.",
+      "Guarde e confirme a turma na lista, incluindo o curso e o horário.",
+      "Para uma turma avulsa sem plano curricular, use os campos de dia e hora das sessões."
+    ],
+    [
+      "enrollment",
+      "Criar uma inscrição",
+      "Inscreva um estudante e reveja os dados académicos e de pagamento.",
+      "Área administrativa › Inscrições",
+      "Abra a área de inscrições e inicie uma nova inscrição. Encontre o estudante e confira o registo selecionado.",
+      "Escolha o curso e a turma ou as disciplinas pedidas pelo formulário. Reveja as opções e os cursos adicionais, quando disponíveis.",
+      "Confirme o plano de pagamento, as datas e o titular do contrato. Grave a inscrição e encontre-a na lista.",
+      "Se a previsão financeira ou o titular diferirem do acordado, reveja as opções antes de confirmar."
+    ],
+    [
+      "templates",
+      "Criar um modelo de plano de aula",
+      "Prepare um modelo reutilizável com campos que o docente pode preencher.",
+      "Área administrativa › Documentos › Modelos",
+      "Crie ou abra um modelo. Para um plano de aula, escolha o contexto docente de plano de aula no tipo **Outro**.",
+      "Atribua um nome a cada campo preenchível, como Objetivos ou Metodologia, e insira-o na posição pretendida.",
+      "Guarde o modelo e veja a pré-visualização PDF. Confira a ordem e o espaço dos campos.",
+      "Pode incluir linhas em branco para preencher à mão após a impressão."
+    ],
+    [
+      "send-plan",
+      "Enviar um documento aos docentes",
+      "Distribua um plano de aula ou outro documento na área de documentos dos docentes.",
+      "Área administrativa › Documentos de docentes",
+      "Abra os documentos de docentes e selecione **Novo documento**.",
+      "Escolha o modelo, indique o título, selecione os destinatários e acrescente as instruções ou o prazo.",
+      "Crie e envie o documento. Localize-o na lista e confira o estado.",
+      "Cada destinatário tem um documento e histórico próprios. O docente precisa de acesso ao menu Documentos."
+    ],
+    [
+      "attendance",
+      "Registar as presenças de uma turma",
+      "Registe as presenças da sessão correta e confira o resultado.",
+      "Área do docente › Turmas › Presenças",
+      "Abra **Turmas**, localize a turma e abra a opção de presenças no cartão da turma ou da disciplina.",
+      "Confirme a disciplina, se aplicável, selecione a data e a hora da sessão e abra a lista.",
+      "Registe a situação de cada estudante, adicione observações se necessário e guarde. Reabra a sessão no histórico para confirmar.",
+      "Para uma turma avulsa, use a respetiva opção de presenças e escolha um horário registado."
+    ],
+    [
+      "teacher-docs",
+      "Preencher e enviar um plano de aula",
+      "Preencha o plano de aula e envie-o à coordenação.",
+      "Área do docente › Documentos",
+      "Abra **Documentos**, selecione o plano e leia as instruções da coordenação.",
+      "Preencha os campos e selecione **Guardar nova versão**. Reveja a pré-visualização da versão guardada.",
+      "Se for necessária uma assinatura, assine a versão guardada. Envie-a à coordenação e confira o estado.",
+      "Se receber um pedido de correção, abra a versão mais recente e leia o motivo antes de guardar a revisão."
+    ],
+    [
+      "materials",
+      "Encontrar materiais de uma aula",
+      "Localize uma aula e os respetivos materiais no portal do docente.",
+      "Área do docente › Aulas e materiais",
+      "Abra a opção de aulas ou materiais no menu do docente.",
+      "Use os dados do curso, da turma ou da disciplina para encontrar a aula.",
+      "Abra os materiais da aula para consultar os recursos ou adicionar um material, se a opção estiver disponível.",
+      "Se a aula não aparecer, confirme com a coordenação a sua associação à turma."
+    ],
+    [
+      "subjects",
+      "Aceder às disciplinas e aulas",
+      "Encontre os conteúdos da disciplina em que está inscrito.",
+      "Área do estudante › Disciplinas",
+      "Abra **Disciplinas** no menu do estudante.",
+      "Localize a disciplina que pretende estudar e abra os conteúdos disponíveis.",
+      "Escolha a aula ou o material e siga as orientações da instituição.",
+      "Se não encontrar uma disciplina ou aula, verifique a inscrição e informe-se junto da instituição sobre a publicação."
+    ],
+    [
+      "assignments",
+      "Entregar um trabalho",
+      "Envie o trabalho no formato pedido pelo docente.",
+      "Área do estudante › Trabalhos",
+      "Abra **Trabalhos** e escolha a atividade.",
+      "Leia o enunciado e confirme o prazo. Acrescente o texto, a ligação ou o ficheiro nos campos disponíveis.",
+      "Envie o trabalho e volte a abri-lo para verificar se a entrega ficou registada.",
+      "Conserve o ficheiro original até confirmar o registo da entrega."
+    ],
+    [
+      "grades",
+      "Consultar classificações e presenças",
+      "Veja as classificações publicadas e o histórico de assiduidade.",
+      "Área do estudante › Classificações / Presenças",
+      "Abra a área de classificações no menu lateral e encontre a disciplina.",
+      "Consulte as notas e avaliações apresentadas. Para ver a assiduidade, abra **Presenças**.",
+      "Veja o resumo e as datas ou sessões. Se tiver dúvidas sobre algum registo, contacte o docente.",
+      "A instituição determina as secções académicas disponíveis na sua conta."
+    ],
+    [
+      "certificates",
+      "Descarregar um certificado",
+      "Guarde um certificado emitido no portal do estudante.",
+      "Área do estudante › Certificados",
+      "Abra **Certificados** no menu lateral.",
+      "Encontre o certificado do curso ou da atividade e selecione a opção de descarregamento.",
+      "Abra o PDF e confira o seu nome e a atividade ou curso. Use a validação em linha quando disponível.",
+      "Se não encontrar o certificado, confirme junto da instituição se já foi emitido."
+    ],
+    [
+      "access",
+      "Encontrar um menu ou portal indisponível",
+      "Verifique a conta, o perfil e a configuração da instituição quando não encontrar uma página.",
+      "PHANYX › Acesso aos portais",
+      "Confirme o título da página de início de sessão e use a conta registada para esse perfil.",
+      "Se conseguir entrar, mas faltar um menu, pergunte à instituição se o recurso está ativo para a sua conta.",
+      "Se o problema persistir, informe o suporte do seu perfil, da página e da mensagem apresentada.",
+      "Uma captura de ecrã pode ajudar. Oculte palavras-passe, códigos e dados de terceiros."
+    ],
+    [
+      "get-started",
+      "Como aceder e utilizar o PHANYX",
+      "Encontre o portal de administração, de docente ou de estudante e escolha o guia para a sua primeira tarefa.",
+      "PHANYX › Páginas de acesso",
+      "Abra o site do PHANYX e escolha o portal do seu perfil.",
+      "Inicie sessão com a conta registada pela instituição. Para recuperar a palavra-passe, procure a respetiva opção na página de acesso.",
+      "No Centro de Ajuda, consulte os guias do seu perfil. A administração pode começar pelos cursos e inscrições, os docentes pelas presenças e os estudantes pelas disciplinas.",
+      "Se tiver dúvidas sobre a conta a utilizar, confirme junto da sua instituição."
+    ],
+    [
+      "join",
+      "Como aderir ao PHANYX",
+      "Consulte os planos do PHANYX e saiba como começar a utilizar a plataforma na sua instituição.",
+      "PHANYX › Planos",
+      "Abra a página oficial de planos e compare as opções para a sua instituição.",
+      "Use a opção de contacto ou adesão apresentada para o plano que está a avaliar. Confirme as condições no site oficial.",
+      "Depois de configurar a instituição, consulte os guias administrativos para criar cursos, turmas e inscrições.",
+      "Se já for docente ou estudante numa instituição que usa o PHANYX, confirme os dados de acesso junto da instituição."
+    ]
+  ]
+}

@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { helpSitemapPages } from "@/lib/central-ajuda/routes.mjs";
 import {
   marketingAlternates,
   marketingLocales,
@@ -156,6 +157,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     ...localizedPages,
+    ...helpSitemapPages(),
     ...removerPages,
     ...phanyxPrintPages,
     ...brazilianPages.map((path) => ({ url: `${baseUrl}${path}` })),
