@@ -37,3 +37,13 @@ Foram revisados destinos de navegação e traduções das telas comerciais. Não
 - Rotas Next.js, busca e sitemap exercitados localmente durante a implementação.
 
 A preparação local não publica a atualização. A disponibilização depende de envio da branch, revisão/merge e implantação de produção bem-sucedida.
+
+## Revisão didática de Configurações
+
+- Polos reescrito em 18 etapas nos cinco idiomas, com identificação, endereço, responsável, edição, criação de acesso, cobrança, delegação, credenciais, nova senha e situação da unidade.
+- Instituição reescrita em nove etapas, com os campos de identificação, contatos, endereço, país/fuso, responsável legal, salvamento, logo, assinatura e papel timbrado.
+- Dez prints adicionais em português do Brasil, usados nos cinco idiomas com identificação da língua da interface. Exemplos usam campos vazios ou dados demonstrativos; a imagem utilizável da assinatura do diretor não é exposta.
+- Imagens podem ser associadas a uma etapa pelo atributo `step` (índice iniciado em zero) em `guide-images.mjs`; os exemplos antigos continuam na galeria quando não possuem esse atributo.
+- Nenhuma conta financeira, polo ou acesso institucional foi criado durante a captura. Os dados demonstrativos da instituição foram preenchidos sem salvar e descartados ao sair da página.
+
+Pendências: a revisão campo a campo dos demais guias, inclusive todas as funções dos portais do professor e aluno, ainda não foi concluída. Prints de logos institucionais, e-mail, WhatsApp e demais operações continuam pendentes; falhas de captura de tela impediram algumas capturas nesta etapa. A existência dos 202 guias não significa que todos já tenham este grau de detalhe.
