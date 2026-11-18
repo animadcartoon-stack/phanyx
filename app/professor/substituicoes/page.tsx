@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import PrepararCoberturaDocente from "@/components/substituicoes/PrepararCoberturaDocente";
 
 type Substituicao = {
   id: number;
@@ -9,6 +10,7 @@ type Substituicao = {
   dataInicio: string;
   dataFim?: string | null;
   motivo?: string | null;
+  planosCobertura?: { id: number; titulo: string; orientacoes: string; materiais: string | null; dataAula: string }[];
   professorTitular?: { id: number; nome: string } | null;
   turma?: { id: number; nome: string; curso?: { id: number; nome: string } | null } | null;
   disciplina?: { id: number; nome: string } | null;
@@ -83,6 +85,8 @@ export default function ProfessorSubstituicoesPage() {
           {t("description")}
         </p>
       </section>
+
+      <PrepararCoberturaDocente />
 
       {loading && (
         <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
@@ -163,6 +167,14 @@ export default function ProfessorSubstituicoesPage() {
                   <strong>{t("reason")}:</strong> {item.motivo}
                 </p>
               )}
+
+              {item.planosCobertura?.map(plano => (
+                <section key={plano.id} className="mt-4 space-y-2 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-slate-900 dark:border-blue-900 dark:bg-blue-950/30 dark:text-slate-100">
+                  <h3 className="font-bold">{locale.startsWith("pt") ? "Plano de cobertura aprovado" : locale.startsWith("es") ? "Plan de sustitución aprobado" : locale.startsWith("fr") ? "Plan de remplacement approuvé" : "Approved coverage lesson plan"}: {plano.titulo}</h3>
+                  <p className="whitespace-pre-wrap">{plano.orientacoes}</p>
+                  {plano.materiais?.split(/\r?\n/).filter(Boolean).map((link, i) => <p key={i}><a href={link} rel="noopener noreferrer" target="_blank" className="break-all font-medium text-blue-700 underline dark:text-blue-300">{link}</a></p>)}
+                </section>
+              ))}
 
               <a
                 href={`/professor/turmas/${item.turma?.id}/aulas?disciplinaId=${item.disciplina?.id || ""}`}

@@ -9,6 +9,7 @@ datasource db {
 }
 
 model Instituicao {
+  planosCoberturaDocente PlanoCoberturaDocente[]
   documentosDocentes DocumentoDocente[]
   permissoesPaginasProfessor ProfessorPaginaPortal[]
   historicosPermissaoProfessor HistoricoPermissaoProfessor[]
@@ -778,6 +779,7 @@ model Aluno {
 }
 
 model Professor {
+  planosCoberturaDocente PlanoCoberturaDocente[]
   documentosDocentes DocumentoDocente[]
   permissoesPaginasPortal ProfessorPaginaPortal[]
   historicosPermissaoProfessor HistoricoPermissaoProfessor[]
@@ -1071,6 +1073,7 @@ model DocumentoAluno {
 }
 
 model Disciplina {
+  planosCoberturaDocente PlanoCoberturaDocente[]
   sessoesOptativasAvulsas SessaoOptativaAvulsa[]
   id                              Int                             @id @default(autoincrement())
   nome                            String
@@ -1119,6 +1122,7 @@ model Disciplina {
 }
 
 model Turma {
+  planosCoberturaDocente PlanoCoberturaDocente[]
   planosRelatoriosAula PlanoRelatorioAula[]
   registrosDesenvolvimento RegistroDesenvolvimento[]
   sessoesOptativasAvulsas TurmaSessaoOptativaAvulsa[]
@@ -4798,6 +4802,7 @@ model DocumentoProfessor {
 }
 
 model SubstituicaoDocente {
+  planosCoberturaDocente PlanoCoberturaDocente[]
   id                    Int       @id @default(autoincrement())
   instituicaoId         Int
   professorTitularId    Int
@@ -12083,4 +12088,33 @@ model DocumentoDocenteEvento {
   criadoEm        DateTime @default(now())
   documento       DocumentoDocente @relation(fields: [documentoId], references: [id], onDelete: Cascade)
   @@index([documentoId, criadoEm])
+}
+
+model PlanoCoberturaDocente {
+  id                    Int       @id @default(autoincrement())
+  instituicaoId         Int
+  professorTitularId    Int
+  turmaId               Int
+  disciplinaId          Int
+  substituicaoDocenteId Int?      @unique
+  dataAula              DateTime  @db.Date
+  titulo                String    @db.VarChar(150)
+  orientacoes           String    @db.Text
+  materiais             String?   @db.Text
+  status                String    @default("ENVIADO")
+  devolutiva            String?   @db.Text
+  aprovadoEm            DateTime?
+  aprovadoPorId         Int?
+  criadoEm              DateTime  @default(now())
+  atualizadoEm          DateTime  @updatedAt
+
+  instituicao         Instituicao         @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  professorTitular    Professor           @relation(fields: [professorTitularId], references: [id], onDelete: Restrict)
+  turma               Turma               @relation(fields: [turmaId], references: [id], onDelete: Restrict)
+  disciplina          Disciplina           @relation(fields: [disciplinaId], references: [id], onDelete: Restrict)
+  substituicaoDocente SubstituicaoDocente? @relation(fields: [substituicaoDocenteId], references: [id], onDelete: SetNull)
+
+  @@unique([professorTitularId, turmaId, disciplinaId, dataAula], map: "PlanoCoberturaDocente_professorTurmaDisciplinaData_key")
+  @@index([instituicaoId, status])
+  @@index([professorTitularId, dataAula])
 }

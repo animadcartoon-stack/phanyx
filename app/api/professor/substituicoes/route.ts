@@ -86,6 +86,10 @@ export async function GET() {
             nome: true,
           },
         },
+        planosCoberturaDocente: {
+          where: { status: "APROVADO" },
+          select: { id: true, titulo: true, orientacoes: true, materiais: true, dataAula: true },
+        },
       },
     });
 
@@ -96,6 +100,7 @@ export async function GET() {
       dataFim: item.dataFim,
       motivo: item.motivo,
       observacoes: item.observacoes,
+      planosCobertura: item.planosCoberturaDocente,
       professorTitular: item.professorTitular,
       turma: item.turma,
       disciplina: item.disciplina,
