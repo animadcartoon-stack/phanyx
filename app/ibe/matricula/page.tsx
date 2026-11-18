@@ -916,6 +916,11 @@ export default function IbeMatriculaPage() {
         O que é EAD na prática
       </a>
     </li>
+    <li>
+      <a href="/ajuda/pt-br" className="text-blue-400 underline">
+        Central de Ajuda PHANYX
+      </a>
+    </li>
   </ul>
 </div>
   <p className="text-xs text-slate-400 text-center">

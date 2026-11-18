@@ -65,6 +65,9 @@ export default function Footer() {
               <Link href="/suporte" target="_blank" rel="noopener noreferrer" className="transition hover:text-white">
                 Suporte
               </Link>
+              <a href="/ajuda/pt-br" className="transition hover:text-white">
+                Central de Ajuda
+              </a>
 
               <a
                 href="https://wa.me/5548988101240?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20PHANYX."
