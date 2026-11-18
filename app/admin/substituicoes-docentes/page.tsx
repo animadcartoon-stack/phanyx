@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import PlanosCoberturaDocenteAdmin from "@/components/substituicoes/PlanosCoberturaDocenteAdmin";
 
 type StatusSubstituicao =
   | "AGENDADA"
@@ -340,6 +341,8 @@ export default function SubstituicoesDocentesPage() {
           </button>
         </div>
       </section>
+
+      <PlanosCoberturaDocenteAdmin professores={professores} onDesignado={carregarDados} />
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {[
