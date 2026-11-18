@@ -1,0 +1,170 @@
+{
+  "before": {
+    "en": "Before you begin",
+    "pt-br": "Antes de começar",
+    "pt-pt": "Antes de começar",
+    "es": "Antes de empezar",
+    "fr": "Avant de commencer"
+  },
+  "controls": {
+    "en": "Fields, options and actions",
+    "pt-br": "Campos, opções e ações",
+    "pt-pt": "Campos, opções e ações",
+    "es": "Campos, opciones y acciones",
+    "fr": "Champs, options et actions"
+  },
+  "check": {
+    "en": "Check the result",
+    "pt-br": "Confira o resultado",
+    "pt-pt": "Confirme o resultado",
+    "es": "Comprueba el resultado",
+    "fr": "Vérifiez le résultat"
+  },
+  "workflow": {
+    "en": "How to use this page",
+    "pt-br": "Como usar esta página",
+    "pt-pt": "Como utilizar esta página",
+    "es": "Cómo usar esta página",
+    "fr": "Comment utiliser cette page"
+  },
+  "related": {
+    "en": "Continue with these guides",
+    "pt-br": "Continue com estes guias",
+    "pt-pt": "Continue com estes guias",
+    "es": "Continúa con estas guías",
+    "fr": "Poursuivez avec ces guides"
+  },
+  "modules": {
+    "en": "Browse by module",
+    "pt-br": "Explore por módulo",
+    "pt-pt": "Explore por módulo",
+    "es": "Explorar por módulo",
+    "fr": "Parcourir par module"
+  },
+  "allGuides": {
+    "en": "All guides",
+    "pt-br": "Todos os guias",
+    "pt-pt": "Todos os guias",
+    "es": "Todas las guías",
+    "fr": "Tous les guides"
+  },
+  "findPage": {
+    "en": "Find a page or task",
+    "pt-br": "Localize uma página ou tarefa",
+    "pt-pt": "Localize uma página ou tarefa",
+    "es": "Busca una página o tarea",
+    "fr": "Recherchez une page ou une tâche"
+  },
+  "initialRoute": {
+    "en": "Start with institution settings, departments and access permissions. Then configure the academic operation and the modules your institution uses.",
+    "pt-br": "Comece pela instituição, pelos departamentos e pelas permissões. Depois configure a operação acadêmica e os módulos que sua instituição utiliza.",
+    "pt-pt": "Comece pela instituição, pelos departamentos e pelas permissões. Depois configure a operação académica e os módulos que a instituição utiliza.",
+    "es": "Empieza por la institución, los departamentos y los permisos. Después configura la gestión académica y los módulos que utiliza tu institución.",
+    "fr": "Commencez par l’établissement, les services et les autorisations. Configurez ensuite la gestion académique et les modules utilisés."
+  },
+  "setup": {
+    "en": "Initial setup",
+    "pt-br": "Implantação inicial",
+    "pt-pt": "Configuração inicial",
+    "es": "Configuración inicial",
+    "fr": "Configuration initiale"
+  },
+  "academic": {
+    "en": "Academic management",
+    "pt-br": "Acadêmico",
+    "pt-pt": "Gestão académica",
+    "es": "Gestión académica",
+    "fr": "Gestion académique"
+  },
+  "teaching": {
+    "en": "Teaching and coordination",
+    "pt-br": "Apoio docente e coordenação",
+    "pt-pt": "Apoio docente e coordenação",
+    "es": "Apoyo docente y coordinación",
+    "fr": "Enseignement et coordination"
+  },
+  "external": {
+    "en": "External activities",
+    "pt-br": "Atividades externas",
+    "pt-pt": "Atividades externas",
+    "es": "Actividades fuera del centro",
+    "fr": "Activités hors établissement"
+  },
+  "documents": {
+    "en": "Documents and certificates",
+    "pt-br": "Documentos e certificados",
+    "pt-pt": "Documentos e certificados",
+    "es": "Documentos y certificados",
+    "fr": "Documents et certificats"
+  },
+  "communication": {
+    "en": "Communication",
+    "pt-br": "Comunicação",
+    "pt-pt": "Comunicação",
+    "es": "Comunicación",
+    "fr": "Communication"
+  },
+  "finance": {
+    "en": "Finance",
+    "pt-br": "Financeiro",
+    "pt-pt": "Financeiro",
+    "es": "Finanzas",
+    "fr": "Finances"
+  },
+  "hr": {
+    "en": "Human resources",
+    "pt-br": "Recursos humanos",
+    "pt-pt": "Recursos humanos",
+    "es": "Recursos humanos",
+    "fr": "Ressources humaines"
+  },
+  "library": {
+    "en": "Virtual library",
+    "pt-br": "Biblioteca virtual",
+    "pt-pt": "Biblioteca virtual",
+    "es": "Biblioteca virtual",
+    "fr": "Bibliothèque virtuelle"
+  },
+  "mobility": {
+    "en": "International mobility",
+    "pt-br": "Mobilidade internacional",
+    "pt-pt": "Mobilidade internacional",
+    "es": "Movilidad internacional",
+    "fr": "Mobilité internationale"
+  },
+  "commercial": {
+    "en": "Sales and lead generation",
+    "pt-br": "Comercial e captação",
+    "pt-pt": "Comercial e captação",
+    "es": "Ventas y captación",
+    "fr": "Ventes et recrutement"
+  },
+  "integrations": {
+    "en": "Institutional integrations",
+    "pt-br": "Integrações institucionais",
+    "pt-pt": "Integrações institucionais",
+    "es": "Integraciones institucionales",
+    "fr": "Intégrations institutionnelles"
+  },
+  "account": {
+    "en": "Account, language and appearance",
+    "pt-br": "Conta, idioma e aparência",
+    "pt-pt": "Conta, idioma e aparência",
+    "es": "Cuenta, idioma y apariencia",
+    "fr": "Compte, langue et apparence"
+  },
+  "teacher-work": {
+    "en": "Teacher workflows",
+    "pt-br": "Rotina do professor",
+    "pt-pt": "Rotina do docente",
+    "es": "Trabajo del docente",
+    "fr": "Travail enseignant"
+  },
+  "student-work": {
+    "en": "Student workflows",
+    "pt-br": "Rotina do aluno",
+    "pt-pt": "Rotina do estudante",
+    "es": "Trabajo del estudiante",
+    "fr": "Travail étudiant"
+  }
+}
