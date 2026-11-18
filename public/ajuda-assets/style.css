@@ -85,7 +85,7 @@ h1.page-title{font-size:clamp(32px,4.2vw,51px);line-height:1.09;letter-spacing:-
 .steps p,.doc-section p{margin:2px 0 8px}
 .figure{border:1px solid var(--line);border-radius:12px;background:#fff;margin:13px 0 5px;overflow:hidden}
 .figure button{display:block;width:100%;border:0;background:#e9effa;padding:0}
-.figure img{display:block;max-width:100%;max-height:400px;object-fit:contain;margin:auto}
+.figure img{display:block;max-width:100%;height:auto;object-fit:contain;margin:auto}
 .figure figcaption{font-size:13px;padding:8px 11px;color:var(--muted)}
 .note{padding:14px 16px;background:#fff4dd;border-left:3px solid #bd6f09;border-radius:6px;color:#56360a;margin:17px 0}
 .note p{margin:5px 0 0}
@@ -126,3 +126,16 @@ h1.page-title{font-size:clamp(32px,4.2vw,51px);line-height:1.09;letter-spacing:-
 .control-reference dd{margin:5px 0 0;color:var(--muted);line-height:1.6}
 @media(max-width:730px){.side{position:static;max-height:none}.side .mobile-nav[open]{max-height:65dvh;overflow:auto}}
 @media print{.control-reference{break-inside:avoid}.control-reference dl{display:block}}
+
+/* Screenshot viewer: explicit image dimensions keep every zoomed edge reachable. */
+.dialog{box-sizing:border-box;width:calc(100vw - 32px);height:calc(100dvh - 32px);max-width:1500px;max-height:none;padding:12px;overflow:hidden;color:var(--ink)}
+.dialog[open]{display:flex;flex-direction:column;gap:8px}
+.image-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:none}
+.dialog .image-toolbar button{display:inline-block;margin:0;min-height:36px;cursor:pointer}
+.image-toolbar form{margin-left:auto}.image-toolbar output{min-width:52px;text-align:center;font-variant-numeric:tabular-nums}
+.dialog #image-help{margin:0;font-size:13px;color:var(--muted);flex:none}
+.image-viewport{flex:1;min-height:0;overflow:auto;background:#e9effa;border:1px solid var(--line);border-radius:8px;touch-action:none;cursor:grab;overscroll-behavior:contain}
+.image-viewport.dragging{cursor:grabbing;user-select:none}
+.image-stage{min-width:100%;min-height:100%;display:grid;place-items:center;width:max-content}
+.dialog .image-stage img{display:block;max-width:none;max-height:none;object-fit:initial;flex:none;user-select:none}
+@media(max-width:600px){.dialog{width:calc(100vw - 12px);height:calc(100dvh - 12px);padding:8px}.image-toolbar{gap:5px}.dialog .image-toolbar button{font-size:13px;padding:5px 8px}.dialog #image-help{font-size:12px}}

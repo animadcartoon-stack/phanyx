@@ -9,15 +9,15 @@ Ter uma imagem associada não significa que todas as funções, estados ou etapa
 | Guia | Imagens associadas |
 | --- | ---: |
 | Configurar a instituição pela primeira vez | 1 |
-| Configurações da Instituição | 3 |
+| Configurações da Instituição | 6 |
 | Polos | 3 |
 | Departamentos | 1 |
 | Logos institucionais | 0 |
 | Contas financeiras | 1 |
-| Visibilidade dos Portais | 1 |
+| Visibilidade dos Portais | 2 |
 | Documentos institucionais | 0 |
-| Assinatura do diretor | 2 |
-| Papel Timbrado e Layout | 1 |
+| Assinatura do diretor | 1 |
+| Papel Timbrado e Layout | 3 |
 | Cargos | 1 |
 | Permissões por setor | 1 |
 
