@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import HelpCenterLink from "./HelpCenterLink";
 
 export default function Footer() {
   return (
@@ -65,9 +66,7 @@ export default function Footer() {
               <Link href="/suporte" target="_blank" rel="noopener noreferrer" className="transition hover:text-white">
                 Suporte
               </Link>
-              <a href="/ajuda/pt-br" className="transition hover:text-white">
-                Central de Ajuda
-              </a>
+              <HelpCenterLink locale="pt-BR" className="transition hover:text-white" />
 
               <a
                 href="https://wa.me/5548988101240?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20PHANYX."

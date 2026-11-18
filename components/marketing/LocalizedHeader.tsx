@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { LocalePhanyx } from "@/i18n/config";
+import HelpCenterLink from "@/components/layout/HelpCenterLink";
 import {
   marketingCopy,
   marketingLocales,
@@ -49,7 +50,7 @@ export default function LocalizedHeader({
           </span>
         </Link>
 
-        <nav aria-label="Main navigation" className="flex items-center gap-5 text-sm">
+        <nav aria-label="Main navigation" className={`flex items-center gap-x-5 text-sm ${section === "home" ? "flex-wrap gap-y-2" : ""}`}>
           <Link
             href={marketingPath(locale, "academic")}
             className="hover:text-blue-500"
@@ -78,6 +79,10 @@ export default function LocalizedHeader({
           >
             {copy.navPlans}
           </Link>
+
+          {section === "home" && (
+            <HelpCenterLink locale={locale} className="whitespace-nowrap hover:text-blue-500" />
+          )}
         </nav>
 
         <div className="flex flex-wrap items-center gap-2 text-sm">
