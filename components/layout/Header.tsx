@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { marketingCopy, marketingLocales, marketingPath, type MarketingSection } from "@/lib/public-marketing";
+import HelpCenterLink from "./HelpCenterLink";
 
 const navItems = [
   { label: "Planos", href: "/planos" },
@@ -30,7 +31,7 @@ export default function Header() {
         : "border-b border-slate-200/80 bg-white/90 backdrop-blur-xl"
         }`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 md:px-10 lg:px-12">
+      <div className={`mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 md:px-10 lg:px-12 ${isHome ? "flex-wrap gap-x-4 gap-y-2" : ""}`}>
         <Link href="/" className="flex min-w-0 items-center gap-3">
           <div
             className={`relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border shadow-sm ${isHome
@@ -70,7 +71,7 @@ export default function Header() {
         </Link>
 
         {!isPortalAlunoOuProfessor && !isAdmin && (
-          <nav className="hidden items-center gap-8 md:flex">
+          <nav className={isHome ? "flex items-center gap-4 lg:gap-6" : "hidden items-center gap-8 md:flex"}>
             {navItems.map((item) => {
               const active = pathname === item.href;
               const abrirNovaAba =
@@ -82,7 +83,7 @@ export default function Header() {
                   href={item.href}
                   target={abrirNovaAba ? "_blank" : undefined}
                   rel={abrirNovaAba ? "noopener noreferrer" : undefined}
-                  className={`relative text-sm font-medium transition ${isHome
+                  className={`relative text-sm font-medium transition ${isHome ? "hidden md:inline" : ""} ${isHome
                     ? active
                       ? "text-white"
                       : "text-white/80 hover:text-white"
@@ -95,6 +96,9 @@ export default function Header() {
                 </Link>
               );
             })}
+            {isHome && (
+              <HelpCenterLink locale="pt-BR" className="whitespace-nowrap text-sm font-medium text-white/80 transition hover:text-white" />
+            )}
           </nav>
         )}
 
@@ -113,7 +117,7 @@ export default function Header() {
         )}
 
         {!isPortalAlunoOuProfessor && (
-          <div className="flex items-center gap-2 md:gap-3">
+          <div className={`flex items-center gap-2 md:gap-3 ${isHome ? "flex-wrap" : ""}`}>
             {!isAdmin && (
               <a
                 href="https://wa.me/5548988101240?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20PHANYX."
