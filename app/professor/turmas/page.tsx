@@ -4,31 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { copyTurmasAvulsas } from "@/lib/professor/turmas-avulsas-copy";
+import { combinarTurmasProfessor, type TurmaUnificada as Turma } from "@/lib/professor/turmas-unificadas";
 
-type Turma = {
-  id: number;
-  turmaDisciplinaId: number;
-  nome: string;
-  semestre: string;
-  periodoLetivo?: string | null;
-  turno?: string | null;
-  modalidade?: string | null;
-  statusTurma?: string | null;
-  alunos: number;
-  curso?: { id: number; nome: string } | null;
-  disciplina?: { id: number; nome: string } | null;
-  statusDisciplina?: string | null;
-  dataInicio?: string | null;
-  dataFim?: string | null;
-  quantidadeAulas?: number;
-  horarios?: {
-    id?: number;
-    diaSemana: number;
-    horaInicio: string;
-    horaFim?: string | null;
-    ativo?: boolean;
-  }[];
-};
+// TurmaUnificada abrange turmas com disciplinas e turmas de matrícula direta sem grade.
 
 type TurmaAgrupada = {
   chave: string;
@@ -261,7 +239,9 @@ function TurmaAgrupadaCard({
   const t = useTranslations("ProfessorClasses");
   const ta = useTranslations("ProfessorMeetingAttendance");
   const locale = useLocale();
-  const [aberta, setAberta] = useState(false);
+  const [aberta, setAberta] = useState(
+    Object.values(turma.disciplinasPorTurno).some(lista => lista.some(item => item.semDisciplinas))
+  );
   const [periodosAbertos, setPeriodosAbertos] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -271,6 +251,7 @@ function TurmaAgrupadaCard({
   }, [buscaAtiva]);
 
   const todasDisciplinas = Object.values(turma.disciplinasPorTurno).flat();
+  const totalDisciplinas = todasDisciplinas.filter(item => !item.semDisciplinas).length;
   const temAulaHoje = todasDisciplinas.some((disciplina) => temAulaNoDia(disciplina, hoje));
 
   function traduzirTurno(valor: string) {
@@ -343,7 +324,7 @@ function TurmaAgrupadaCard({
           </p>
 
           <p className="mt-1 text-sm text-slate-500">
-            {t("counts.subjects", { count: todasDisciplinas.length })} •{" "}
+            {t("counts.subjects", { count: totalDisciplinas })} •{" "}
             {t("counts.students", { count: turma.alunos })}
           </p>
 
@@ -372,7 +353,7 @@ function TurmaAgrupadaCard({
 
               if (disciplinas.length === 0) return null;
 
-              const periodoAberto = periodosAbertos[turno] ?? false;
+              const periodoAberto = periodosAbertos[turno] ?? disciplinas.some(item => item.semDisciplinas);
 
               return (
                 <section
@@ -395,7 +376,7 @@ function TurmaAgrupadaCard({
                       </h4>
 
                       <p className="text-sm text-slate-500">
-                        {t("counts.subjects", { count: disciplinas.length })}
+                        {t("counts.subjects", { count: disciplinas.filter(item => !item.semDisciplinas).length })}
                       </p>
                     </div>
 
@@ -408,6 +389,31 @@ function TurmaAgrupadaCard({
                     <div className="space-y-3 border-t border-slate-200 p-4">
                       {disciplinas.map((disciplina) => {
                         const disciplinaHoje = temAulaNoDia(disciplina, hoje);
+
+                        if (disciplina.semDisciplinas) {
+                          const copy = copyTurmasAvulsas(locale);
+                          return (
+                            <div key={`sem-disciplina-${disciplina.id}`} className={`rounded-2xl border bg-white p-4 ${disciplinaHoje ? "border-green-300" : "border-slate-200"}`}>
+                              <p className="font-bold text-slate-900">{copy.title}</p>
+                              <p className="mt-2 text-sm text-slate-600">{t("period")}: {disciplina.periodoLetivo || t("periodUnavailable")}</p>
+                              <p className="mt-1 text-sm text-slate-600">{copy.students}: {disciplina.alunos}</p>
+                              <div className="mt-3 flex flex-wrap gap-2">
+                                {(disciplina.horarios || []).map((horario, index) => (
+                                  <span key={`${horario.diaSemana}-${horario.horaInicio}-${index}`} className="rounded-lg border border-slate-300 px-2 py-1 text-xs text-slate-700">
+                                    {copy.days[horario.diaSemana] || "—"} · {horario.horaInicio}–{horario.horaFim || "—"}
+                                  </span>
+                                ))}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => router.push(`/professor/turmas/${disciplina.id}/chamadas-avulsas`)}
+                                className="mt-4 rounded-xl bg-emerald-700 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-800"
+                              >
+                                {copy.openAttendance}
+                              </button>
+                            </div>
+                          );
+                        }
 
                         return (
                           <div
@@ -527,12 +533,13 @@ export default function TurmasProfessorPage() {
 
   const router = useRouter();
   const [turmas, setTurmas] = useState<Turma[]>([]);
+  const [erroAvulsas, setErroAvulsas] = useState("");
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
   const [busca, setBusca] = useState("");
   const [abertos, setAbertos] = useState<Record<string, boolean>>({
     "Semestre atual": false,
-    "Próximo semestre": false,
+    "Próximo semestre": true,
     "Turmas concluídas": false,
   });
 
@@ -640,24 +647,30 @@ export default function TurmasProfessorPage() {
       try {
         setLoading(true);
         setErro("");
+        setErroAvulsas("");
 
-        const res = await fetch("/api/professor/turmas", {
-          credentials: "include",
-        });
-
+        // As duas consultas usam a sessão, a instituição e o professor autenticados.
+        // Falha parcial da consulta sem disciplinas não oculta as turmas tradicionais.
+        const [res, resAvulsas] = await Promise.all([
+          fetch("/api/professor/turmas", { credentials: "include", cache: "no-store" }),
+          fetch("/api/professor/turmas/avulsas", { credentials: "include", cache: "no-store" }).catch(() => null),
+        ]);
         const data = await res.json();
-
         if (!res.ok) {
           throw new Error(data?.error || t("error.load"));
         }
 
-        const listaTurmas = Array.isArray(data)
+        const listaTurmas: Turma[] = Array.isArray(data)
           ? data
           : Array.isArray(data?.turmas)
             ? data.turmas
             : [];
 
-        setTurmas(listaTurmas);
+        const dadosAvulsos = resAvulsas?.ok ? await resAvulsas.json().catch(() => null) : null;
+        if (!Array.isArray(dadosAvulsos)) {
+          setErroAvulsas(copyTurmasAvulsas(locale).fetchError);
+        }
+        setTurmas(combinarTurmasProfessor(listaTurmas, Array.isArray(dadosAvulsos) ? dadosAvulsos : []));
       } catch (e: any) {
         setErro(e?.message || t("error.load"));
         setTurmas([]);
@@ -754,7 +767,7 @@ export default function TurmasProfessorPage() {
           disciplinaId: turma.disciplina?.id || null,
           turmaNome: turma.nome,
           cursoNome: turma.curso?.nome || t("courseUnavailable"),
-          disciplinaNome: turma.disciplina?.nome || t("subjectUnavailable"),
+          disciplinaNome: turma.semDisciplinas ? copyTurmasAvulsas(locale).title : (turma.disciplina?.nome || t("subjectUnavailable")),
           periodo: turma.periodoLetivo || t("periodUnavailable"),
           quantidadeAulas:
             turma.quantidadeAulas ?? 0,
@@ -914,9 +927,9 @@ phanyx-busca-sugestoes
                       type="button"
                       onClick={() => {
                         setBusca("");
-                        router.push(
-                          `/professor/turmas/${item.turmaId}/aulas?disciplinaId=${item.disciplinaId || ""}`
-                        );
+                        router.push(item.disciplinaId
+                          ? `/professor/turmas/${item.turmaId}/aulas?disciplinaId=${item.disciplinaId}`
+                          : `/professor/turmas/${item.turmaId}/chamadas-avulsas`);
                       }}
                       className="
 phanyx-busca-sugestao
@@ -978,10 +991,16 @@ dark:text-sky-300
 
           <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700">
             {t("counts.classes", { count: totalTurmasAgrupadas })} •{" "}
-            {t("counts.subjects", { count: turmasFiltradas.length })}
+            {t("counts.subjects", { count: turmasFiltradas.filter(item => !item.semDisciplinas).length })}
           </div>
         </div>
       </section>
+
+      {erroAvulsas && (
+        <p role="alert" className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          {erroAvulsas}
+        </p>
+      )}
 
       {Object.entries(gruposPorCurso)
         .filter(([nomeGrupo]) => !buscaAtiva || (grupos[nomeGrupo]?.length || 0) > 0)
@@ -1015,7 +1034,7 @@ dark:text-sky-300
                         0
                       ),
                     })}{" "}
-                    • {t("counts.subjects", { count: lista.length })}
+                    • {t("counts.subjects", { count: lista.filter(item => !item.semDisciplinas).length })}
                   </p>
                 </div>
 
@@ -1037,7 +1056,7 @@ dark:text-sky-300
                       {Object.entries(cursos).map(([nomeCurso, listaCurso]) => {
                         const turmasAgrupadas = agruparPorTurma(listaCurso);
                         const chaveCurso = `${nomeGrupo}-${nomeCurso}`;
-                        const cursoAberto = cursosAbertos[chaveCurso] ?? false;
+                        const cursoAberto = cursosAbertos[chaveCurso] ?? listaCurso.some(item => item.semDisciplinas);
 
                         return (
                           <section
@@ -1065,7 +1084,7 @@ dark:text-sky-300
 
                                 <p className="text-sm text-slate-600">
                                   {t("counts.classes", { count: turmasAgrupadas.length })} •{" "}
-                                  {t("counts.subjects", { count: listaCurso.length })}
+                                  {t("counts.subjects", { count: listaCurso.filter(item => !item.semDisciplinas).length })}
                                 </p>
                               </div>
 

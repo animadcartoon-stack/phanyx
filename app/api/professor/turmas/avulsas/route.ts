@@ -41,6 +41,8 @@ export async function GET() {
           select: { diaSemana: true, horaInicio: true, horaFim: true },
           orderBy: [{ diaSemana: "asc" }, { horaInicio: "asc" }],
         },
+        // Indica se realmente não há disciplina, sem mudar a listagem avulsa existente.
+        disciplinas: { select: { id: true }, take: 1 },
         matriculasAvulsas: {
           where: {
             instituicaoId: user.instituicaoId,
@@ -67,6 +69,7 @@ export async function GET() {
       capacidadeMaxima: turma.capacidadeMaxima,
       curso: turma.curso,
       horarios: turma.horariosAvulsos,
+      semDisciplinas: (turma.disciplinas?.length ?? 0) === 0,
       alunos: new Set(turma.matriculasAvulsas.filter(v => v.cursoId === turma.curso?.id).map(v => v.matricula.alunoId)).size,
     })), { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
