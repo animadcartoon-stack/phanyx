@@ -1,0 +1,15 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const path = require('node:path');
+const ts = require('typescript');
+const file = path.join(__dirname, '../lib/documentos/estilos-listas-editor.ts');
+const api = {};
+vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'), {compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports:api,module:{exports:api}});
+test('22 distinct styles, 12 bullets and 10 numbering options',()=>{assert.equal(api.ESTILOS_LISTA.length,22);assert.equal(new Set(api.ESTILOS_LISTA.map(e=>e.valor)).size,22);assert.equal(api.ESTILOS_LISTA.filter(e=>e.tipo==='bullet').length,12);});
+test('rejects arbitrary CSS and incompatible list types',()=>{assert.equal(api.estiloListaValido('url(evil)'),undefined);assert.equal(api.estiloListaValido('decimal','bullet'),undefined);assert.equal(api.estiloListaValido('disc','ordered'),undefined);assert.equal(api.estiloListaValido('hierarchical','ordered').valor,'hierarchical');});
+test('each custom style has a counter declaration',()=>{for(const e of api.ESTILOS_LISTA.filter(e=>e.valor.startsWith('phanyx-')))assert.ok(api.CSS_LISTAS_PHANYX.includes('@counter-style '+e.valor+' '));});
+test('hierarchical rules reset and concatenate counters',()=>{assert.ok(api.CSS_LISTAS_PHANYX.includes('counter-reset: phanyxOutline'));assert.ok(api.CSS_LISTAS_PHANYX.includes('counters(phanyxOutline, ".")'));});
+test('font names accept ordinary and quoted names',()=>{assert.equal(api.nomeFonteValido('  Times New Roman  '),'Times New Roman');assert.equal(api.nomeFonteValido('"Segoe UI"'),'Segoe UI');assert.equal(api.nomeFonteValido('Noto Sans 2'),'Noto Sans 2');});
+test('font names reject CSS injection and invalid inputs',()=>{for(const s of ['','Arial; color:red','url(foo)','A,B','<script>','a'.repeat(101),null])assert.equal(api.nomeFonteValido(s),null);});

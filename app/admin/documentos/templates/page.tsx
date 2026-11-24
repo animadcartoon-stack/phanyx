@@ -7,6 +7,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import withAuth from "@/lib/withAuth";
 import { useRascunhoTemplate } from "@/lib/editor/use-rascunho-template";
+import { CONTEXTOS_BASE, contextosOutros, rotuloContextoExtra, normalizarNomeContexto, valorContextoPersonalizado, nomeContextoPersonalizado, textosContextoPersonalizado } from "@/lib/documentos/contextos-documento";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import EditorTemplatePHANYX from "@/components/documentos/EditorTemplatePHANYX";
@@ -1236,6 +1237,48 @@ function AdminDocumentosTemplatesPage() {
   const [descricao, setDescricao] = useState("");
   const [tipo, setTipo] = useState<TipoDocumentoTemplate>("CONTRATO");
   const [contexto, setContexto] = useState("MATRICULA");
+  const [contextosPersonalizados, setContextosPersonalizados] = useState<string[]>([]);
+  const [criandoContexto, setCriandoContexto] = useState(false);
+  const versaoCriacaoContexto = useRef(0);
+  const [nomeNovoContexto, setNomeNovoContexto] = useState("");
+  const [salvandoContexto, setSalvandoContexto] = useState(false);
+  const [erroContexto, setErroContexto] = useState("");
+  const [falhaListaContextos, setFalhaListaContextos] = useState(false);
+  const textoContexto = textosContextoPersonalizado[locale as keyof typeof textosContextoPersonalizado] ?? textosContextoPersonalizado["pt-BR"];
+  async function carregarContextosPersonalizados() {
+    try {
+      const res = await fetch("/api/admin/documentos/contextos", { credentials: "include", cache: "no-store" });
+      if (!res.ok) throw new Error("load");
+      const dados = await res.json();
+      if (!Array.isArray(dados)) throw new Error("load");
+      setContextosPersonalizados(anteriores => [...new Set([...anteriores, ...dados.filter((c: unknown): c is string => typeof c === "string")])]);
+      setFalhaListaContextos(false);
+    } catch { setFalhaListaContextos(true); }
+  }
+  useEffect(() => { void carregarContextosPersonalizados(); }, []);
+  function fecharCriacaoContexto() {
+    versaoCriacaoContexto.current++;
+    setCriandoContexto(false); setNomeNovoContexto(""); setErroContexto("");
+  }
+  async function cadastrarContexto() {
+    if (salvandoContexto) return;
+    const nome = normalizarNomeContexto(nomeNovoContexto);
+    if (!nome) { setErroContexto(textoContexto[6]); return; }
+    const versao = versaoCriacaoContexto.current;
+    setSalvandoContexto(true); setErroContexto("");
+    try {
+      const res = await fetch("/api/admin/documentos/contextos", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nome }) });
+      if (!res.ok) throw new Error("create");
+      const dados = await res.json();
+      if (typeof dados.nome !== "string") throw new Error("create");
+      setContextosPersonalizados(anteriores => [...new Set([...anteriores, dados.nome as string])]);
+      if (versao === versaoCriacaoContexto.current) {
+        setContexto(valorContextoPersonalizado(dados.nome));
+        fecharCriacaoContexto();
+        setMensagem(textoContexto[4]);
+      }
+    } catch { if (versao === versaoCriacaoContexto.current) setErroContexto(textoContexto[7]); } finally { setSalvandoContexto(false); }
+  }
   const [conteudo, setConteudo] = useState(() => modeloBaseLocalizado("CONTRATO"));
   const [ativo, setAtivo] = useState(true);
   const [exigeAssinatura, setExigeAssinatura] = useState(true);
@@ -1252,7 +1295,7 @@ function AdminDocumentosTemplatesPage() {
     const d = rascunho.recuperar();
     if (!d) return;
     setNome(d.nome); setDescricao(d.descricao); setTipo(d.tipo);
-    setContexto(d.contexto); setConteudo(d.conteudo);
+    fecharCriacaoContexto(); setContexto(d.contexto); setConteudo(d.conteudo);
     setAtivo(d.ativo); setExigeAssinatura(d.exigeAssinatura);
     setFormatoImpressao(d.formatoImpressao); setCamposVisuais(d.camposVisuais);
   }
@@ -1458,6 +1501,7 @@ function AdminDocumentosTemplatesPage() {
   }, []);
 
   function limparFormulario() {
+    fecharCriacaoContexto();
     setEditingId(null);
     setNome("");
     setDescricao("");
@@ -1471,6 +1515,7 @@ function AdminDocumentosTemplatesPage() {
   }
 
   function preencherFormulario(template: TemplateDocumento) {
+    fecharCriacaoContexto();
     setEditingId(template.id);
     setNome(template.nome || "");
     setDescricao(template.descricao || "");
@@ -1515,7 +1560,7 @@ function AdminDocumentosTemplatesPage() {
         return;
       }
 
-      if (!contexto.trim()) {
+      if (criandoContexto || salvandoContexto || !contexto.trim()) {
         setErro(labelsContexto[10]);
         return;
       }
@@ -2007,13 +2052,18 @@ function AdminDocumentosTemplatesPage() {
     "fr-FR": ["Choisissez la finalité", "Scolarité / inscription", "Employé", "Annulation d’inscription", "Plan de cours", "Rapport pédagogique", "Autre document enseignant", "Enseignant", "Ressources humaines", "Contexte existant", "Choisissez la finalité avant d’enregistrer."],
   };
   const labelsContexto = rotulosContextoDocumento[locale as keyof typeof rotulosContextoDocumento] ?? rotulosContextoDocumento["pt-BR"];
-  const opcoesContextoDocumento = ["MATRICULA", "FUNCIONARIO", "CANCELAMENTO_MATRICULA", "DOCENTE_PLANO_AULA", "DOCENTE_RELATORIO", "DOCENTE_OUTRO", "PROFESSOR", "RH"];
+  const opcoesContextoDocumento: readonly string[] = CONTEXTOS_BASE;
+  function rotuloContexto(c: string): string {
+    const i = opcoesContextoDocumento.indexOf(c);
+    return i >= 0 ? labelsContexto[i + 1] : rotuloContextoExtra(c, locale) ?? nomeContextoPersonalizado(c) ?? c;
+  }
   const contextosDisponiveis = tipo === "OUTRO"
-    ? opcoesContextoDocumento.filter(c => c !== "CANCELAMENTO_MATRICULA")
+    ? contextosOutros(templates.filter(t => t.tipo === "OUTRO").map(t => t.contexto), contextosPersonalizados)
     : ehTipoRh(tipo) ? ["FUNCIONARIO", "PROFESSOR", "RH"]
     : tipo === "CANCELAMENTO_MATRICULA" ? ["CANCELAMENTO_MATRICULA"] : ["MATRICULA"];
 
   function trocarTipoDocumento(novoTipo: TipoDocumentoTemplate) {
+    fecharCriacaoContexto();
     setTipo(novoTipo);
     setConteudo(modeloBaseLocalizado(novoTipo));
 
@@ -4564,9 +4614,10 @@ function AdminDocumentosTemplatesPage() {
     "{{urlValidacao}}": 920,
   };
 
-  const variaveisInteligentes = [...variaveisInteligentesBase].sort((a, b) => {
-    return (prioridadeTags[b.tag] || 0) - (prioridadeTags[a.tag] || 0);
-  });
+  const contextoGeral = tipo === "OUTRO" && !["MATRICULA", "ACADEMICO", "ALUNO", "RESPONSAVEIS"].includes(contexto);
+  const prioridadeInstitucional: Record<string, number> = { "{{nomeInstituicao}}": 2000, "{{tituloDocumento}}": 1990, "{{dataEmissao}}": 1980, "{{destinatarioDocumento}}": 1970, "{{assuntoDocumento}}": 1960, "{{descricaoDocumento}}": 1950, "{{finalidadeDocumento}}": 1940, "{{observacoesDocumento}}": 1930 };
+  const prioridadeContextual = (tag: string) => contextoGeral ? (prioridadeInstitucional[tag] || 0) : (prioridadeTags[tag] || 0);
+  const variaveisInteligentes = [...variaveisInteligentesBase].sort((a, b) => prioridadeContextual(b.tag) - prioridadeContextual(a.tag));
 
   function limparHtmlParaPrevia(conteudo: string) {
     return String(conteudo || "")
@@ -4960,18 +5011,33 @@ function AdminDocumentosTemplatesPage() {
                     {t("form.fields.context.label")}
                   </label>
                   <select
-                     value={contexto}
-                     onChange={(e) => setContexto(e.target.value)}
+                     value={criandoContexto ? "__CRIAR_CONTEXTO__" : contexto}
+                     disabled={salvandoContexto}
+                     onChange={(e) => {
+                       if (e.target.value === "__CRIAR_CONTEXTO__") { setCriandoContexto(true); setErroContexto(""); }
+                       else { fecharCriacaoContexto(); setContexto(e.target.value); }
+                     }}
                      className="pdoc-input mt-1 w-full rounded-xl border px-3 py-2"
                    >
                      <option value="" disabled>{labelsContexto[0]}</option>
                      {contexto && !contextosDisponiveis.includes(contexto) && (
-                       <option value={contexto}>{labelsContexto[9]}: {contexto}</option>
+                       <option value={contexto}>{labelsContexto[9]}: {rotuloContexto(contexto)}</option>
                      )}
                      {contextosDisponiveis.map(c => (
-                       <option key={c} value={c}>{labelsContexto[opcoesContextoDocumento.indexOf(c) + 1]}</option>
+                       <option key={c} value={c}>{rotuloContexto(c)}</option>
                      ))}
+                     {tipo === "OUTRO" && <option value="__CRIAR_CONTEXTO__">{textoContexto[0]}</option>}
                    </select>
+                   {tipo === "OUTRO" && falhaListaContextos && <div className="mt-2 text-xs" role="status">{textoContexto[5]} <button type="button" className="underline" onClick={() => void carregarContextosPersonalizados()}>{textoContexto[8]}</button></div>}
+                   {tipo === "OUTRO" && criandoContexto && <div className="pdoc-soft mt-2 space-y-2 rounded-xl border p-3">
+                     <label className="pdoc-label block text-sm" htmlFor="novo-contexto-documento">{textoContexto[1]}</label>
+                     <input id="novo-contexto-documento" className="pdoc-input w-full rounded-xl border px-3 py-2" maxLength={100} value={nomeNovoContexto} disabled={salvandoContexto} onChange={e => { setNomeNovoContexto(e.target.value); setErroContexto(""); }} onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); void cadastrarContexto(); } }} />
+                     <div className="flex flex-wrap gap-2">
+                       <button type="button" disabled={salvandoContexto || !normalizarNomeContexto(nomeNovoContexto)} onClick={() => void cadastrarContexto()} className="rounded-lg bg-blue-700 px-3 py-2 text-sm text-white disabled:opacity-50">{textoContexto[2]}</button>
+                       <button type="button" disabled={salvandoContexto} onClick={fecharCriacaoContexto} className="pdoc-input rounded-lg border px-3 py-2 text-sm">{textoContexto[3]}</button>
+                     </div>
+                     {erroContexto && <p role="alert" className="text-sm text-red-600 dark:text-red-300">{erroContexto}</p>}
+                   </div>}
                 </div>
               </div>
 
@@ -5670,7 +5736,7 @@ function AdminDocumentosTemplatesPage() {
                           <div>
                             <p className="text-gray-500 dark:text-slate-400">{t("list.context")}</p>
                             <p className="font-medium text-gray-800 dark:text-slate-200">
-                              {template.contexto || "-"}
+                              {template.contexto ? rotuloContexto(template.contexto) : "-"}
                             </p>
                           </div>
 

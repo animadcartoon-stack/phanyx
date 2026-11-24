@@ -9,6 +9,7 @@ datasource db {
 }
 
 model Instituicao {
+  contextosDocumentosPersonalizados ContextoDocumentoPersonalizado[]
   rascunhosEditor RascunhoEditor[]
   planosCoberturaDocente PlanoCoberturaDocente[]
   documentosDocentes DocumentoDocente[]
@@ -2808,6 +2809,16 @@ model Assinatura {
   imagem     String
   data       DateTime @default(now())
   contrato   Contrato @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+}
+
+model ContextoDocumentoPersonalizado {
+  id            Int         @id @default(autoincrement())
+  instituicaoId Int
+  nome          String      @db.VarChar(100)
+  chave         String      @db.VarChar(200)
+  criadoEm      DateTime    @default(now())
+  instituicao   Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  @@unique([instituicaoId, chave])
 }
 
 model DocumentoTemplate {
