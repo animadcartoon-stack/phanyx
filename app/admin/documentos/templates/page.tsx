@@ -1241,6 +1241,8 @@ function AdminDocumentosTemplatesPage() {
   const [erro, setErro] = useState("");
   const [erroPreviaPdf, setErroPreviaPdf] = useState("");
   const [urlPreviaPdf, setUrlPreviaPdf] = useState("");
+  const [avisoLogoPrevia, setAvisoLogoPrevia] = useState(false);
+  const avisoLogoTexto = locale.startsWith("pt") ? "PrÃ©via parcial: nÃ£o foi possÃ­vel processar o logotipo. O original estÃ¡ preservado; esta prÃ©via nÃ£o Ã© fiel para impressÃ£o." : locale.startsWith("es") ? "Vista previa parcial: no se pudo procesar el logotipo. Se conserva el original." : locale.startsWith("fr") ? "AperÃ§u partiel : impossible de traiter le logo. Lâ€™original est conservÃ©." : "Partial preview: the logo could not be processed. The original is preserved.";
   const [previaAutomatica, setPreviaAutomatica] = useState(false);
   const previaEmCurso = useRef(false);
   const ultimaPrevia = useRef("");
@@ -2012,6 +2014,7 @@ function AdminDocumentosTemplatesPage() {
       }
 
       const url = window.URL.createObjectURL(blob);
+      setAvisoLogoPrevia(res.headers.get("X-PHANYX-PDF-Warning") === "LOGO_UNAVAILABLE");
       setUrlPreviaPdf(url);
 
     } catch (error: any) {
@@ -4692,6 +4695,7 @@ function AdminDocumentosTemplatesPage() {
           <p role="status" className="text-xs">{visualizandoPdf ? t("messages.generatingPreview") : erroPreviaPdf || (ultimaPrevia.current !== chavePreviaAutomatica ? textosPrevia[5] : "")}</p>
           {erroPreviaPdf && <button type="button" className="rounded-lg border px-2 py-1 text-sm" onClick={() => { ultimaPrevia.current = ""; setErroPreviaPdf(""); }}>{textosPrevia[6]}</button>}
           {urlPreviaPdf && <>
+            {avisoLogoPrevia && <p role="alert" className="rounded border border-amber-500 bg-amber-50 p-2 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100">{avisoLogoTexto}</p>}
             <a href={urlPreviaPdf} target="_blank" rel="noopener noreferrer" className="text-sm underline">{textosPrevia[4]}</a>
             <iframe src={urlPreviaPdf} title={textosPrevia[0]} className="h-[55vh] min-h-0 w-full rounded border bg-white xl:h-auto xl:flex-1" />
           </>}
@@ -4915,6 +4919,7 @@ function AdminDocumentosTemplatesPage() {
                 ×
               </button>
             </div>
+            {avisoLogoPrevia && <p role="alert" className="border-b border-amber-500 bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100">{avisoLogoTexto}</p>}
             <iframe
               src={urlPreviaPdf}
               title={t("variables.viewPdf")}
