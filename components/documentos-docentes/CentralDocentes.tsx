@@ -1,5 +1,6 @@
 "use client";
 
+import { periodoValido, textosPeriodo, separarPeriodo, PERIODO_CAMPO } from "@/lib/documentos-docentes/periodo";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -34,8 +35,8 @@ const campoBase = "w-full rounded-xl border border-slate-300 bg-white px-3 py-2 
 const botaoBase = "rounded-xl px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50";
 
 // A prévia é isolada em iframe sandbox sem scripts, formulários, navegação ou origem compartilhada.
-function htmlPrevia(modelo: string, campos: Record<string, string>): string {
-  const corpo = renderizarCamposDocentes(modelo, campos);
+function htmlPrevia(modelo: string, campos: Record<string, string>, locale: string): string {
+  const corpo = renderizarCamposDocentes(modelo, campos, false, locale);
   return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"><style>body{font:14px/1.6 Arial,sans-serif;padding:26px;color:#0f172a;overflow-wrap:anywhere;max-width:820px;margin:auto}table{border-collapse:collapse;max-width:100%}td,th{border:1px solid #64748b;padding:6px}img{max-width:100%}</style></head><body>${corpo}</body></html>`;
 }
 
@@ -285,12 +286,14 @@ ${resumo}` };
   const opcaoAcademica = detalhes?.academico?.find(o=>`${o.turmaId}:${o.ofertaId}`===selecaoAcademica);
   const academicoValido = (!exigeTurmaAcademica || !!opcaoAcademica) && (!pendentesAcademicos.includes("academicYear") || /^\d{4}$/.test(anoAcademico) && Number(anoAcademico)>=1900 && Number(anoAcademico)<=2200) && (!pendentesAcademicos.includes("twoMonthTerm") || /^[1-4]$/.test(bimestreAcademico));
   const la = legendaAcademica(locale), ra = rotulosAcademico(locale);
-  const podeAssinarProfessor = podeEditar && !camposNaoSalvos && !assinaturaProfessor && !pendentesAcademicos.length;
+  const periodoOk = periodoValido(detalhes?.versao.modeloSnapshot || "", campos);
+  const periodoRascunhoOk = periodoValido(detalhes?.versao.modeloSnapshot || "", campos, false);
+  const podeAssinarProfessor = periodoOk && podeEditar && !camposNaoSalvos && !assinaturaProfessor && !pendentesAcademicos.length;
   const podeAssinarAdmin = admin && !historica && !camposNaoSalvos && detalhes?.documento.status === "APROVADO" && !assinaturaAdmin;
   const podeAnexar = !historica && !!detalhes && !existeAssinaturaAtual && (admin ? !["CONCLUIDO","CANCELADO"].includes(detalhes.documento.status) : podeEditar);
   const camposAtuais = detalhes?.versao.campos || {};
   const nomesCampos = detalhes ? Array.from(new Set([...Object.keys(camposAtuais), ...camposModeloDocente(detalhes.versao.modeloSnapshot)])) : [];
-  const htmlRenderizado = detalhes?.versao.modeloSnapshot ? htmlPrevia(detalhes.versao.modeloSnapshot, campos) : "";
+  const htmlRenderizado = detalhes?.versao.modeloSnapshot ? htmlPrevia(detalhes.versao.modeloSnapshot, campos, locale) : "";
 
   if (painelPdf === "editor") return <EditorPdfLocal onVoltar={() => setPainelPdf(null)} />;
   if (painelPdf === "leitor" && detalhes) {
@@ -399,13 +402,13 @@ ${resumo}` };
               {pendentesAcademicos.includes("twoMonthTerm") && <label className="block text-sm">{ra[6]}<select className={campoBase} value={bimestreAcademico} onChange={e=>setBimestreAcademico(e.target.value)}><option value="">{la[2]}</option>{[1,2,3,4].map(n=><option key={n} value={n}>{n}</option>)}</select></label>}
               <p className="text-xs">{la[4]}</p>
             </div>}
-            {nomesCampos.length === 0 ? <p className="text-sm text-slate-500">{t("noFields")}</p> : nomesCampos.map(nome => <label key={nome} className="block space-y-1 text-sm"><span className="font-medium">{nome}</span>
+            {nomesCampos.length === 0 ? <p className="text-sm text-slate-500">{t("noFields")}</p> : nomesCampos.map(nome => nome === PERIODO_CAMPO && /\{\{\s*campo:periodoData\s*\}\}/.test(detalhes.versao.modeloSnapshot) ? <fieldset key={nome} className="space-y-2 text-sm"><legend className="font-medium">{textosPeriodo(locale).titulo}</legend><div className="grid grid-cols-1 gap-2 sm:grid-cols-2">{([0,1] as const).map(i=><label key={i} className="block min-w-0 space-y-1"><span>{i===0?textosPeriodo(locale).inicio:textosPeriodo(locale).fim}</span><input type="date" className={campoBase} disabled={!podeEditar || ocupado} value={separarPeriodo(campos[nome])[i]} min={i===1?(separarPeriodo(campos[nome])[0] || "1900-01-01"):"1900-01-01"} max="9999-12-31" onChange={e=>{const valor=e.target.value;setCampos(anteriores=>{const datas=separarPeriodo(anteriores[nome]);datas[i]=valor;return {...anteriores,[nome]:datas.join("/")};});}} /></label>)}</div>{!periodoOk && podeEditar && <p className="text-xs text-red-700 dark:text-red-300">{textosPeriodo(locale).erro}</p>}</fieldset> : <label key={nome} className="block space-y-1 text-sm"><span className="font-medium">{nome}</span>
               <textarea className={campoBase} rows={nome.length > 60 ? 3 : 4} maxLength={5000} disabled={!podeEditar || ocupado} value={campos[nome] || ""} onChange={(e: { target: { value: string } }) => setCampos(anteriores => ({...anteriores,[nome]:e.target.value}))} />
             </label>)}
             {podeEditar && <>
               <p className="text-xs text-slate-600 dark:text-slate-300">{t("editHelp")}</p>
               <div className="flex flex-wrap gap-2">
-                <button type="button" disabled={ocupado || !academicoValido} className={`${botaoBase} bg-blue-700 text-white`} onClick={() => void atualizarDocumento("EDITAR")}>{t("saveVersion")}</button>
+                <button type="button" disabled={ocupado || !academicoValido || !periodoRascunhoOk} className={`${botaoBase} bg-blue-700 text-white`} onClick={() => void atualizarDocumento("EDITAR")}>{t("saveVersion")}</button>
                 {podeAssinarProfessor && <button
                   type="button"
                   disabled={ocupado}
@@ -414,7 +417,7 @@ ${resumo}` };
                 >
                   {t3("signWithPhanyx")}
                 </button>}
-                <button type="button" disabled={ocupado || camposNaoSalvos || pendentesAcademicos.length>0 || (deveAssinar&&!assinaturaProfessor)} title={camposNaoSalvos ? t("saveFirst") : deveAssinar&&!assinaturaProfessor ? t3("signFirst") : undefined} className={`${botaoBase} border border-blue-700 text-blue-700 dark:text-blue-300`} onClick={() => void atualizarDocumento("ENVIAR")}>{t("send")}</button>
+                <button type="button" disabled={ocupado || !periodoOk || camposNaoSalvos || pendentesAcademicos.length>0 || (deveAssinar&&!assinaturaProfessor)} title={camposNaoSalvos ? t("saveFirst") : deveAssinar&&!assinaturaProfessor ? t3("signFirst") : undefined} className={`${botaoBase} border border-blue-700 text-blue-700 dark:text-blue-300`} onClick={() => void atualizarDocumento("ENVIAR")}>{t("send")}</button>
               </div>
               {camposNaoSalvos && <p className="text-xs text-amber-800 dark:text-amber-300">{t("saveFirst")}</p>}
             </>}

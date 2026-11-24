@@ -1,3 +1,4 @@
+import { periodoValido } from "@/lib/documentos-docentes/periodo";
 import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -43,6 +44,7 @@ export async function PATCH(req: Request, { params }: Params) {
     if (!campos) return NextResponse.json({ error: "Campos inválidos" }, { status: 400 });
     const anterior = await prisma.documentoDocenteVersao.findUnique({ where: { documentoId_numero: { documentoId: documento.id, numero: documento.versaoAtual } } });
     if (!anterior) return NextResponse.json({ error: "Versão não encontrada" }, { status: 404 });
+    if (!periodoValido(anterior.modeloSnapshot, campos, false)) return NextResponse.json({error:"Período inválido."},{status:400});
     const academico = await resolverAcademico(anterior.modeloSnapshot,ctx.instituicaoId,documento.professorId,body?.academico);
     if (!academico) return NextResponse.json({ error: "Selecione os dados acadêmicos válidos antes de salvar." }, { status: 400 });
     const novaVersao = documento.versaoAtual + 1;
@@ -65,7 +67,8 @@ export async function PATCH(req: Request, { params }: Params) {
   const regra = regras[acao];
   if (!regra || regra.papel !== ctx.papel || !regra.status.includes(documento.status)) return NextResponse.json({ error: "Ação não permitida para o estado atual" }, { status: 403 });
   if (acao === "ENVIAR") {
-    const v = await prisma.documentoDocenteVersao.findUnique({where:{documentoId_numero:{documentoId:documento.id,numero:documento.versaoAtual}},select:{modeloSnapshot:true}});
+    const v = await prisma.documentoDocenteVersao.findUnique({where:{documentoId_numero:{documentoId:documento.id,numero:documento.versaoAtual}},select:{modeloSnapshot:true,campos:true}});
+    if (v && !periodoValido(v.modeloSnapshot,v.campos)) return NextResponse.json({error:"Preencha e salve o período antes de enviar."},{status:409});
     if (!v || camposAcademicos(v.modeloSnapshot).length) return NextResponse.json({error:"Preencha e salve os dados acadêmicos antes de enviar."},{status:409});
   }
   const exigeAmbasAssinaturas = ["PLANO_AULA", "RELATORIO"].includes(documento.tipo);

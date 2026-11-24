@@ -13,7 +13,17 @@ function carregar(arquivo, dependencias = {}) {
   const module = { exports: {} };
   runInNewContext(outputText, {
     module, exports: module.exports, Buffer, console, URL,
-    require: nome => dependencias[nome] ?? require(nome),
+    require: nome => {
+      if (Object.hasOwn(dependencias, nome)) return dependencias[nome];
+      const prefixo = "@/lib/documentos-docentes/";
+      if (nome.startsWith(prefixo)) return carregar("lib/documentos-docentes/" + nome.slice(prefixo.length) + ".ts", dependencias);
+      if (nome === "./academico-automatico") return carregar("lib/documentos-docentes/academico-automatico.ts", dependencias);
+      if (nome === "@/lib/professor-escopo-academico") return {
+        obterSubstituicoesAtivasProfessor: async () => { throw new Error("Consulta academica fora do escopo deste teste"); },
+        montarFiltroTurmaDisciplinaProfessor: () => { throw new Error("Filtro academico fora do escopo deste teste"); },
+      };
+      return require(nome);
+    },
   }, { filename });
   return module.exports;
 }
@@ -75,6 +85,8 @@ function ambiente({ papel = "ADMIN", acesso = true, status = "AGUARDANDO_PROFESS
     },
   };
   const deps = {
+    "@/lib/documentos-docentes/periodo": carregar("lib/documentos-docentes/periodo.ts"),
+    "@/lib/documentos-docentes/periodo": carregar("lib/documentos-docentes/periodo.ts"),
     "@/lib/prisma": { prisma },
     "@/lib/documentos-docentes/destinos-email": destinos,
     "@/lib/documentos-docentes/seguranca": {
