@@ -717,3 +717,50 @@ export async function POST(
     geracaoPdfEmAndamento = false;
   }
 }
+
+// Temporary authenticated diagnostic; never enabled in production.
+export async function GET() {
+  if (process.env.VERCEL_ENV !== "preview") {
+    return new NextResponse(null, { status: 404 });
+  }
+  const user = await getUserFromToken();
+  if (!user || user.role !== "ADMIN") {
+    return new NextResponse(null, { status: 401 });
+  }
+  if (geracaoPdfEmAndamento) {
+    return new NextResponse(null, { status: 429 });
+  }
+  geracaoPdfEmAndamento = true;
+  const resultados: Array<Record<string, unknown>> = [];
+  try {
+    for (const teste of ["minimo", "cabecalho-rodape", "sem-single-process"] as const) {
+      let navegador: Awaited<ReturnType<typeof abrirNavegador>> | undefined;
+      const saida: { code: number | null; signal: string | null } = { code: null, signal: null };
+      let etapa = "launch";
+      try {
+        navegador = teste === "sem-single-process"
+          ? await puppeteer.launch({ executablePath: await chromium.executablePath(CHROMIUM_PACK), args: chromium.args.filter(arg => arg !== "--single-process"), headless: true, dumpio: true, timeout: 10000 })
+          : await abrirNavegador();
+        navegador.process()?.once("exit", (code, signal) => {
+          saida.code = code; saida.signal = signal;
+          console.info("[PDF-DIAG] exit", teste, code, signal);
+        });
+        etapa = "page";
+        const pagina = await navegador.newPage();
+        await pagina.emulateMediaType("print");
+        await pagina.setContent("<!doctype html><html><body><p>PHANYX PDF diagnostic</p></body></html>", { waitUntil: "domcontentloaded", timeout: 5000 });
+        etapa = "printToPDF";
+        const pdf = await pagina.pdf({ format: "A4", timeout: 8000, printBackground: true, ...(teste === "cabecalho-rodape" ? { displayHeaderFooter: true, headerTemplate: "<div>Header</div>", footerTemplate: "<div>Footer</div>", margin: { top: "20mm", bottom: "20mm" } } : {}) });
+        resultados.push({ teste, ok: pdf.length > 5, bytes: pdf.length });
+      } catch (error) {
+        resultados.push({ teste, ok: false, etapa, erro: error instanceof Error ? error.message : String(error), saida });
+      } finally {
+        if (navegador) await navegador.close().catch(() => null);
+      }
+      console.info("[PDF-DIAG]", resultados[resultados.length - 1]);
+    }
+    return NextResponse.json({ resultados }, { headers: { "Cache-Control": "no-store" } });
+  } finally {
+    geracaoPdfEmAndamento = false;
+  }
+}
