@@ -3,6 +3,8 @@ import {
 } from "@/lib/documentos/variaveis-preview-documento";
 import { NextRequest, NextResponse } from "next/server";
 import fs from "node:fs";
+import { lerImagemPdfLimitada, prepararImagemPdf } from "@/lib/pdf/preparar-imagem-pdf";
+import { normalizarModeloPapelTimbrado } from "@/lib/documentos/modelos-papel-timbrado";
 import chromium from "@sparticuz/chromium-min";
 import puppeteer from "puppeteer-core";
 import { prisma } from "@/lib/prisma";
@@ -137,6 +139,17 @@ async function imagemParaDataUri(
   } catch {
     return "";
   }
+}
+
+// Use the same bounded decoder as the contract PDF. Never pass the original oversized logo to Chromium.
+async function prepararLogoPrevia(url?: string | null): Promise<string> {
+  if (!url) return "";
+  const resposta = await fetch(url, { signal: AbortSignal.timeout(15000) });
+  if (!resposta.ok) throw new Error("PDF_LOGO_FETCH_FAILED");
+  const original = await lerImagemPdfLimitada(resposta);
+  const otimizada = await prepararImagemPdf(original, { ladoMaximo: 400, timeoutSegundos: 35 });
+  console.info("[PDF-LOGO] optimized-shared", { originalBytes: original.length, optimizedBytes: otimizada.bytes.length, format: otimizada.formato });
+  return `data:image/${otimizada.formato};base64,${otimizada.bytes.toString("base64")}`;
 }
 
 function substituirExemplos(
@@ -362,14 +375,7 @@ export async function POST(
          * contratos; o segundo garante que a prévia acompanhe
          * o layout efetivamente usado pelo renderizador.
          */
-        estiloDocumento:
-          ehHistorico
-            ? "INSTITUCIONAL"
-            : (
-              config?.estiloDocumento ||
-              config?.estiloPapelTimbrado ||
-              "INSTITUCIONAL"
-            ),
+        estiloDocumento: ehHistorico ? "INSTITUCIONAL" : normalizarModeloPapelTimbrado(config?.estiloPapelTimbrado || config?.estiloDocumento),
 
         fallbackLogoUrl:
           config?.logoUrl ||
@@ -395,14 +401,17 @@ export async function POST(
         baseUrl
       );
 
+    let logoIndisponivel = false;
     const [
       logoDataUri,
       assinaturaDataUri,
       papelTimbradoDataUri,
     ] = await Promise.all([
-      imagemParaDataUri(
-        logoUrl
-      ),
+      prepararLogoPrevia(logoUrl).catch((error: unknown) => {
+        logoIndisponivel = true;
+        console.warn("[PDF-LOGO] preview-degraded", { error: error instanceof Error ? error.message : "UNKNOWN" });
+        return "";
+      }),
 
       imagemParaDataUri(
         assinaturaUrl
@@ -522,7 +531,6 @@ export async function POST(
 
           logoUrl:
             logoDataUri ||
-            logoUrl ||
             null,
 
           logoDataUri:
@@ -544,10 +552,7 @@ export async function POST(
                 ?.usarPapelTimbrado
             ),
 
-          estiloPapelTimbrado:
-            config
-              ?.estiloPapelTimbrado ||
-            null,
+          estiloPapelTimbrado: normalizarModeloPapelTimbrado(config?.estiloPapelTimbrado || config?.estiloDocumento),
         },
 
         validacao: {
@@ -599,7 +604,7 @@ export async function POST(
     );
 
     await page.setContent(
-      renderizacao.html,
+      logoIndisponivel ? renderizacao.html.replace(/<body(?:\s[^>]*)?>/i, (tag) => tag + '<div style="font: bold 10pt Arial,sans-serif;color:#92400e;border:1px solid #92400e;padding:4px;text-align:center">PREVIEW / PR&Eacute;VIA &mdash; LOGO UNAVAILABLE / LOGOTIPO INDISPON&Iacute;VEL</div>') : renderizacao.html,
       {
         waitUntil:
           "domcontentloaded",
@@ -688,6 +693,7 @@ export async function POST(
 
           "Cache-Control":
             "no-store",
+          "X-PHANYX-PDF-Warning": logoIndisponivel ? "LOGO_UNAVAILABLE" : "",
         },
       }
     );
@@ -714,53 +720,6 @@ export async function POST(
         .catch(() => null);
     }
 
-    geracaoPdfEmAndamento = false;
-  }
-}
-
-// Temporary authenticated diagnostic; never enabled in production.
-export async function GET() {
-  if (process.env.VERCEL_ENV !== "preview") {
-    return new NextResponse(null, { status: 404 });
-  }
-  const user = await getUserFromToken();
-  if (!user || user.role !== "ADMIN") {
-    return new NextResponse(null, { status: 401 });
-  }
-  if (geracaoPdfEmAndamento) {
-    return new NextResponse(null, { status: 429 });
-  }
-  geracaoPdfEmAndamento = true;
-  const resultados: Array<Record<string, unknown>> = [];
-  try {
-    for (const teste of ["minimo", "cabecalho-rodape", "sem-single-process"] as const) {
-      let navegador: Awaited<ReturnType<typeof abrirNavegador>> | undefined;
-      const saida: { code: number | null; signal: string | null } = { code: null, signal: null };
-      let etapa = "launch";
-      try {
-        navegador = teste === "sem-single-process"
-          ? await puppeteer.launch({ executablePath: await chromium.executablePath(CHROMIUM_PACK), args: chromium.args.filter(arg => arg !== "--single-process"), headless: true, dumpio: true, timeout: 10000 })
-          : await abrirNavegador();
-        navegador.process()?.once("exit", (code, signal) => {
-          saida.code = code; saida.signal = signal;
-          console.info("[PDF-DIAG] exit", teste, code, signal);
-        });
-        etapa = "page";
-        const pagina = await navegador.newPage();
-        await pagina.emulateMediaType("print");
-        await pagina.setContent("<!doctype html><html><body><p>PHANYX PDF diagnostic</p></body></html>", { waitUntil: "domcontentloaded", timeout: 5000 });
-        etapa = "printToPDF";
-        const pdf = await pagina.pdf({ format: "A4", timeout: 8000, printBackground: true, ...(teste === "cabecalho-rodape" ? { displayHeaderFooter: true, headerTemplate: "<div>Header</div>", footerTemplate: "<div>Footer</div>", margin: { top: "20mm", bottom: "20mm" } } : {}) });
-        resultados.push({ teste, ok: pdf.length > 5, bytes: pdf.length });
-      } catch (error) {
-        resultados.push({ teste, ok: false, etapa, erro: error instanceof Error ? error.message : String(error), saida });
-      } finally {
-        if (navegador) await navegador.close().catch(() => null);
-      }
-      console.info("[PDF-DIAG]", resultados[resultados.length - 1]);
-    }
-    return NextResponse.json({ resultados }, { headers: { "Cache-Control": "no-store" } });
-  } finally {
     geracaoPdfEmAndamento = false;
   }
 }

@@ -1,4 +1,5 @@
 import { CSS_LISTAS_PHANYX } from "@/lib/documentos/estilos-listas-editor";
+import { normalizarModeloPapelTimbrado, visualPapelTimbrado } from "@/lib/documentos/modelos-papel-timbrado";
 export type FormatoImpressaoDocumento =
   | "A4_INTEIRA"
   | "DUAS_VIAS_A4";
@@ -1284,9 +1285,12 @@ function montarCabecalhoInterno(
     DadosInstituicaoDocumento,
   rotuloVia: string
 ) {
+  const visual = visualPapelTimbrado(instituicao.estiloPapelTimbrado);
   return `
     <header
       class="phanyx-via-cabecalho"
+      data-phanyx-letterhead="${visual.modelo}"
+      style="background:${visual.fundo};color:${visual.cor};border-bottom:${visual.borda};${visual.detalhe}"
     >
       <div
         class="phanyx-via-identidade"
@@ -1336,30 +1340,16 @@ function montarCabecalhoInterno(
   `;
 }
 
-function montarPapelTimbrado(
-  instituicao:
-    DadosInstituicaoDocumento,
-  classe: string
-) {
-  if (
-    !instituicao
-      .usarPapelTimbrado ||
-    !instituicao
-      .papelTimbradoUrl
-  ) {
-    return "";
+function montarPapelTimbrado(instituicao: DadosInstituicaoDocumento, classe: string) {
+  const modelo = normalizarModeloPapelTimbrado(instituicao.estiloPapelTimbrado);
+  const visual = visualPapelTimbrado(modelo);
+  if (visual.academico && instituicao.logoDataUri) {
+    return `<img class="${classe}" src="${escaparHtml(instituicao.logoDataUri)}" alt="" style="inset:0;margin:auto;width:95mm;height:95mm;object-fit:contain;opacity:0.05" />`;
   }
-
-  return `
-    <img
-      class="${classe}"
-      src="${escaparHtml(
-    instituicao
-      .papelTimbradoUrl
-  )}"
-      alt=""
-    />
-  `;
+  if (!instituicao.usarPapelTimbrado || !instituicao.papelTimbradoUrl) return "";
+  if (modelo !== "PAPEL_PROPRIO" && !visual.personalizadoClassico && !visual.personalizadoModerno && !visual.marca) return "";
+  const estiloImagem = visual.personalizadoClassico ? "object-fit:contain;filter:grayscale(1);" : visual.personalizadoModerno || visual.marca ? "inset:0;margin:auto;width:75%;height:75%;object-fit:contain;opacity:0.15;" : "";
+  return `<img class="${classe}" src="${escaparHtml(instituicao.papelTimbradoUrl)}" alt="" style="${estiloImagem}" />`;
 }
 
 function montarViaCompacta({
@@ -1410,194 +1400,34 @@ function montarViaCompacta({
   `;
 }
 
-function montarHeaderTemplate(
-  instituicao:
-    DadosInstituicaoDocumento
-) {
-  if (
-    instituicao
-      .usarPapelTimbrado &&
-    instituicao
-      .estiloPapelTimbrado ===
-    "PAPEL_PROPRIO"
-  ) {
-    return "<div></div>";
-  }
-
-  const estiloClassico =
-    instituicao
-      .estiloPapelTimbrado ===
-    "PHANYX_CLASSICO";
-
-  const fundo =
-    estiloClassico
-      ? "#111111"
-      : "#ffffff";
-
-  const cor =
-    estiloClassico
-      ? "#ffffff"
-      : "#0f172a";
-
-  const borda =
-    estiloClassico
-      ? "none"
-      : "0.3mm solid #cbd5e1";
-
-  return `
-    <div
-      style="
-        width: 100%;
-        height: 34mm;
-        box-sizing: border-box;
-        display: flex;
-        align-items: center;
-        gap: 7mm;
-        margin: 0;
-        padding: 5mm 18mm;
-        background: ${fundo};
-        color: ${cor};
-        border-bottom: ${borda};
-        font-family:
-          Arial,
-          Helvetica,
-          sans-serif;
-        -webkit-print-color-adjust:
-          exact;
-        print-color-adjust:
-          exact;
-      "
-    >
-      ${instituicao.logoDataUri
-      ? `
-            <img
-              src="${escaparHtml(
-        instituicao.logoDataUri
-      )}"
-              style="
-                width: 22mm;
-                height: 22mm;
-                object-fit: contain;
-              "
-            />
-          `
-      : ""
-    }
-
-      <div>
-        <div
-          style="
-            font-size: 15pt;
-            font-weight: 700;
-            line-height: 1.15;
-          "
-        >
-          ${escaparHtml(
-      instituicao.nome
-    )}
-        </div>
-
-        ${instituicao.cnpj
-      ? `
-              <div
-                style="
-                  margin-top: 2mm;
-                  font-size: 8pt;
-                  line-height: 1.15;
-                "
-              >
-                CNPJ:
-                ${escaparHtml(
-        instituicao.cnpj
-      )}
-              </div>
-            `
-      : ""
-    }
+function montarHeaderTemplate(instituicao: DadosInstituicaoDocumento) {
+  const visual = visualPapelTimbrado(instituicao.estiloPapelTimbrado);
+  if (instituicao.usarPapelTimbrado && visual.modelo === "PAPEL_PROPRIO") return "<div></div>";
+  const logo = instituicao.logoDataUri ? `<img src="${escaparHtml(instituicao.logoDataUri)}" style="width:${visual.classico ? "26.8mm" : "22mm"};height:${visual.classico ? "17mm" : "22mm"};object-fit:contain;flex-shrink:0" />` : "";
+  // Fixed content margins remain unchanged to preserve the editor's page layout.
+  return `<style>#header{padding:0!important}</style>
+    <div data-phanyx-letterhead="${visual.modelo}" style="width:100%;height:34mm;box-sizing:border-box;display:flex;align-items:center;${visual.academico ? "justify-content:center;text-align:center;flex-direction:column;gap:1mm;" : "gap:6mm;"}margin:0;padding:${visual.academico ? "2mm 18mm" : "4mm 12.7mm"};background:${visual.fundo};color:${visual.cor};border-bottom:${visual.borda};${visual.detalhe}font-family:Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+      ${visual.academico ? logo.replace("width:22mm;height:22mm", "width:13mm;height:13mm") : logo}
+      <div style="min-width:0;overflow-wrap:anywhere">
+        <div style="font-size:15pt;font-weight:700;line-height:1.15">${escaparHtml(instituicao.nome)}</div>
+        ${instituicao.cnpj ? `<div style="font-size:8pt;line-height:1.15;margin-top:1mm">CNPJ: ${escaparHtml(instituicao.cnpj)}</div>` : ""}
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
-function montarFooterTemplate(
-  instituicao:
-    DadosInstituicaoDocumento
-) {
-  if (
-    instituicao
-      .usarPapelTimbrado &&
-    instituicao
-      .estiloPapelTimbrado ===
-    "PAPEL_PROPRIO"
-  ) {
-    return "<div></div>";
-  }
-
-  const estiloClassico =
-    instituicao
-      .estiloPapelTimbrado ===
-    "PHANYX_CLASSICO";
-
-  const fundo =
-    estiloClassico
-      ? "#111111"
-      : "#ffffff";
-
-  const cor =
-    estiloClassico
-      ? "#ffffff"
-      : "#475569";
-
-  return `
-    <div
-      style="
-        width: 100%;
-        height: 14mm;
-        box-sizing: border-box;
-        display: flex;
-        align-items: center;
-        justify-content:
-          space-between;
-        gap: 5mm;
-        padding: 2mm 18mm;
-        background: ${fundo};
-        color: ${cor};
-        font-family:
-          Arial,
-          Helvetica,
-          sans-serif;
-        font-size: 6.5pt;
-        -webkit-print-color-adjust:
-          exact;
-        print-color-adjust:
-          exact;
-      "
-    >
-      <span>
-        ${escaparHtml(
-    [
-      instituicao.telefone,
-      instituicao.email,
-      instituicao.cidade,
-      instituicao.estado,
-    ]
-      .filter(Boolean)
-      .join(" • ")
-  )}
-      </span>
-
-      <span>
-        Página
-        <span
-          class="pageNumber"
-        ></span>
-        de
-        <span
-          class="totalPages"
-        ></span>
-      </span>
-    </div>
-  `;
+function montarFooterTemplate(instituicao: DadosInstituicaoDocumento) {
+  const visual = visualPapelTimbrado(instituicao.estiloPapelTimbrado);
+  if (instituicao.usarPapelTimbrado && visual.modelo === "PAPEL_PROPRIO") return "<div></div>";
+  const identidade = [instituicao.nome, instituicao.cnpj ? "CNPJ: " + instituicao.cnpj : ""].filter(Boolean).join(" \u2022 ");
+  const contato = [instituicao.telefone, instituicao.email].filter(Boolean).join(" \u2022 ");
+  const local = [instituicao.cidade, instituicao.estado].filter(Boolean).join(" - ");
+  return `<style>#footer{padding:0!important}</style>
+    <div data-phanyx-letterhead="${visual.modelo}" style="width:100%;height:17mm;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:4mm;padding:2mm 18mm;background:${visual.fundo};color:${visual.escuro ? "#ffffff" : "#475569"};border-top:${visual.borda};${visual.detalhe}font-family:Arial,Helvetica,sans-serif;font-size:7pt;line-height:1.2;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+      <div style="min-width:0;overflow-wrap:anywhere;${visual.academico ? "text-align:center;flex:1;" : ""}">
+        <div>${escaparHtml(identidade)}</div>${contato ? `<div>${escaparHtml(contato)}</div>` : ""}${local ? `<div>${escaparHtml(local)}</div>` : ""}
+      </div>
+      <span style="white-space:nowrap">P&aacute;gina <span class="pageNumber"></span> de <span class="totalPages"></span></span>
+    </div>`;
 }
 
 function montarFooterPaginacaoSimples() {
@@ -2370,6 +2200,10 @@ function cssCompartilhado(
   padding: 0 18mm;
   border-bottom: 0.3mm solid #cbd5e1;
 }
+    .phanyx-via-cabecalho[data-phanyx-letterhead="PHANYX_CLASSICO"] .phanyx-via-instituicao span,
+    .phanyx-via-cabecalho[data-phanyx-letterhead="PHANYX_MODERNO"] .phanyx-via-instituicao span,
+    .phanyx-via-cabecalho[data-phanyx-letterhead="PHANYX_CLASSICO"] .phanyx-via-rotulo,
+    .phanyx-via-cabecalho[data-phanyx-letterhead="PHANYX_MODERNO"] .phanyx-via-rotulo { color: #ffffff; }
     .phanyx-via-identidade {
       display: flex;
       min-width: 0;

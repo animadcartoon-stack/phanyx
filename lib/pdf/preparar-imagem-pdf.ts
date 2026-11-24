@@ -33,12 +33,17 @@ export async function lerImagemPdfLimitada(resposta: Response): Promise<Buffer> 
   return Buffer.concat(partes, total);
 }
 
-export async function prepararImagemPdf(original: Uint8Array): Promise<{
+export async function prepararImagemPdf(original: Uint8Array, opcoes: { ladoMaximo?: number; timeoutSegundos?: number } = {}): Promise<{
   bytes: Buffer;
   formato: "png" | "jpeg";
 }> {
   if (!original.byteLength || original.byteLength > LIMITE_BYTES_IMAGEM_PDF) {
     throw new Error("Imagem vazia ou acima do limite de tamanho para o PDF.");
+  }
+  const lado = opcoes.ladoMaximo ?? LADO_MAXIMO_PDF;
+  const segundos = opcoes.timeoutSegundos ?? 60;
+  if (!Number.isInteger(lado) || lado < 64 || lado > LADO_MAXIMO_PDF || !Number.isInteger(segundos) || segundos < 1 || segundos > 60) {
+    throw new Error("Limites de processamento de imagem invalidos.");
   }
   const bytes = Buffer.from(original);
   const imagem = sharp(bytes, {
@@ -49,16 +54,16 @@ export async function prepararImagemPdf(original: Uint8Array): Promise<{
   if (!["png", "jpeg"].includes(info.format) || !info.width || !info.height) {
     throw new Error("Formato de imagem incompatível com o PDF.");
   }
-  if (info.width <= LADO_MAXIMO_PDF && info.height <= LADO_MAXIMO_PDF) {
+  if (info.width <= lado && info.height <= lado) {
     return { bytes, formato: info.format as "png" | "jpeg" };
   }
   // libvips lê a imagem sequencialmente e reduz ANTES de o pdf-lib descompactar
   // os pixels. O original e a proporção/transparência não são alterados no cadastro.
   const reduzida = await imagem
     .rotate()
-    .resize({ width: LADO_MAXIMO_PDF, height: LADO_MAXIMO_PDF, fit: "inside", withoutEnlargement: true })
+    .resize({ width: lado, height: lado, fit: "inside", withoutEnlargement: true })
     .png()
-    .timeout({ seconds: 60 })
+    .timeout({ seconds: segundos })
     .toBuffer();
   return { bytes: reduzida, formato: "png" };
 }
