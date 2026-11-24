@@ -564,6 +564,46 @@ export async function POST(
         },
       });
 
+    // Temporary diagnostic using the actual render, restricted to preview.
+    if (process.env.VERCEL_ENV === "preview") {
+      const cases = ["full-multiprocess", "full-untagged", "body-only", "header-footer-only"] as const;
+      const results: Array<Record<string, unknown>> = [];
+      const started = Date.now();
+      for (const test of cases) {
+        if (Date.now() - started > 35000) {
+          results.push({ test, ok: false, skipped: "time-budget" });
+          continue;
+        }
+        let diagnosticBrowser: Awaited<ReturnType<typeof abrirNavegador>> | undefined;
+        let stage = "launch";
+        try {
+          diagnosticBrowser = test === "full-multiprocess"
+            ? await puppeteer.launch({ executablePath: await chromium.executablePath(CHROMIUM_PACK), args: chromium.args.filter(arg => arg !== "--single-process"), headless: true, dumpio: true, timeout: 8000 })
+            : await abrirNavegador();
+          diagnosticBrowser.process()?.once("exit", (code, signal) => console.info("[PDF-RENDER-DIAG] exit", { test, code, signal }));
+          stage = "content";
+          const page = await diagnosticBrowser.newPage();
+          await page.emulateMediaType("print");
+          await page.setContent(test === "header-footer-only" ? "<!doctype html><html><body><p>PDF diagnostic</p></body></html>" : renderizacao.html, { waitUntil: "domcontentloaded", timeout: 5000 });
+          await page.evaluate(async () => {
+            await Promise.race([Promise.all([document.fonts.ready, ...Array.from(document.images).map(img => img.decode().catch(() => undefined))]), new Promise<void>(resolve => setTimeout(resolve, 3000))]);
+          });
+          stage = "print";
+          const options = { ...renderizacao.pdfOptions, timeout: 7000, ...(test === "full-untagged" ? { tagged: false, outline: false } : {}), ...(test === "body-only" ? { displayHeaderFooter: false, headerTemplate: "", footerTemplate: "" } : {}) };
+          const bytes = await page.pdf(options);
+          results.push({ test, ok: bytes.length > 5, bytes: bytes.length, displayHeaderFooter: options.displayHeaderFooter });
+        } catch (error) {
+          results.push({ test, ok: false, stage, error: error instanceof Error ? error.name : "unknown" });
+        } finally {
+          if (diagnosticBrowser) await diagnosticBrowser.close().catch(() => null);
+        }
+        console.info("[PDF-RENDER-DIAG]", results[results.length - 1]);
+      }
+      console.info("[PDF-RENDER-DIAG] summary", JSON.stringify(results));
+      // Never deliver partial or accessibility-altered PDFs as a normal preview.
+      return NextResponse.json({ error: "PDF_DIAGNOSTIC_COMPLETE", results }, { status: 422, headers: { "Cache-Control": "no-store" } });
+    }
+
     let pdfBuffer: Uint8Array | undefined;
     const inicioTentativas = Date.now();
     for (let tentativa = 1; tentativa <= 2; tentativa++) {
