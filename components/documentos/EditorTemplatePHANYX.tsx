@@ -40,7 +40,8 @@ import { Table,
   TableCell,
   TableHeader } from "@tiptap/extension-table";
 import { createPortal } from "react-dom";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { ESTILOS_LISTA, estiloListaValido, nomeFonteValido, CSS_LISTAS_PHANYX, type EstiloLista } from "@/lib/documentos/estilos-listas-editor";
 import {
   Plugin,
   PluginKey,
@@ -51,6 +52,34 @@ import {
   Decoration,
   DecorationSet,
 } from "@tiptap/pm/view";
+
+const EstilosListaPHANYX = Extension.create({
+  name: "estilosListaPHANYX",
+  addGlobalAttributes() {
+    return ["bulletList", "orderedList"].map(node => ({
+      types: [node],
+      attributes: {
+        phanyxListStyle: {
+          default: null,
+          parseHTML: (element: HTMLElement) => estiloListaValido(element.getAttribute("data-phanyx-list") || element.style.listStyleType, node === "bulletList" ? "bullet" : "ordered")?.valor ?? null,
+          renderHTML: (attributes: Record<string, unknown>) => {
+            const estilo = estiloListaValido(attributes.phanyxListStyle, node === "bulletList" ? "bullet" : "ordered");
+            if (!estilo) return {};
+            return { "data-phanyx-list": estilo.valor, style: `list-style-type: ${estilo.valor === "hierarchical" ? "decimal" : estilo.valor}` };
+          },
+        },
+      },
+    }));
+  },
+});
+
+const ROTULOS_FERRAMENTAS = {
+  "pt-BR": ["Copiar fonte", "Digite ou cole o nome da fonte", "Marcadores", "Numeração", "Remover lista", "Aumentar recuo", "Diminuir recuo", "Desfazer", "Refazer", "Copiar formatação", "Aplicar formatação", "Limpar formatação do texto", "Título principal do parágrafo", "Subtítulo do parágrafo", "Lista de marcadores e numeração"],
+  "pt-PT": ["Copiar tipo de letra", "Escreva ou cole o tipo de letra", "Marcas", "Numeração", "Remover lista", "Aumentar avanço", "Diminuir avanço", "Anular", "Refazer", "Copiar formatação", "Aplicar formatação", "Limpar formatação do texto", "Título principal do parágrafo", "Subtítulo do parágrafo", "Lista de marcas e numeração"],
+  "en-US": ["Copy font", "Type or paste font name", "Bullets", "Numbering", "Remove list", "Increase indent", "Decrease indent", "Undo", "Redo", "Copy formatting", "Apply formatting", "Clear text formatting", "Main paragraph heading", "Paragraph subheading", "Bullets and numbering"],
+  "es-ES": ["Copiar fuente", "Escribe o pega la fuente", "Viñetas", "Numeración", "Quitar lista", "Aumentar sangría", "Reducir sangría", "Deshacer", "Rehacer", "Copiar formato", "Aplicar formato", "Borrar formato de texto", "Título principal del párrafo", "Subtítulo del párrafo", "Viñetas y numeración"],
+  "fr-FR": ["Copier la police", "Saisir ou coller la police", "Puces", "Numérotation", "Supprimer la liste", "Augmenter le retrait", "Réduire le retrait", "Annuler", "Rétablir", "Copier la mise en forme", "Appliquer la mise en forme", "Effacer la mise en forme du texte", "Titre principal du paragraphe", "Sous-titre du paragraphe", "Puces et numérotation"],
+} as const;
 
 const FONTES_WINDOWS = [
   "Arial",
@@ -3540,7 +3569,13 @@ export default function EditorTemplatePHANYX({
       ].join("|")
       : "sem-campo-visual";
 
+  const localeFerramentas = useLocale();
+  const ferramentas = ROTULOS_FERRAMENTAS[localeFerramentas as keyof typeof ROTULOS_FERRAMENTAS] ?? ROTULOS_FERRAMENTAS["en-US"];
   const [fonteAtual, setFonteAtual] = useState("");
+  const [fonteDigitada, setFonteDigitada] = useState<string | null>(null);
+  const campoFonteRef = useRef<HTMLInputElement | null>(null);
+  const [menuListas, setMenuListas] = useState(false);
+  const [pincel, setPincel] = useState<{ attrs: Record<string, any>; bold: boolean; italic: boolean; underline: boolean; strike: boolean } | null>(null);
   const [listaFontesAberta, setListaFontesAberta] = useState(false);
   const [tamanhoAtual, setTamanhoAtual] = useState("");
   const [ultimaCorTexto, setUltimaCorTexto] = useState("#000000");
@@ -3653,6 +3688,7 @@ export default function EditorTemplatePHANYX({
 
     extensions: [
       StarterKit,
+      EstilosListaPHANYX,
 
       PageBreakPHANYX.configure({
         textoRodape:
@@ -5808,6 +5844,45 @@ export default function EditorTemplatePHANYX({
   }
 
 
+  function aplicarFonteDigitada(valor: string) {
+    if (!editor) return false;
+    const nome = nomeFonteValido(valor);
+    if (!nome) return false;
+    const fonte = FONTES_WINDOWS.find(f => f.toLowerCase() === nome.toLowerCase()) || nome;
+    if (!editor.chain().focus(undefined, { scrollIntoView: false }).setFontFamily(fonte).run()) return false;
+    setFonteAtual(fonte); setFonteDigitada(null); setListaFontesAberta(false);
+    publicarConteudoEditor();
+    return true;
+  }
+
+  function aplicarEstiloLista(estilo: EstiloLista) {
+    if (!editor) return;
+    const node = estilo.tipo === "bullet" ? "bulletList" : "orderedList";
+    const chain = editor.chain().focus(undefined, { scrollIntoView: false });
+    if (!editor.isActive(node)) {
+      if (estilo.tipo === "bullet") chain.toggleBulletList();
+      else chain.toggleOrderedList();
+    }
+    if (chain.updateAttributes(node, { phanyxListStyle: estilo.valor }).run()) publicarConteudoEditor();
+    setMenuListas(false);
+  }
+
+  function copiarFormatacao() {
+    if (!editor) return;
+    const attrs = editor.getAttributes("textStyle");
+    setPincel({ attrs: { fontFamily: attrs.fontFamily || fonteAtual || null, fontSize: attrs.fontSize || (tamanhoAtual ? `${tamanhoAtual}pt` : null), color: corTextoSelecionado || attrs.color || null, backgroundColor: attrs.backgroundColor || null }, bold: formatacaoAtiva.negrito, italic: formatacaoAtiva.italico, underline: formatacaoAtiva.sublinhado, strike: editor.isActive("strike") });
+  }
+
+  function aplicarFormatacaoCopiada() {
+    if (!editor || !pincel || editor.state.selection.empty) return;
+    const chain = editor.chain().focus(undefined, { scrollIntoView: false }).unsetMark("textStyle").setMark("textStyle", pincel.attrs);
+    if (pincel.bold) chain.setBold(); else chain.unsetBold();
+    if (pincel.italic) chain.setItalic(); else chain.unsetItalic();
+    if (pincel.underline) chain.setUnderline(); else chain.unsetUnderline();
+    if (pincel.strike) chain.setStrike(); else chain.unsetStrike();
+    if (chain.run()) publicarConteudoEditor();
+  }
+
   function renderizarFerramentas() {
     const estadoPosicaoLivreTabela =
       obterEstadoPosicaoLivreTabela();
@@ -5829,17 +5904,23 @@ export default function EditorTemplatePHANYX({
             </div>
             <div className="flex flex-wrap gap-2">
               <div className="relative min-w-[180px]">
-                <button
-                  type="button"
-                  aria-expanded={listaFontesAberta}
-                  aria-label={tToolbar("main.font")}
-                  onClick={() => setListaFontesAberta((aberta) => !aberta)}
-                  onKeyDown={(event) => { if (event.key === "Escape") setListaFontesAberta(false); }}
-                  className="flex w-full items-center justify-between gap-3 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                >
-                  <span style={{ fontFamily: fonteAtual || "inherit" }}>{fonteAtual || tToolbar("main.font")}</span>
-                  <span aria-hidden="true">▾</span>
-                </button>
+                <div className="flex max-w-full items-center rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950">
+                  <input ref={campoFonteRef} type="text" value={fonteDigitada ?? fonteAtual} placeholder={tToolbar("main.font")}
+                    title={ferramentas[1]} aria-label={ferramentas[1]} maxLength={100} spellCheck={false} autoComplete="off"
+                    style={{ fontFamily: fonteAtual || "inherit" }}
+                    className="h-10 w-36 min-w-0 rounded-l-xl bg-transparent px-2 text-sm text-slate-950 dark:text-white"
+                    onFocus={e => { setFonteDigitada(fonteAtual); e.currentTarget.select(); }}
+                    onChange={e => setFonteDigitada(e.currentTarget.value)}
+                    onBlur={() => setFonteDigitada(null)}
+                    onPaste={e => { e.preventDefault(); e.stopPropagation(); const valor = e.clipboardData.getData("text"); if (!aplicarFonteDigitada(valor)) setFonteDigitada(valor.slice(0, 100)); }}
+                    onKeyDown={e => { e.stopPropagation(); if (e.key === "Enter") { e.preventDefault(); aplicarFonteDigitada(e.currentTarget.value); } else if (e.key === "Escape") { setFonteDigitada(null); setListaFontesAberta(false); editor.commands.focus(); } }}
+                    aria-invalid={fonteDigitada !== null && !!fonteDigitada && !nomeFonteValido(fonteDigitada)} />
+                  <button type="button" className="h-10 px-2" aria-expanded={listaFontesAberta} aria-label={tToolbar("main.font")} title={tToolbar("main.font")} onClick={() => { setListaFontesAberta(v => !v); setMenuListas(false); }}>▾</button>
+                  <button type="button" disabled={!fonteAtual} className="h-10 border-l border-slate-300 px-2 disabled:opacity-40" title={ferramentas[0]} aria-label={ferramentas[0]}
+                    onClick={async () => { try { await navigator.clipboard.writeText(fonteAtual); } catch { campoFonteRef.current?.focus(); campoFonteRef.current?.select(); } }}>
+                    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+                  </button>
+                </div>
                 {listaFontesAberta && (
                   <div
                     role="group"
@@ -5852,10 +5933,7 @@ export default function EditorTemplatePHANYX({
                       <button key={fonte} type="button"
                         aria-pressed={fonteAtual === fonte}
                         onClick={() => {
-                          editor.chain().focus(undefined, { scrollIntoView: false }).setFontFamily(fonte).run();
-                          setFonteAtual(fonte);
-                          setListaFontesAberta(false);
-                          publicarConteudoEditor();
+                          aplicarFonteDigitada(fonte);
                         }}
                         style={{ fontFamily: fonte, fontWeight: 400 }}
                         className="block w-full rounded-lg px-3 py-2 text-left text-base text-slate-950 hover:bg-slate-100 dark:text-white dark:hover:bg-slate-800 aria-pressed:bg-blue-100 dark:aria-pressed:bg-blue-900"
@@ -6059,6 +6137,7 @@ export default function EditorTemplatePHANYX({
                 aria-pressed={
                   formatacaoAtiva.titulo
                 }
+                title={ferramentas[12]}
                 onClick={() =>
                   editor
                     .chain()
@@ -6080,6 +6159,7 @@ export default function EditorTemplatePHANYX({
                 aria-pressed={
                   formatacaoAtiva.subtitulo
                 }
+                title={ferramentas[13]}
                 onClick={() =>
                   editor
                     .chain()
@@ -6096,24 +6176,26 @@ export default function EditorTemplatePHANYX({
                 {tToolbar("main.subheading")}
               </button>
 
-              <button
-                type="button"
-                aria-pressed={
-                  formatacaoAtiva.lista
-                }
-                onClick={() =>
-                  editor
-                    .chain()
-                    .focus(undefined, { scrollIntoView: false })
-                    .toggleBulletList()
-                    .run()
-                }
-                className={classeBotaoFormatacao(
-                  formatacaoAtiva.lista
-                )}
-              >
-                • {tToolbar("main.list")}
-              </button>
+              <div className="relative flex items-center gap-1" onKeyDown={e => { if (e.key === "Escape") setMenuListas(false); }}>
+                <button type="button" title={ferramentas[14]} aria-label={ferramentas[14]} aria-expanded={menuListas} className={classeBotaoFormatacao(formatacaoAtiva.lista || editor.isActive("orderedList"))} onClick={() => { setMenuListas(v => !v); setListaFontesAberta(false); }}>• {tToolbar("main.list")} ▾</button>
+                {menuListas && <div role="group" aria-label={ferramentas[14]} className="absolute left-0 top-full z-[100] mt-1 w-72 max-w-[80vw] max-h-80 overflow-auto rounded-xl border border-slate-300 bg-white p-2 shadow-xl dark:border-slate-700 dark:bg-slate-950">
+                  {(["bullet", "ordered"] as const).map(tipo => <div key={tipo} className="mb-2">
+                    <p className="mb-1 text-xs font-semibold">{tipo === "bullet" ? ferramentas[2] : ferramentas[3]}</p>
+                    <div className="grid grid-cols-3 gap-1">{ESTILOS_LISTA.filter(e => e.tipo === tipo).map(estilo => <button type="button" key={estilo.valor} title={estilo.amostra} aria-label={`${tipo === "bullet" ? ferramentas[2] : ferramentas[3]} ${estilo.amostra}`} className="min-h-10 rounded-lg border border-slate-300 px-1 py-2 text-xs hover:bg-blue-100 dark:border-slate-700 dark:hover:bg-blue-900" onClick={() => aplicarEstiloLista(estilo)}>{estilo.amostra}</button>)}</div>
+                  </div>)}
+                  <button type="button" className={classeBotaoFormatacao(false)} onClick={() => { const chain = editor.chain().focus(undefined, { scrollIntoView: false }); if (editor.isActive("bulletList")) chain.toggleBulletList(); else if (editor.isActive("orderedList")) chain.toggleOrderedList(); if (chain.run()) publicarConteudoEditor(); setMenuListas(false); }}>{ferramentas[4]}</button>
+                </div>}
+              </div>
+              {[
+                { label: ferramentas[5], symbol: "⇥", disabled: !editor.can().sinkListItem("listItem"), action: () => editor.chain().focus(undefined, { scrollIntoView: false }).sinkListItem("listItem").run() },
+                { label: ferramentas[6], symbol: "⇤", disabled: !editor.can().liftListItem("listItem"), action: () => editor.chain().focus(undefined, { scrollIntoView: false }).liftListItem("listItem").run() },
+                { label: ferramentas[7], symbol: "↶", disabled: !editor.can().undo(), action: () => editor.chain().focus(undefined, { scrollIntoView: false }).undo().run() },
+                { label: ferramentas[8], symbol: "↷", disabled: !editor.can().redo(), action: () => editor.chain().focus(undefined, { scrollIntoView: false }).redo().run() },
+                { label: ferramentas[9], symbol: "▣", disabled: editor.state.selection.empty, action: () => { copiarFormatacao(); return false; } },
+                { label: ferramentas[10], symbol: "▧", disabled: !pincel || editor.state.selection.empty, action: () => { aplicarFormatacaoCopiada(); return false; } },
+                { label: ferramentas[11], symbol: "Tx", disabled: editor.state.selection.empty, action: () => editor.chain().focus(undefined, { scrollIntoView: false }).unsetAllMarks().run() },
+              ].map(item => <button key={item.label} type="button" disabled={item.disabled} title={item.label} aria-label={item.label} className={`${classeBotaoFormatacao(false)} disabled:opacity-40`} onClick={() => { if (item.action()) publicarConteudoEditor(); }}>{item.symbol}</button>)}
+              <style>{CSS_LISTAS_PHANYX}</style>
 
               <div className="flex items-center overflow-hidden rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950">
                 <button

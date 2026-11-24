@@ -1,3 +1,4 @@
+import { CSS_LISTAS_PHANYX } from "@/lib/documentos/estilos-listas-editor";
 import { NextRequest, NextResponse } from "next/server";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { prisma } from "@/lib/prisma";
@@ -466,6 +467,7 @@ const htmlFinal = `
 <head>
   <meta charset="UTF-8" />
   <style>
+    ${CSS_LISTAS_PHANYX}
     @page {
       size: A4;
       margin: 0;

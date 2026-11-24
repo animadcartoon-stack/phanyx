@@ -1,3 +1,4 @@
+import { CSS_LISTAS_PHANYX } from "@/lib/documentos/estilos-listas-editor";
 export type FormatoImpressaoDocumento =
   | "A4_INTEIRA"
   | "DUAS_VIAS_A4";
@@ -3059,6 +3060,7 @@ export function montarRenderizacaoDocumento(
         />
 
         <style>
+          ${CSS_LISTAS_PHANYX}
           ${cssCompartilhado(
     formatoImpressao
   )}
