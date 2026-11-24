@@ -564,43 +564,80 @@ export async function POST(
         },
       });
 
-    // Temporary diagnostic using the actual render, restricted to preview.
+    // Temporary header/footer isolation. Authenticated request, preview only.
     if (process.env.VERCEL_ENV === "preview") {
-      const cases = ["full-multiprocess", "full-untagged", "body-only", "header-footer-only"] as const;
+      const original = renderizacao.pdfOptions;
+      const header = original.headerTemplate;
+      const footer = original.footerTemplate;
+      const logoMatch = header.match(/<img\b[^>]*>/i);
+      const logoTag = logoMatch?.[0] || "";
+      const logoSrc = logoTag.match(/\bsrc\s*=\s*"([^"]*)"/i)?.[1] || "";
+      const cases = ["header-only", "footer-only", "header-without-logo", "logo-only", "header-small-png", "full-normalized-logo"] as const;
       const results: Array<Record<string, unknown>> = [];
       const started = Date.now();
+      const empty = "<div></div>";
+      const minimal = "<!doctype html><html><body><p>PHANYX PDF diagnostic</p></body></html>";
+      console.info("[PDF-HEADER-DIAG] metadata", { enabled: original.displayHeaderFooter, headerChars: header.length, footerChars: footer.length, hasLogo: Boolean(logoTag), logoChars: logoSrc.length, logoType: logoSrc.match(/^data:([a-z0-9+./-]+);/i)?.[1] || "none" });
       for (const test of cases) {
-        if (Date.now() - started > 35000) {
-          results.push({ test, ok: false, skipped: "time-budget" });
-          continue;
-        }
+        if (Date.now() - started > 35000) { results.push({ test, skipped: "time-budget" }); continue; }
+        if (!original.displayHeaderFooter) { results.push({ test, skipped: "header-footer-disabled" }); continue; }
+        if (["header-without-logo", "logo-only", "header-small-png", "full-normalized-logo"].includes(test) && !logoTag) { results.push({ test, skipped: "no-logo" }); continue; }
+        if (test === "full-normalized-logo" && !/^data:image\//i.test(logoSrc)) { results.push({ test, skipped: "logo-not-inline-image" }); continue; }
         let diagnosticBrowser: Awaited<ReturnType<typeof abrirNavegador>> | undefined;
         let stage = "launch";
         try {
-          diagnosticBrowser = test === "full-multiprocess"
-            ? await puppeteer.launch({ executablePath: await chromium.executablePath(CHROMIUM_PACK), args: chromium.args.filter(arg => arg !== "--single-process"), headless: true, dumpio: true, timeout: 8000 })
-            : await abrirNavegador();
-          diagnosticBrowser.process()?.once("exit", (code, signal) => console.info("[PDF-RENDER-DIAG] exit", { test, code, signal }));
+          diagnosticBrowser = await abrirNavegador();
+          diagnosticBrowser.process()?.once("exit", (code, signal) => console.info("[PDF-HEADER-DIAG] exit", { test, code, signal }));
           stage = "content";
           const page = await diagnosticBrowser.newPage();
           await page.emulateMediaType("print");
-          await page.setContent(test === "header-footer-only" ? "<!doctype html><html><body><p>PDF diagnostic</p></body></html>" : renderizacao.html, { waitUntil: "domcontentloaded", timeout: 5000 });
+          await page.setContent(test === "full-normalized-logo" ? renderizacao.html : minimal, { waitUntil: "domcontentloaded", timeout: 5000 });
           await page.evaluate(async () => {
             await Promise.race([Promise.all([document.fonts.ready, ...Array.from(document.images).map(img => img.decode().catch(() => undefined))]), new Promise<void>(resolve => setTimeout(resolve, 3000))]);
           });
+          let testHeader = header;
+          let testFooter = empty;
+          if (test === "footer-only") { testHeader = empty; testFooter = footer; }
+          if (test === "header-without-logo") testHeader = header.replace(/<img\b[^>]*>/gi, "");
+          if (test === "logo-only") testHeader = `<div style="padding-left:18mm">${logoTag}</div>`;
+          if (test === "header-small-png") {
+            stage = "synthetic-png";
+            const png = await page.evaluate(() => {
+              const c = document.createElement("canvas"); c.width = 32; c.height = 32;
+              const ctx = c.getContext("2d"); if (!ctx) throw new Error("NO_CANVAS");
+              ctx.fillStyle = "#2563eb"; ctx.fillRect(0, 0, 32, 32);
+              return c.toDataURL("image/png");
+            });
+            testHeader = header.replace(logoTag, logoTag.replace(/\bsrc\s*=\s*"[^"]*"/i, `src="${png}"`));
+          }
+          if (test === "full-normalized-logo") {
+            stage = "normalize-logo";
+            const normalized = await page.evaluate(async (src) => {
+              const img = new Image(); img.src = src;
+              await Promise.race([img.decode(), new Promise<never>((_, reject) => setTimeout(() => reject(new Error("IMAGE_DECODE_TIMEOUT")), 3000))]);
+              if (!img.naturalWidth || !img.naturalHeight) throw new Error("INVALID_IMAGE");
+              const ratio = Math.min(1, 512 / Math.max(img.naturalWidth, img.naturalHeight));
+              const c = document.createElement("canvas"); c.width = Math.max(1, Math.round(img.naturalWidth * ratio)); c.height = Math.max(1, Math.round(img.naturalHeight * ratio));
+              const ctx = c.getContext("2d"); if (!ctx) throw new Error("NO_CANVAS");
+              ctx.drawImage(img, 0, 0, c.width, c.height);
+              return { png: c.toDataURL("image/png"), width: c.width, height: c.height };
+            }, logoSrc);
+            console.info("[PDF-HEADER-DIAG] normalized", { width: normalized.width, height: normalized.height, chars: normalized.png.length });
+            testHeader = header.replace(logoTag, logoTag.replace(/\bsrc\s*=\s*"[^"]*"/i, `src="${normalized.png}"`));
+            testFooter = footer;
+          }
           stage = "print";
-          const options = { ...renderizacao.pdfOptions, timeout: 7000, ...(test === "full-untagged" ? { tagged: false, outline: false } : {}), ...(test === "body-only" ? { displayHeaderFooter: false, headerTemplate: "", footerTemplate: "" } : {}) };
-          const bytes = await page.pdf(options);
-          results.push({ test, ok: bytes.length > 5, bytes: bytes.length, displayHeaderFooter: options.displayHeaderFooter });
+          const bytes = await page.pdf({ ...original, displayHeaderFooter: true, headerTemplate: testHeader, footerTemplate: testFooter, timeout: 6500 });
+          const valid = bytes.length > 5 && Buffer.from(bytes.subarray(0, 5)).toString("ascii") === "%PDF-";
+          results.push({ test, ok: valid, bytes: bytes.length });
         } catch (error) {
           results.push({ test, ok: false, stage, error: error instanceof Error ? error.name : "unknown" });
         } finally {
           if (diagnosticBrowser) await diagnosticBrowser.close().catch(() => null);
         }
-        console.info("[PDF-RENDER-DIAG]", results[results.length - 1]);
+        console.info("[PDF-HEADER-DIAG]", results[results.length - 1]);
       }
-      console.info("[PDF-RENDER-DIAG] summary", JSON.stringify(results));
-      // Never deliver partial or accessibility-altered PDFs as a normal preview.
+      console.info("[PDF-HEADER-DIAG] summary", JSON.stringify(results));
       return NextResponse.json({ error: "PDF_DIAGNOSTIC_COMPLETE", results }, { status: 422, headers: { "Cache-Control": "no-store" } });
     }
 
