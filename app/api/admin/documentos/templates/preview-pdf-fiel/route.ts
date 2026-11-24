@@ -3,7 +3,8 @@ import {
 } from "@/lib/documentos/variaveis-preview-documento";
 import { NextRequest, NextResponse } from "next/server";
 import fs from "node:fs";
-import sharp from "sharp";
+import { lerImagemPdfLimitada, prepararImagemPdf } from "@/lib/pdf/preparar-imagem-pdf";
+import { normalizarModeloPapelTimbrado } from "@/lib/documentos/modelos-papel-timbrado";
 import chromium from "@sparticuz/chromium-min";
 import puppeteer from "puppeteer-core";
 import { prisma } from "@/lib/prisma";
@@ -140,22 +141,15 @@ async function imagemParaDataUri(
   }
 }
 
-// Bounded server-side normalization; never return the unprocessed logo.
-async function otimizarLogoPdf(dataUri: string): Promise<string> {
-  if (!dataUri) return "";
-  const match = /^data:image\/[^;,]+;base64,([A-Za-z0-9+/=]+)$/i.exec(dataUri);
-  if (!match || match[1].length > 28_000_000) throw new Error("PDF_LOGO_INVALID_OR_TOO_LARGE");
-  const entrada = Buffer.from(match[1], "base64");
-  // PNG header can be inspected without decoding its pixels.
-  if (entrada.length >= 24 && entrada.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])) && entrada.toString("ascii",12,16) === "IHDR") {
-    console.info("[PDF-LOGO] input", { width: entrada.readUInt32BE(16), height: entrada.readUInt32BE(20), bytes: entrada.length });
-  }
-  const imagem = sharp(entrada, { limitInputPixels: 120_000_000, failOn: "error", sequentialRead: true });
-  const meta = await imagem.metadata();
-  if (!meta.width || !meta.height || meta.width > 16000 || meta.height > 16000 || (meta.pages || 1) > 1) throw new Error("PDF_LOGO_DIMENSIONS_UNSUPPORTED");
-  const png = await imagem.rotate().resize({ width: 400, height: 400, fit: "inside", withoutEnlargement: true }).png({ compressionLevel: 9 }).timeout({ seconds: 12 }).toBuffer();
-  console.info("[PDF-LOGO] optimized", { width: meta.width, height: meta.height, originalBytes: entrada.length, optimizedBytes: png.length });
-  return `data:image/png;base64,${png.toString("base64")}`;
+// Use the same bounded decoder as the contract PDF. Never pass the original oversized logo to Chromium.
+async function prepararLogoPrevia(url?: string | null): Promise<string> {
+  if (!url) return "";
+  const resposta = await fetch(url, { signal: AbortSignal.timeout(15000) });
+  if (!resposta.ok) throw new Error("PDF_LOGO_FETCH_FAILED");
+  const original = await lerImagemPdfLimitada(resposta);
+  const otimizada = await prepararImagemPdf(original, { ladoMaximo: 400, timeoutSegundos: 35 });
+  console.info("[PDF-LOGO] optimized-shared", { originalBytes: original.length, optimizedBytes: otimizada.bytes.length, format: otimizada.formato });
+  return `data:image/${otimizada.formato};base64,${otimizada.bytes.toString("base64")}`;
 }
 
 function substituirExemplos(
@@ -381,14 +375,7 @@ export async function POST(
          * contratos; o segundo garante que a prévia acompanhe
          * o layout efetivamente usado pelo renderizador.
          */
-        estiloDocumento:
-          ehHistorico
-            ? "INSTITUCIONAL"
-            : (
-              config?.estiloDocumento ||
-              config?.estiloPapelTimbrado ||
-              "INSTITUCIONAL"
-            ),
+        estiloDocumento: ehHistorico ? "INSTITUCIONAL" : normalizarModeloPapelTimbrado(config?.estiloPapelTimbrado || config?.estiloDocumento),
 
         fallbackLogoUrl:
           config?.logoUrl ||
@@ -420,17 +407,10 @@ export async function POST(
       assinaturaDataUri,
       papelTimbradoDataUri,
     ] = await Promise.all([
-      imagemParaDataUri(
-        logoUrl
-      ).then(async (dataUri) => {
-        try {
-          if (logoUrl && !dataUri) throw new Error("PDF_LOGO_FETCH_FAILED");
-          return await otimizarLogoPdf(dataUri);
-        } catch (error) {
-          logoIndisponivel = true;
-          console.warn("[PDF-LOGO] preview-degraded", { error: error instanceof Error ? error.message : "UNKNOWN" });
-          return "";
-        }
+      prepararLogoPrevia(logoUrl).catch((error: unknown) => {
+        logoIndisponivel = true;
+        console.warn("[PDF-LOGO] preview-degraded", { error: error instanceof Error ? error.message : "UNKNOWN" });
+        return "";
       }),
 
       imagemParaDataUri(
@@ -572,10 +552,7 @@ export async function POST(
                 ?.usarPapelTimbrado
             ),
 
-          estiloPapelTimbrado:
-            config
-              ?.estiloPapelTimbrado ||
-            null,
+          estiloPapelTimbrado: normalizarModeloPapelTimbrado(config?.estiloPapelTimbrado || config?.estiloDocumento),
         },
 
         validacao: {
@@ -627,7 +604,7 @@ export async function POST(
     );
 
     await page.setContent(
-      logoIndisponivel ? renderizacao.html.replace(/<body(?:\s[^>]*)?>/i, (tag) => tag + '<div style="font: bold 10pt Arial,sans-serif;color:#92400e;border:1px solid #92400e;padding:4px;text-align:center">PREVIEW / PRÃ‰VIA â€” LOGO UNAVAILABLE / LOGOTIPO INDISPONÃVEL</div>') : renderizacao.html,
+      logoIndisponivel ? renderizacao.html.replace(/<body(?:\s[^>]*)?>/i, (tag) => tag + '<div style="font: bold 10pt Arial,sans-serif;color:#92400e;border:1px solid #92400e;padding:4px;text-align:center">PREVIEW / PR&Eacute;VIA &mdash; LOGO UNAVAILABLE / LOGOTIPO INDISPON&Iacute;VEL</div>') : renderizacao.html,
       {
         waitUntil:
           "domcontentloaded",

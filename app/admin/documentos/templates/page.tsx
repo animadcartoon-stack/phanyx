@@ -7,6 +7,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import withAuth from "@/lib/withAuth";
 import { createPortal } from "react-dom";
+import type { ReactNode } from "react";
 import { useRascunhoTemplate } from "@/lib/editor/use-rascunho-template";
 import { CONTEXTOS_BASE, contextosOutros, rotuloContextoExtra, normalizarNomeContexto, valorContextoPersonalizado, nomeContextoPersonalizado, textosContextoPersonalizado } from "@/lib/documentos/contextos-documento";
 import PhanyxToast from "@/components/ui/PhanyxToast";
@@ -15,6 +16,29 @@ import EditorTemplatePHANYX from "@/components/documentos/EditorTemplatePHANYX";
 import ConfiguradorLinhasDocente from "@/components/documentos-docentes/ConfiguradorLinhasDocente";
 import HistoricoTemplateEditorPHANYX from "@/components/documentos/HistoricoTemplateEditorPHANYX";
 import { useLocale, useTranslations } from "next-intl";
+
+// Native dialog uses the browser top layer, above sticky editor and floating controls.
+function ModalPreviaPdf({ titulo, fecharLabel, onFechar, compacto = false, children }: { titulo: string; fecharLabel: string; onFechar: () => void; compacto?: boolean; children: ReactNode }) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (!dialog.open) dialog.showModal();
+    return () => { if (dialog.open) dialog.close(); };
+  }, []);
+  if (typeof document === "undefined") return null;
+  return createPortal(
+    <dialog ref={dialogRef} className="phanyx-pdf-dialog" data-compacto={compacto ? "true" : "false"} aria-labelledby="phanyx-pdf-modal-title" onCancel={e => { e.preventDefault(); onFechar(); }}>
+      <div className="phanyx-pdf-modal-header">
+        <h2 id="phanyx-pdf-modal-title" className="phanyx-pdf-modal-title">{titulo}</h2>
+        <button type="button" className="phanyx-pdf-modal-close" aria-label={fecharLabel} title={fecharLabel} onClick={onFechar}>
+          <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+      </div>
+      {children}
+    </dialog>, document.body
+  );
+}
 
 type TipoDocumentoTemplate =
   | "CONTRATO"
@@ -1242,7 +1266,8 @@ function AdminDocumentosTemplatesPage() {
   const [erroPreviaPdf, setErroPreviaPdf] = useState("");
   const [urlPreviaPdf, setUrlPreviaPdf] = useState("");
   const [avisoLogoPrevia, setAvisoLogoPrevia] = useState(false);
-  const avisoLogoTexto = locale.startsWith("pt") ? "PrÃ©via parcial: nÃ£o foi possÃ­vel processar o logotipo. O original estÃ¡ preservado; esta prÃ©via nÃ£o Ã© fiel para impressÃ£o." : locale.startsWith("es") ? "Vista previa parcial: no se pudo procesar el logotipo. Se conserva el original." : locale.startsWith("fr") ? "AperÃ§u partiel : impossible de traiter le logo. Lâ€™original est conservÃ©." : "Partial preview: the logo could not be processed. The original is preserved.";
+  const avisoLogoTexto = locale.startsWith("pt") ? "Pr\u00e9via parcial: n\u00e3o foi poss\u00edvel processar o logotipo. O original est\u00e1 preservado; esta pr\u00e9via n\u00e3o \u00e9 fiel para impress\u00e3o." : locale.startsWith("es") ? "Vista previa parcial: no se pudo procesar el logotipo. Se conserva el original." : locale.startsWith("fr") ? "Aper\u00e7u partiel : impossible de traiter le logo. L'original est conserv\u00e9." : "Partial preview: the logo could not be processed. The original is preserved.";
+  const fecharPdfLabel = locale.startsWith("pt") ? "Fechar" : locale.startsWith("es") ? "Cerrar" : locale.startsWith("fr") ? "Fermer" : "Close";
   const [previaAutomatica, setPreviaAutomatica] = useState(false);
   const previaEmCurso = useRef(false);
   const ultimaPrevia = useRef("");
@@ -4702,6 +4727,23 @@ function AdminDocumentosTemplatesPage() {
         </aside>
       )}
       <style jsx global>{`
+      /* The PDF dialog is portaled outside the editor; use explicit theme contrast. */
+      .phanyx-pdf-dialog { position: fixed; inset: 0; margin: auto; width: calc(100vw - 16px); height: calc(100dvh - 16px); max-width: 72rem; max-height: calc(100dvh - 16px); padding: 0; overflow: hidden; border: 1px solid #cbd5e1; border-radius: 16px; background: #ffffff !important; color: #0f172a !important; box-shadow: 0 20px 65px #0005; }
+      .phanyx-pdf-dialog:not([open]) { display: none !important; }
+      .phanyx-pdf-dialog[open] { display: flex; flex-direction: column; }
+      .phanyx-pdf-dialog[data-compacto="true"] { max-width: 28rem; height: auto; }
+      .phanyx-pdf-dialog::backdrop { background: rgba(0,0,0,.60); }
+      .phanyx-pdf-dialog .phanyx-pdf-modal-header { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #cbd5e1; background: #ffffff !important; color: #0f172a !important; }
+      .phanyx-pdf-dialog .phanyx-pdf-modal-title { margin: 0; font-size: 1rem; font-weight: 700; color: #0f172a !important; -webkit-text-fill-color: #0f172a !important; opacity: 1 !important; }
+      .phanyx-pdf-dialog .phanyx-pdf-modal-close { display: flex; flex-shrink: 0; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1px solid #cbd5e1; border-radius: 10px; background: #f1f5f9 !important; color: #0f172a !important; -webkit-text-fill-color: #0f172a !important; cursor: pointer; opacity: 1 !important; }
+      .phanyx-pdf-dialog .phanyx-pdf-modal-close svg { color: inherit !important; stroke: currentColor !important; }
+      .phanyx-pdf-dialog .phanyx-pdf-modal-close:hover { background: #e2e8f0 !important; }
+      .phanyx-pdf-dialog .phanyx-pdf-modal-close:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+      html.dark:not([data-theme="system"]) .phanyx-pdf-dialog, html[data-theme="system"] .phanyx-pdf-dialog { background: #0f172a !important; color: #f8fafc !important; border-color: #475569; }
+      html.dark:not([data-theme="system"]) .phanyx-pdf-dialog .phanyx-pdf-modal-header, html[data-theme="system"] .phanyx-pdf-dialog .phanyx-pdf-modal-header { background: #0f172a !important; color: #f8fafc !important; border-color: #475569; }
+      html.dark:not([data-theme="system"]) .phanyx-pdf-dialog .phanyx-pdf-modal-title, html[data-theme="system"] .phanyx-pdf-dialog .phanyx-pdf-modal-title { color: #f8fafc !important; -webkit-text-fill-color: #f8fafc !important; }
+      html.dark:not([data-theme="system"]) .phanyx-pdf-dialog .phanyx-pdf-modal-close, html[data-theme="system"] .phanyx-pdf-dialog .phanyx-pdf-modal-close { background: #334155 !important; color: #f8fafc !important; -webkit-text-fill-color: #f8fafc !important; border-color: #64748b; }
+      @media(min-width:640px) { .phanyx-pdf-dialog { width: calc(100vw - 48px); height: calc(100dvh - 48px); max-height: calc(100dvh - 48px); } }
       .phanyx-doc-templates-page .pdoc-card {
         background: #ffffff !important;
         border-color: #cbd5e1 !important;
@@ -4884,49 +4926,18 @@ function AdminDocumentosTemplatesPage() {
         </button>, document.body
       )}
       {erroPreviaPdf && !previaAutomatica && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-md rounded-3xl border bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
-            <h2 className="text-lg font-bold">
-              {t("variables.viewPdf")}
-            </h2>
-            <p className="mt-3 text-sm text-red-600 dark:text-red-300">
-              {erroPreviaPdf}
-            </p>
-            <button
-              type="button"
-              onClick={() => setErroPreviaPdf("")}
-              className="mt-5 w-full rounded-xl bg-blue-600 px-4 py-3 font-semibold text-white"
-            >
-              {t("errorModal.understood")}
-            </button>
+        <ModalPreviaPdf titulo={t("variables.viewPdf")} fecharLabel={fecharPdfLabel} onFechar={() => setErroPreviaPdf("")} compacto>
+          <div className="p-5">
+            <p className="text-sm text-red-600 dark:text-red-300" role="alert">{erroPreviaPdf}</p>
+            <button type="button" onClick={() => setErroPreviaPdf("")} className="mt-5 w-full rounded-xl bg-blue-600 px-4 py-3 font-semibold text-white">{t("errorModal.understood")}</button>
           </div>
-        </div>
+        </ModalPreviaPdf>
       )}
-
-      {urlPreviaPdf && !previaAutomatica && (
-        <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/60 p-2 sm:p-6">
-          <div className="flex h-full w-full max-w-6xl flex-col overflow-hidden rounded-2xl border bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
-            <div className="flex items-center justify-between border-b p-4">
-              <h2 className="font-semibold">
-                {t("variables.viewPdf")}
-              </h2>
-              <button
-                type="button"
-                onClick={() => setUrlPreviaPdf("")}
-                aria-label={t("errorModal.understood")}
-                className="rounded-xl border px-4 py-2 text-xl"
-              >
-                ×
-              </button>
-            </div>
-            {avisoLogoPrevia && <p role="alert" className="border-b border-amber-500 bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100">{avisoLogoTexto}</p>}
-            <iframe
-              src={urlPreviaPdf}
-              title={t("variables.viewPdf")}
-              className="min-h-0 w-full flex-1 border-0 bg-slate-100"
-            />
-          </div>
-        </div>
+      {urlPreviaPdf && !previaAutomatica && !erroPreviaPdf && (
+        <ModalPreviaPdf titulo={t("variables.viewPdf")} fecharLabel={fecharPdfLabel} onFechar={() => setUrlPreviaPdf("")}>
+          {avisoLogoPrevia && <p role="alert" className="shrink-0 border-b border-amber-500 bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100">{avisoLogoTexto}</p>}
+          <iframe src={urlPreviaPdf} title={t("variables.viewPdf")} className="min-h-0 w-full flex-1 border-0 bg-slate-100" />
+        </ModalPreviaPdf>
       )}
       {erro && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
