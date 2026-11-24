@@ -6,6 +6,7 @@ import {
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import withAuth from "@/lib/withAuth";
+import { createPortal } from "react-dom";
 import { useRascunhoTemplate } from "@/lib/editor/use-rascunho-template";
 import { CONTEXTOS_BASE, contextosOutros, rotuloContextoExtra, normalizarNomeContexto, valorContextoPersonalizado, nomeContextoPersonalizado, textosContextoPersonalizado } from "@/lib/documentos/contextos-documento";
 import PhanyxToast from "@/components/ui/PhanyxToast";
@@ -1204,6 +1205,36 @@ function AdminDocumentosTemplatesPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [visualizandoPdf, setVisualizandoPdf] = useState(false);
+  const botaoPdfOriginalRef = useRef<HTMLButtonElement>(null);
+  const listaDocumentosRef = useRef<HTMLDivElement>(null);
+  const [pdfFlutuante, setPdfFlutuante] = useState(false);
+  useEffect(() => {
+    let frame = 0;
+    const atualizar = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const inicio = botaoPdfOriginalRef.current?.getBoundingClientRect();
+        const fim = listaDocumentosRef.current?.getBoundingClientRect();
+        // Only after the original button leaves the top of the viewport;
+        // hide before the saved-document section enters the viewport.
+        setPdfFlutuante(Boolean(inicio && fim && inicio.bottom <= 0 && fim.top >= window.innerHeight));
+      });
+    };
+    window.addEventListener("scroll", atualizar, true);
+    window.addEventListener("resize", atualizar);
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(atualizar) : null;
+    if (botaoPdfOriginalRef.current) observer?.observe(botaoPdfOriginalRef.current);
+    if (listaDocumentosRef.current) observer?.observe(listaDocumentosRef.current);
+    const raiz = botaoPdfOriginalRef.current?.closest(".phanyx-doc-templates-page");
+    if (raiz) observer?.observe(raiz);
+    atualizar();
+    return () => {
+      cancelAnimationFrame(frame);
+      observer?.disconnect();
+      window.removeEventListener("scroll", atualizar, true);
+      window.removeEventListener("resize", atualizar);
+    };
+  }, []);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [mensagem, setMensagem] = useState("");
@@ -4836,6 +4867,18 @@ function AdminDocumentosTemplatesPage() {
 
 
 
+      {pdfFlutuante && !erroPreviaPdf && (!urlPreviaPdf || previaAutomatica) && typeof document !== "undefined" && createPortal(
+        <button
+          type="button"
+          onClick={() => void visualizarPdfTemplate()}
+          disabled={visualizandoPdf}
+          aria-busy={visualizandoPdf}
+          className={`fixed bottom-[104px] right-4 z-[45] flex max-w-[calc(100vw-2rem)] items-center gap-2 rounded-full bg-blue-700 px-4 py-3 text-sm font-semibold text-white shadow-xl ring-2 ring-white/70 hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-wait disabled:opacity-80 sm:right-6 ${previaAutomatica ? "xl:right-[35vw]" : ""}`}
+        >
+          {visualizandoPdf ? <span aria-hidden="true" className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" /> : <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>}
+          {visualizandoPdf ? t("variables.generatingPdf") : t("variables.viewPdf")}
+        </button>, document.body
+      )}
       {erroPreviaPdf && !previaAutomatica && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
           <div className="w-full max-w-md rounded-3xl border bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
@@ -5124,6 +5167,7 @@ function AdminDocumentosTemplatesPage() {
                   }}>{previaAutomatica ? textosPrevia[2] : textosPrevia[1]}</button>
                   <button
                     type="button"
+                    ref={botaoPdfOriginalRef}
                     onClick={() => void visualizarPdfTemplate()}
                     disabled={visualizandoPdf}
                     className="pdoc-card rounded-xl border px-3 py-2 text-sm hover:border-blue-400"
@@ -5638,7 +5682,7 @@ function AdminDocumentosTemplatesPage() {
         </div>
 
         <div>
-          <div className="pdoc-card phanyx-doc-template-list rounded-2xl border shadow-sm overflow-hidden">
+          <div ref={listaDocumentosRef} className="pdoc-card phanyx-doc-template-list rounded-2xl border shadow-sm overflow-hidden">
             <div className="border-b px-5 py-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                 <div>

@@ -97,6 +97,7 @@ async function abrirNavegador() {
         ),
 
     headless: true,
+    dumpio: true,
   });
 }
 
@@ -563,15 +564,24 @@ export async function POST(
         },
       });
 
+    let pdfBuffer: Uint8Array | undefined;
+    const inicioTentativas = Date.now();
+    for (let tentativa = 1; tentativa <= 2; tentativa++) {
+      try {
+        console.info("[PDF-PREVIEW] tentativa", tentativa);
     registrarMemoriaPdf("antes-chromium");
 
     browser =
       await abrirNavegador();
 
     registrarMemoriaPdf("depois-chromium");
+    browser.process()?.once("exit", (code, signal) => {
+      console.info("[PDF-PREVIEW] chromium-exit", { code, signal });
+    });
 
     const page =
       await browser.newPage();
+    page.on("error", (error) => console.error("[PDF-PREVIEW] page-crash", error.name));
 
     /*
      * IMPORTANTE: o HTML do documento executa medições de layout
@@ -646,10 +656,21 @@ export async function POST(
 
     registrarMemoriaPdf("antes-pdf");
 
-    const pdfBuffer =
+    pdfBuffer =
       await page.pdf(
         renderizacao.pdfOptions
       );
+
+        break;
+      } catch (falha) {
+        const mensagem = falha instanceof Error ? falha.message : String(falha);
+        if (tentativa !== 1 || Date.now() - inicioTentativas > 15000 || !/Target closed|Session closed|Connection closed/i.test(mensagem)) throw falha;
+        console.warn("[PDF-PREVIEW] target closed; retrying with a fresh browser");
+        if (browser) await browser.close().catch(() => null);
+        browser = null;
+      }
+    }
+    if (!pdfBuffer) throw new Error("PDF_EMPTY_RESULT");
 
     registrarMemoriaPdf("depois-pdf");
 
