@@ -158,7 +158,7 @@ function substituirExemplos(
 ) {
   let final =
     substituirVariaveisPreviewDocumento(
-      texto,
+      texto.replace(/\{\{\s*campo:periodoData\s*\}\}/g, "____/____/________ – ____/____/________"),
       config
     );
 

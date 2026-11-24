@@ -57,6 +57,8 @@ function contexto({ papel = "PROFESSOR", impersonacao = false, autorizado = true
         ? { documento, ctx: { papel, usuario, instituicaoId: 3 } } : null,
     },
     "@/lib/documentos-docentes/fluxo": fluxo,
+    "@/lib/documentos-docentes/periodo": carregarModulo("lib/documentos-docentes/periodo.ts"),
+    "@/lib/documentos-docentes/academico-automatico": carregarModulo("lib/documentos-docentes/academico-automatico.ts"),
     "@/lib/documentos-docentes/integridade": { hashVersaoDocente: () => hashRevisado },
     "@/lib/documentos-docentes/i18n": { traduzirDocumentoDocente: () => "Versão" },
     "@/lib/documentos-docentes/i18n-etapa3": i18n,

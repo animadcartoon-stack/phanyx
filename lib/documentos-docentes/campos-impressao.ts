@@ -56,11 +56,22 @@ function linhasVazias(quantidade: number): string {
 }
 
 /** Transforma os marcadores em linhas para impressao ou texto real com fluxo livre. */
-export function renderizarCamposDocentes(html: string, valores: Record<string, unknown>, forcarBranco = false): string {
+export function renderizarCamposDocentes(html: string, valores: Record<string, unknown>, forcarBranco = false, locale = "pt-BR"): string {
   return String(html || "").replace(MARCADOR_DOCENTE, (marcador, nomeBruto: string, linhasBrutas: string | undefined) => {
     const nome = nomeBruto.trim();
     if (!nomeCampoDocenteValido(nome)) return marcador;
     const valor = valores?.[nome];
+    if (nome === "periodoData" && linhasBrutas === undefined) {
+      const partes = typeof valor === "string" ? valor.split("/") : [];
+      const fmt = (s: string | undefined) => {
+        if (forcarBranco || !s || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return "____/____/________";
+        const d = new Date(s + "T00:00:00Z");
+        if (!Number.isFinite(d.getTime()) || d.toISOString().slice(0,10) !== s) return "____/____/________";
+        return new Intl.DateTimeFormat(locale,{day:"2-digit",month:"2-digit",year:"numeric",timeZone:"UTC"}).format(d);
+      };
+      const ate = locale === "en-US" ? "to" : locale === "fr-FR" ? "au" : "a";
+      return htmlSeguro(fmt(partes[0]) + " " + ate + " " + fmt(partes[1]));
+    }
     if (!forcarBranco && typeof valor === "string" && valor.trim()) {
       return `<span class="phanyx-campo-docente-preenchido" style="white-space:normal;overflow-wrap:anywhere">${htmlSeguro(valor).replace(/\r\n?|\n/g, "<br />")}</span>`;
     }
