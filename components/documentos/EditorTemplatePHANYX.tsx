@@ -7507,8 +7507,26 @@ export default function EditorTemplatePHANYX({
 
             <div
               aria-hidden="true"
+              data-phanyx-editor-area-escrita="true"
+              onMouseDown={(event) => {
+                if (event.button !== 0 || editor.isDestroyed || !editor.isEditable) return;
+                event.preventDefault();
+                const { doc } = editor.state;
+                const ultimo = doc.lastChild;
+                if (ultimo?.type.name === "paragraph" && ultimo.content.size === 0) {
+                  editor.chain().focus("end", { scrollIntoView: false }).run();
+                  return;
+                }
+                // A area branca pertence a folha, mas nao e parte do documento.
+                // Ao clicar nela, criar um paragrafo independente em vez de
+                // manter o cursor no titulo ou em outro bloco anterior.
+                editor.chain().insertContentAt(doc.content.size, {
+                  type: "paragraph", attrs: { textAlign: "left" },
+                }, { updateSelection: true }).focus("end", { scrollIntoView: false }).run();
+              }}
               style={{
                 height: `${espacoFinalPx}px`,
+                cursor: "text",
               }}
             />
           </div>
