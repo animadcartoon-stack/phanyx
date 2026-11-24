@@ -6,6 +6,7 @@ import {
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import withAuth from "@/lib/withAuth";
+import { useRascunhoTemplate } from "@/lib/editor/use-rascunho-template";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import EditorTemplatePHANYX from "@/components/documentos/EditorTemplatePHANYX";
@@ -1206,6 +1207,26 @@ function AdminDocumentosTemplatesPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
+  const [erroPreviaPdf, setErroPreviaPdf] = useState("");
+  const [urlPreviaPdf, setUrlPreviaPdf] = useState("");
+  const [previaAutomatica, setPreviaAutomatica] = useState(false);
+  const previaEmCurso = useRef(false);
+  const ultimaPrevia = useRef("");
+  const ultimaRequisicaoPrevia = useRef(0);
+  const textosPrevia = ({
+    pt: ["Prévia automática do PDF", "Ativar prévia automática", "Desativar prévia automática", "A prévia acompanha as alterações após uma pausa. O PDF anterior permanece visível durante a atualização.", "Abrir PDF", "Aguardando atualização", "Tentar novamente"],
+    en: ["Automatic PDF preview", "Enable automatic preview", "Disable automatic preview", "The preview updates after a pause. The previous PDF stays visible while updating.", "Open PDF", "Waiting for update", "Retry"],
+    es: ["Vista previa automática del PDF", "Activar vista previa automática", "Desactivar vista previa automática", "La vista previa se actualiza tras una pausa. El PDF anterior permanece visible durante la actualización.", "Abrir PDF", "Esperando actualización", "Reintentar"],
+    fr: ["Aperçu PDF automatique", "Activer l’aperçu automatique", "Désactiver l’aperçu automatique", "L’aperçu se met à jour après une pause. Le PDF précédent reste visible pendant la mise à jour.", "Ouvrir le PDF", "En attente de mise à jour", "Réessayer"],
+  } as Record<string, string[]>)[locale.split("-")[0]] || ["Automatic PDF preview", "Enable automatic preview", "Disable automatic preview", "Updates after a pause.", "Open PDF", "Waiting for update", "Retry"];
+
+  useEffect(() => {
+    return () => {
+      if (urlPreviaPdf) {
+        window.URL.revokeObjectURL(urlPreviaPdf);
+      }
+    };
+  }, [urlPreviaPdf]);
   const [templateParaExcluir, setTemplateParaExcluir] = useState<number | null>(null);
 
   const [filtroBusca, setFiltroBusca] = useState("");
@@ -1223,6 +1244,18 @@ function AdminDocumentosTemplatesPage() {
   const [configInstituicao, setConfigInstituicao] =
     useState<ConfiguracaoInstituicao | null>(null);
   const [buscaVariavel, setBuscaVariavel] = useState("");
+  const rascunho = useRascunhoTemplate({
+    editingId, nome, descricao, tipo, contexto, conteudo, ativo,
+    exigeAssinatura, formatoImpressao, camposVisuais,
+  }, locale, saving);
+  function recuperarRascunhoTemplate() {
+    const d = rascunho.recuperar();
+    if (!d) return;
+    setNome(d.nome); setDescricao(d.descricao); setTipo(d.tipo);
+    setContexto(d.contexto); setConteudo(d.conteudo);
+    setAtivo(d.ativo); setExigeAssinatura(d.exigeAssinatura);
+    setFormatoImpressao(d.formatoImpressao); setCamposVisuais(d.camposVisuais);
+  }
   const [mostrarTodasVariaveis, setMostrarTodasVariaveis] = useState(false);
 
   const editorRef = useRef<HTMLDivElement | null>(null);
@@ -1482,6 +1515,11 @@ function AdminDocumentosTemplatesPage() {
         return;
       }
 
+      if (!contexto.trim()) {
+        setErro(labelsContexto[10]);
+        return;
+      }
+
       if (!conteudo.trim()) {
         setErro(t("messages.contentRequired"));
         return;
@@ -1547,6 +1585,8 @@ function AdminDocumentosTemplatesPage() {
        * Agora permanecemos no mesmo documento, com o ID salvo e
        * a geometria retornada pela API.
        */
+      await rascunho.finalizar(payload);
+
       const idSalvo =
         Number(
           data?.id ||
@@ -1843,69 +1883,87 @@ function AdminDocumentosTemplatesPage() {
     );
   }
 
-  async function visualizarPdfTemplate() {
+  async function visualizarPdfTemplate(automatica = false) {
+    if (previaEmCurso.current) return;
+    previaEmCurso.current = true;
+
     try {
       setVisualizandoPdf(true);
       setErro("");
+      setErroPreviaPdf("");
       setMensagem(t("messages.generatingPreview"));
 
-      const conteudoAtual =
-        conteudo;
-
-      /*
-       * Fonte de verdade da prévia:
-       * a posição VISUAL atual do editor.
-       *
-       * Assim o usuário pode mover a assinatura e visualizar
-       * imediatamente, sem precisar salvar o template.
-       */
       const camposVisuaisPreview =
         obterCamposVisuaisParaPreviewTempoReal();
 
-      /*
-       * Mantém o estado da edição sincronizado também.
-       * Se o usuário decidir salvar depois, a posição já estará
-       * pronta para persistência, mas salvar NÃO é requisito
-       * para visualizar o PDF.
-       */
-      setCamposVisuais(
-        camposVisuaisPreview
+      if (!automatica) setCamposVisuais(camposVisuaisPreview);
+
+      const res = await fetch(
+        "/api/admin/documentos/templates/preview-pdf-fiel",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            locale,
+            tipo,
+            conteudo,
+            formatoImpressao,
+            camposVisuais: camposVisuaisPreview,
+          }),
+        }
       );
 
-      const res = await fetch("/api/admin/documentos/templates/preview-pdf-fiel", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          locale,
-          tipo,
-
-          conteudo:
-            conteudoAtual,
-
-          formatoImpressao,
-
-          camposVisuais:
-            camposVisuaisPreview,
-        }),
-      });
-
       if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        throw new Error(data?.error || t("messages.previewError"));
+        throw new Error(
+          `${t("messages.previewError")} (HTTP ${res.status})`
+        );
+      }
+
+      const contentType =
+        res.headers.get("content-type") || "";
+
+      if (!contentType.includes("application/pdf")) {
+        throw new Error(t("messages.previewError"));
       }
 
       const blob = await res.blob();
+
+      if (!blob.size) {
+        throw new Error(t("messages.previewError"));
+      }
+
       const url = window.URL.createObjectURL(blob);
-      window.open(url, "_blank");
+      setUrlPreviaPdf(url);
+
     } catch (error: any) {
-      setErro(error?.message || t("messages.viewPdfError"));
+      setErroPreviaPdf(
+        error?.message || t("messages.viewPdfError")
+      );
     } finally {
+      previaEmCurso.current = false;
       setVisualizandoPdf(false);
+      setMensagem("");
     }
   }
+  const chavePreviaAutomatica = JSON.stringify([editingId, locale, tipo, conteudo, formatoImpressao, camposVisuais]);
+  const gerarPreviaAtual = useRef(visualizarPdfTemplate);
+  gerarPreviaAtual.current = visualizarPdfTemplate;
+  useEffect(() => {
+    if (!previaAutomatica || visualizandoPdf || erroPreviaPdf || saving || !conteudo.trim()) return;
+    if (ultimaPrevia.current === chavePreviaAutomatica) return;
+    const espera = Math.max(2500, 12000 - (Date.now() - ultimaRequisicaoPrevia.current));
+    const timer = window.setTimeout(() => {
+      if (previaEmCurso.current || document.visibilityState !== "visible" || !navigator.onLine) return;
+      ultimaPrevia.current = chavePreviaAutomatica;
+      ultimaRequisicaoPrevia.current = Date.now();
+      void gerarPreviaAtual.current(true);
+    }, espera);
+    return () => window.clearTimeout(timer);
+  }, [previaAutomatica, chavePreviaAutomatica, visualizandoPdf, erroPreviaPdf, saving, conteudo]);
+
   function aplicarModeloInicial() {
     setConteudo(modeloBaseLocalizado(tipo));
   }
@@ -1941,6 +1999,20 @@ function AdminDocumentosTemplatesPage() {
     ].includes(tipoDocumento);
   }
 
+  const rotulosContextoDocumento = {
+    "pt-BR": ["Selecione a finalidade", "Acadêmico / matrícula", "Funcionário", "Cancelamento de matrícula", "Plano de aula", "Relatório docente", "Outro documento docente", "Professor", "Recursos humanos", "Contexto existente", "Escolha a finalidade antes de salvar."],
+    "pt-PT": ["Selecione a finalidade", "Académico / matrícula", "Funcionário", "Cancelamento de matrícula", "Plano de aula", "Relatório docente", "Outro documento docente", "Professor", "Recursos humanos", "Contexto existente", "Escolha a finalidade antes de guardar."],
+    "en-US": ["Select a purpose", "Academic / enrollment", "Employee", "Enrollment cancellation", "Lesson plan", "Teacher report", "Other teacher document", "Teacher", "Human resources", "Existing context", "Choose a purpose before saving."],
+    "es-ES": ["Seleccione la finalidad", "Académico / matrícula", "Empleado", "Cancelación de matrícula", "Plan de clase", "Informe docente", "Otro documento docente", "Profesor", "Recursos humanos", "Contexto existente", "Elija la finalidad antes de guardar."],
+    "fr-FR": ["Choisissez la finalité", "Scolarité / inscription", "Employé", "Annulation d’inscription", "Plan de cours", "Rapport pédagogique", "Autre document enseignant", "Enseignant", "Ressources humaines", "Contexte existant", "Choisissez la finalité avant d’enregistrer."],
+  };
+  const labelsContexto = rotulosContextoDocumento[locale as keyof typeof rotulosContextoDocumento] ?? rotulosContextoDocumento["pt-BR"];
+  const opcoesContextoDocumento = ["MATRICULA", "FUNCIONARIO", "CANCELAMENTO_MATRICULA", "DOCENTE_PLANO_AULA", "DOCENTE_RELATORIO", "DOCENTE_OUTRO", "PROFESSOR", "RH"];
+  const contextosDisponiveis = tipo === "OUTRO"
+    ? opcoesContextoDocumento.filter(c => c !== "CANCELAMENTO_MATRICULA")
+    : ehTipoRh(tipo) ? ["FUNCIONARIO", "PROFESSOR", "RH"]
+    : tipo === "CANCELAMENTO_MATRICULA" ? ["CANCELAMENTO_MATRICULA"] : ["MATRICULA"];
+
   function trocarTipoDocumento(novoTipo: TipoDocumentoTemplate) {
     setTipo(novoTipo);
     setConteudo(modeloBaseLocalizado(novoTipo));
@@ -1963,6 +2035,8 @@ function AdminDocumentosTemplatesPage() {
       setContexto("FUNCIONARIO");
     } else if (novoTipo === "CANCELAMENTO_MATRICULA") {
       setContexto("CANCELAMENTO_MATRICULA");
+    } else if (novoTipo === "OUTRO") {
+      setContexto("");
     } else {
       setContexto("MATRICULA");
     }
@@ -4525,7 +4599,22 @@ function AdminDocumentosTemplatesPage() {
 
 
   return (
-    <div className="phanyx-doc-templates-page space-y-6 text-slate-900 dark:text-slate-100">
+    <div className={`phanyx-doc-templates-page space-y-6 text-slate-900 dark:text-slate-100 ${previaAutomatica ? "xl:pr-[35vw]" : ""}`}>
+      {previaAutomatica && (
+        <aside className="pdoc-card flex min-w-0 flex-col gap-2 rounded-xl border p-3 xl:fixed xl:bottom-4 xl:right-3 xl:top-24 xl:z-40 xl:w-[33vw]" aria-label={textosPrevia[0]}>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="font-semibold">{textosPrevia[0]}</h2>
+            <button type="button" className="rounded-lg border px-2 py-1 text-sm" disabled={visualizandoPdf} onClick={() => { setPreviaAutomatica(false); setUrlPreviaPdf(""); setErroPreviaPdf(""); }}>{textosPrevia[2]}</button>
+          </div>
+          <p className="pdoc-muted text-xs">{textosPrevia[3]}</p>
+          <p role="status" className="text-xs">{visualizandoPdf ? t("messages.generatingPreview") : erroPreviaPdf || (ultimaPrevia.current !== chavePreviaAutomatica ? textosPrevia[5] : "")}</p>
+          {erroPreviaPdf && <button type="button" className="rounded-lg border px-2 py-1 text-sm" onClick={() => { ultimaPrevia.current = ""; setErroPreviaPdf(""); }}>{textosPrevia[6]}</button>}
+          {urlPreviaPdf && <>
+            <a href={urlPreviaPdf} target="_blank" rel="noopener noreferrer" className="text-sm underline">{textosPrevia[4]}</a>
+            <iframe src={urlPreviaPdf} title={textosPrevia[0]} className="h-[55vh] min-h-0 w-full rounded border bg-white xl:h-auto xl:flex-1" />
+          </>}
+        </aside>
+      )}
       <style jsx global>{`
       .phanyx-doc-templates-page .pdoc-card {
         background: #ffffff !important;
@@ -4695,6 +4784,51 @@ function AdminDocumentosTemplatesPage() {
     `}</style>
 
 
+
+      {erroPreviaPdf && !previaAutomatica && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-md rounded-3xl border bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+            <h2 className="text-lg font-bold">
+              {t("variables.viewPdf")}
+            </h2>
+            <p className="mt-3 text-sm text-red-600 dark:text-red-300">
+              {erroPreviaPdf}
+            </p>
+            <button
+              type="button"
+              onClick={() => setErroPreviaPdf("")}
+              className="mt-5 w-full rounded-xl bg-blue-600 px-4 py-3 font-semibold text-white"
+            >
+              {t("errorModal.understood")}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {urlPreviaPdf && !previaAutomatica && (
+        <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/60 p-2 sm:p-6">
+          <div className="flex h-full w-full max-w-6xl flex-col overflow-hidden rounded-2xl border bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+            <div className="flex items-center justify-between border-b p-4">
+              <h2 className="font-semibold">
+                {t("variables.viewPdf")}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setUrlPreviaPdf("")}
+                aria-label={t("errorModal.understood")}
+                className="rounded-xl border px-4 py-2 text-xl"
+              >
+                ×
+              </button>
+            </div>
+            <iframe
+              src={urlPreviaPdf}
+              title={t("variables.viewPdf")}
+              className="min-h-0 w-full flex-1 border-0 bg-slate-100"
+            />
+          </div>
+        </div>
+      )}
       {erro && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
           <div className="w-full max-w-md rounded-3xl border border-red-100 bg-white p-6 shadow-2xl dark:border-red-900 dark:bg-slate-900">
@@ -4825,12 +4959,19 @@ function AdminDocumentosTemplatesPage() {
                   <label className="pdoc-label text-sm font-medium">
                     {t("form.fields.context.label")}
                   </label>
-                  <input
-                    value={contexto}
-                    onChange={(e) => setContexto(e.target.value)}
-                    className="pdoc-input mt-1 w-full rounded-xl border px-3 py-2"
-                    placeholder={t("form.fields.context.placeholder")}
-                  />
+                  <select
+                     value={contexto}
+                     onChange={(e) => setContexto(e.target.value)}
+                     className="pdoc-input mt-1 w-full rounded-xl border px-3 py-2"
+                   >
+                     <option value="" disabled>{labelsContexto[0]}</option>
+                     {contexto && !contextosDisponiveis.includes(contexto) && (
+                       <option value={contexto}>{labelsContexto[9]}: {contexto}</option>
+                     )}
+                     {contextosDisponiveis.map(c => (
+                       <option key={c} value={c}>{labelsContexto[opcoesContextoDocumento.indexOf(c) + 1]}</option>
+                     ))}
+                   </select>
                 </div>
               </div>
 
@@ -4879,6 +5020,18 @@ function AdminDocumentosTemplatesPage() {
                 </p>
               </div>
 
+              <div className="pdoc-card rounded-xl border p-3 text-sm" role="status" aria-live="polite">
+                <p>{rascunho.mensagem}</p>
+                {rascunho.status === "recover" && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <button type="button" className="rounded-lg bg-blue-600 px-3 py-2 text-white" onClick={recuperarRascunhoTemplate}>{rascunho.texto.recuperar}</button>
+                    <button type="button" className="rounded-lg border px-3 py-2" onClick={() => void rascunho.descartar()}>{rascunho.texto.descartar}</button>
+                  </div>
+                )}
+                {(rascunho.status === "error" || rascunho.status === "conflict" || rascunho.status === "session") && (
+                  <button type="button" className="mt-2 rounded-lg border px-3 py-2" onClick={() => void rascunho.tentarNovamente()}>{rascunho.texto.tentar}</button>
+                )}
+              </div>
               <div className="pdoc-soft phanyx-doc-variables-panel rounded-2xl border p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
@@ -4897,9 +5050,15 @@ function AdminDocumentosTemplatesPage() {
                   >
                     {t("variables.loadBase")}
                   </button>
+                  <button type="button" aria-pressed={previaAutomatica} disabled={visualizandoPdf} className="pdoc-card rounded-xl border px-3 py-2 text-sm" onClick={() => {
+                    ultimaPrevia.current = "";
+                    setErroPreviaPdf("");
+                    setUrlPreviaPdf("");
+                    setPreviaAutomatica(v => !v);
+                  }}>{previaAutomatica ? textosPrevia[2] : textosPrevia[1]}</button>
                   <button
                     type="button"
-                    onClick={visualizarPdfTemplate}
+                    onClick={() => void visualizarPdfTemplate()}
                     disabled={visualizandoPdf}
                     className="pdoc-card rounded-xl border px-3 py-2 text-sm hover:border-blue-400"
                   >

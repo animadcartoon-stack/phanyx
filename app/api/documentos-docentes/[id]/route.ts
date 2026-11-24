@@ -1,6 +1,8 @@
 import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { camposAcademicos } from "@/lib/documentos-docentes/academico-automatico";
+import { opcoesAcademicas, resolverAcademico } from "@/lib/documentos-docentes/academico-servidor";
 import { eventosEmailDocente } from "@/lib/documentos-docentes/destinos-email";
 import { documentoAutorizado, lerCampos } from "@/lib/documentos-docentes/seguranca";
 
@@ -21,7 +23,9 @@ export async function GET(req: Request, { params }: Params) {
     prisma.professor.findFirst({ where: { id: auth.documento.professorId, instituicaoId: auth.ctx.instituicaoId }, select: { nome: true } }),
   ]);
   if (!versao) return NextResponse.json({ error: "Versão não encontrada" }, { status: 404 });
-  return NextResponse.json({ documento: auth.documento, versao, mensagens, anexos, assinaturas, eventos, professor }, { headers: { "Cache-Control": "private, no-store" } });
+  const pendentes = camposAcademicos(versao.modeloSnapshot);
+  const academico = auth.ctx.papel === "PROFESSOR" && numero === auth.documento.versaoAtual && ["RASCUNHO","DEVOLVIDO","AGUARDANDO_PROFESSOR"].includes(auth.documento.status) && pendentes.some(k=>k!=="academicYear" && k!=="twoMonthTerm") ? await opcoesAcademicas(auth.ctx.instituicaoId,auth.documento.professorId) : [];
+  return NextResponse.json({ documento: auth.documento, versao, mensagens, anexos, assinaturas, eventos, professor, academico }, { headers: { "Cache-Control": "private, no-store" } });
 }
 
 export async function PATCH(req: Request, { params }: Params) {
@@ -39,11 +43,13 @@ export async function PATCH(req: Request, { params }: Params) {
     if (!campos) return NextResponse.json({ error: "Campos inválidos" }, { status: 400 });
     const anterior = await prisma.documentoDocenteVersao.findUnique({ where: { documentoId_numero: { documentoId: documento.id, numero: documento.versaoAtual } } });
     if (!anterior) return NextResponse.json({ error: "Versão não encontrada" }, { status: 404 });
+    const academico = await resolverAcademico(anterior.modeloSnapshot,ctx.instituicaoId,documento.professorId,body?.academico);
+    if (!academico) return NextResponse.json({ error: "Selecione os dados acadêmicos válidos antes de salvar." }, { status: 400 });
     const novaVersao = documento.versaoAtual + 1;
     const ok = await prisma.$transaction(async tx => {
-      const atualizado = await tx.documentoDocente.updateMany({ where: { id: documento.id, instituicaoId: ctx.instituicaoId, professorId: ctx.professorId!, versaoAtual: versaoEsperada, status: { in: ["RASCUNHO", "DEVOLVIDO", "AGUARDANDO_PROFESSOR"] } }, data: { versaoAtual: novaVersao, status: "RASCUNHO" } });
+      const atualizado = await tx.documentoDocente.updateMany({ where: { id: documento.id, instituicaoId: ctx.instituicaoId, professorId: ctx.professorId!, versaoAtual: versaoEsperada, status: { in: ["RASCUNHO", "DEVOLVIDO", "AGUARDANDO_PROFESSOR"] } }, data: { versaoAtual: novaVersao, status: "RASCUNHO", ...(academico.turmaId !== undefined ? { turmaId: academico.turmaId } : {}) } });
       if (atualizado.count !== 1) return false;
-      await tx.documentoDocenteVersao.create({ data: { documentoId: documento.id, numero: novaVersao, modeloSnapshot: anterior.modeloSnapshot, campos: campos as Prisma.InputJsonValue, criadoPorId: ctx.usuario.id } });
+      await tx.documentoDocenteVersao.create({ data: { documentoId: documento.id, numero: novaVersao, modeloSnapshot: academico.html, campos: campos as Prisma.InputJsonValue, criadoPorId: ctx.usuario.id } });
       await tx.documentoDocenteEvento.create({ data: { documentoId: documento.id, usuarioId: ctx.usuario.id, tipo: "VERSAO_CRIADA", versao: novaVersao } });
       return true;
     });
@@ -58,6 +64,10 @@ export async function PATCH(req: Request, { params }: Params) {
   };
   const regra = regras[acao];
   if (!regra || regra.papel !== ctx.papel || !regra.status.includes(documento.status)) return NextResponse.json({ error: "Ação não permitida para o estado atual" }, { status: 403 });
+  if (acao === "ENVIAR") {
+    const v = await prisma.documentoDocenteVersao.findUnique({where:{documentoId_numero:{documentoId:documento.id,numero:documento.versaoAtual}},select:{modeloSnapshot:true}});
+    if (!v || camposAcademicos(v.modeloSnapshot).length) return NextResponse.json({error:"Preencha e salve os dados acadêmicos antes de enviar."},{status:409});
+  }
   const exigeAmbasAssinaturas = ["PLANO_AULA", "RELATORIO"].includes(documento.tipo);
   if (exigeAmbasAssinaturas && (acao === "ENVIAR" || acao === "CONCLUIR")) {
     const assinaturas = await prisma.documentoDocenteAssinatura.findMany({

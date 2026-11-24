@@ -1,0 +1,9 @@
+const test=require('node:test'), assert=require('node:assert/strict'), fs=require('node:fs'), path=require('node:path'), vm=require('node:vm'), ts=require('typescript');
+const file=path.join(__dirname,'../lib/documentos-docentes/academico-automatico.ts'); const api={};
+vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports:api,module:{exports:api}},{filename:file});
+const {camposAcademicos,preencherAcademico}=api;
+test('reconhece aliases e preserva campos manuais',()=>{const h='<p>{{docente:nomeTurma}} {{docente:className}} {{campo:Turma}} {{docente:academicPeriod}}</p>';assert.deepEqual(Array.from(camposAcademicos(h)),['className','academicPeriod']);assert.equal(preencherAcademico(h,{className:'1M',academicPeriod:'2027/1'}),'<p>1M 1M {{campo:Turma}} 2027/1</p>');});
+test('preserva snapshot resolvido',()=>{const h=preencherAcademico('{{docente:academicYear}} / {{docente:twoMonthTerm}}',{academicYear:'2027',twoMonthTerm:'2'});assert.equal(h,'2027 / 2');assert.equal(preencherAcademico(h,{academicYear:'2028'}),h);});
+test('ausencia de valor nao inventa dados',()=>assert.equal(preencherAcademico('{{docente:academicModality}}',{}),'{{docente:academicModality}}'));
+test('escapa HTML e chaves',()=>assert.equal(preencherAcademico('{{docente:className}}',{className:'<b>{{campo:X}}</b>'}),'&lt;b&gt;&#123;&#123;campo:X&#125;&#125;&lt;/b&gt;'));
+test('ignora atributos e comentarios',()=>{const h='<p title="{{docente:className}}">ok</p><!--{{docente:className}}-->';assert.equal(preencherAcademico(h,{className:'1M'}),h);assert.equal(camposAcademicos(h).length,0);});

@@ -9,6 +9,7 @@ datasource db {
 }
 
 model Instituicao {
+  rascunhosEditor RascunhoEditor[]
   planosCoberturaDocente PlanoCoberturaDocente[]
   documentosDocentes DocumentoDocente[]
   permissoesPaginasProfessor ProfessorPaginaPortal[]
@@ -334,6 +335,7 @@ model RedeInstitucional {
 }
 
 model User {
+  rascunhosEditor RascunhoEditor[]
   anotacoesBiblioteca BibliotecaAnotacao[]
 
   id                 Int          @id @default(autoincrement())
@@ -12117,4 +12119,24 @@ model PlanoCoberturaDocente {
   @@unique([professorTitularId, turmaId, disciplinaId, dataAula], map: "PlanoCoberturaDocente_professorTurmaDisciplinaData_key")
   @@index([instituicaoId, status])
   @@index([professorTitularId, dataAula])
+}
+
+model RascunhoEditor {
+  usuario User @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  id             Int      @id @default(autoincrement())
+  instituicaoId  Int
+  usuarioId      Int
+  editor         String   @db.VarChar(100)
+  chaveDocumento String   @db.VarChar(180)
+  dados          Json
+  versao         Int      @default(1)
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+  expiraEm       DateTime
+
+  @@unique([instituicaoId, usuarioId, editor, chaveDocumento])
+  @@index([instituicaoId, usuarioId])
+  @@index([expiraEm])
 }

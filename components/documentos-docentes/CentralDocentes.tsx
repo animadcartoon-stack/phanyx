@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
+import { camposAcademicos, legendaAcademica, rotulosAcademico } from "@/lib/documentos-docentes/academico-automatico";
 import { camposModeloDocente, renderizarCamposDocentes } from "@/lib/documentos-docentes/campos-impressao";
 import { traduzirDocumentoDocente, type ChaveDocumentoDocente } from "@/lib/documentos-docentes/i18n";
 import { traducaoDocentesEtapa3, type ChaveDocentesEtapa3 } from "@/lib/documentos-docentes/i18n-etapa3";
@@ -26,7 +27,8 @@ type Mensagem = { id: number; texto: string; papel: string; autorId: number; cri
 type Evento = { id: number; tipo: string; descricao: string | null; versao: number; criadoEm: string };
 type Assinatura = { id: number; versao: number; nomeAssinante: string; papel: string; tipo: string; hashConteudo:string; assinadoEm: string };
 type Anexo = { id:number; versao:number; nomeOriginal:string; tamanho:number; mime:string; criadoEm:string; enviadoPorId:number; mensagemId:number|null };
-type Detalhes = { documento: Doc; professor: { nome: string } | null; versao: Versao; mensagens: Mensagem[]; eventos: Evento[]; assinaturas: Assinatura[]; anexos:Anexo[] };
+type OpcaoAcademica = { turmaId:number; ofertaId:number; turma:string; disciplina:string|null; periodo:string|null; semestre:string|null; modalidade:string|null };
+type Detalhes = { academico?:OpcaoAcademica[]; documento: Doc; professor: { nome: string } | null; versao: Versao; mensagens: Mensagem[]; eventos: Evento[]; assinaturas: Assinatura[]; anexos:Anexo[] };
 
 const campoBase = "w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-offset-2 focus-visible:outline-blue-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100";
 const botaoBase = "rounded-xl px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50";
@@ -77,6 +79,10 @@ export default function CentralDocentes({ papel, documentoInicial = null }: { pa
   const [orientacao, setOrientacao] = useState("");
   const [professoresIds, setProfessoresIds] = useState<number[]>([]);
   const [campos, setCampos] = useState<Record<string, string>>({});
+  const [selecaoAcademica, setSelecaoAcademica] = useState("");
+  const [anoAcademico, setAnoAcademico] = useState("");
+  const [bimestreAcademico, setBimestreAcademico] = useState("");
+  useEffect(()=>{ setSelecaoAcademica(""); setAnoAcademico(""); setBimestreAcademico(""); },[detalhes?.documento.id,detalhes?.versao.numero]);
   const [textoMensagem, setTextoMensagem] = useState("");
   const [justificativa, setJustificativa] = useState("");
   const [somenteArquivo,setSomenteArquivo] = useState(false);
@@ -221,7 +227,7 @@ ${resumo}` };
     if (acao === "DEVOLVER" && !justificativa.trim()) { setErro(t("requiredReason")); return; }
     setOcupado(true); setErro(""); setAviso("");
     try {
-      await requisitar(`/api/documentos-docentes/${detalhes.documento.id}`, { method:"PATCH", body:JSON.stringify({ acao, versaoEsperada: detalhes.documento.versaoAtual, ...(acao === "EDITAR" ? { campos } : {}), ...(acao === "DEVOLVER" ? { justificativa } : {}) }) });
+      await requisitar(`/api/documentos-docentes/${detalhes.documento.id}`, { method:"PATCH", body:JSON.stringify({ acao, versaoEsperada: detalhes.documento.versaoAtual, ...(acao === "EDITAR" ? { campos, academico: { turmaId:opcaoAcademica?.turmaId, ofertaId:opcaoAcademica?.ofertaId, ano:anoAcademico, bimestre:bimestreAcademico, locale } } : {}), ...(acao === "DEVOLVER" ? { justificativa } : {}) }) });
       await Promise.all([carregarLista(), carregarDetalhe(detalhes.documento.id)]);
       setJustificativa(""); setAviso(acao === "EDITAR" ? t("saved") : t("actionDone"));
     } catch (e) { setErro(e instanceof Error ? e.message : t("genericError")); }
@@ -274,7 +280,12 @@ ${resumo}` };
   const assinaturaAdmin = detalhes?.assinaturas.some(a=>a.versao===detalhes.documento.versaoAtual&&a.papel==="ADMIN")??false;
   const existeAssinaturaAtual = assinaturaProfessor||assinaturaAdmin;
   const deveAssinar = !!detalhes && ["PLANO_AULA","RELATORIO"].includes(detalhes.documento.tipo);
-  const podeAssinarProfessor = podeEditar && !camposNaoSalvos && !assinaturaProfessor;
+  const pendentesAcademicos = camposAcademicos(detalhes?.versao.modeloSnapshot || "");
+  const exigeTurmaAcademica = pendentesAcademicos.some(k=>k!=="academicYear" && k!=="twoMonthTerm");
+  const opcaoAcademica = detalhes?.academico?.find(o=>`${o.turmaId}:${o.ofertaId}`===selecaoAcademica);
+  const academicoValido = (!exigeTurmaAcademica || !!opcaoAcademica) && (!pendentesAcademicos.includes("academicYear") || /^\d{4}$/.test(anoAcademico) && Number(anoAcademico)>=1900 && Number(anoAcademico)<=2200) && (!pendentesAcademicos.includes("twoMonthTerm") || /^[1-4]$/.test(bimestreAcademico));
+  const la = legendaAcademica(locale), ra = rotulosAcademico(locale);
+  const podeAssinarProfessor = podeEditar && !camposNaoSalvos && !assinaturaProfessor && !pendentesAcademicos.length;
   const podeAssinarAdmin = admin && !historica && !camposNaoSalvos && detalhes?.documento.status === "APROVADO" && !assinaturaAdmin;
   const podeAnexar = !historica && !!detalhes && !existeAssinaturaAtual && (admin ? !["CONCLUIDO","CANCELADO"].includes(detalhes.documento.status) : podeEditar);
   const camposAtuais = detalhes?.versao.campos || {};
@@ -380,13 +391,21 @@ ${resumo}` };
         </div>
         <div className="grid gap-5 xl:grid-cols-2">
           <section className="space-y-3 rounded-xl border border-slate-200 p-5 dark:border-slate-700"><h3 className="font-semibold">{t("fields")}</h3>
+            {podeEditar && pendentesAcademicos.length>0 && <div className="space-y-3 rounded-xl border border-blue-400 p-3">
+              <h4 className="font-semibold">{la[0]}</h4><p className="text-xs">{la[1]}</p>
+              {exigeTurmaAcademica && <label className="block text-sm">{ra[0]} / {ra[2]}<select className={campoBase} value={selecaoAcademica} onChange={e=>setSelecaoAcademica(e.target.value)}><option value="">{la[2]}</option>{(detalhes.academico||[]).map(o=><option key={`${o.turmaId}:${o.ofertaId}`} value={`${o.turmaId}:${o.ofertaId}`}>{o.turma} · {o.disciplina||la[3]} · {o.periodo||o.semestre||""}</option>)}</select></label>}
+              {opcaoAcademica && <p className="text-xs">{ra[3]}: {opcaoAcademica.modalidade||la[5]} · {ra[4]}: {opcaoAcademica.periodo||la[5]}</p>}
+              {pendentesAcademicos.includes("academicYear") && <label className="block text-sm">{ra[5]}<input className={campoBase} type="number" min={1900} max={2200} value={anoAcademico} onChange={e=>setAnoAcademico(e.target.value)}/></label>}
+              {pendentesAcademicos.includes("twoMonthTerm") && <label className="block text-sm">{ra[6]}<select className={campoBase} value={bimestreAcademico} onChange={e=>setBimestreAcademico(e.target.value)}><option value="">{la[2]}</option>{[1,2,3,4].map(n=><option key={n} value={n}>{n}</option>)}</select></label>}
+              <p className="text-xs">{la[4]}</p>
+            </div>}
             {nomesCampos.length === 0 ? <p className="text-sm text-slate-500">{t("noFields")}</p> : nomesCampos.map(nome => <label key={nome} className="block space-y-1 text-sm"><span className="font-medium">{nome}</span>
               <textarea className={campoBase} rows={nome.length > 60 ? 3 : 4} maxLength={5000} disabled={!podeEditar || ocupado} value={campos[nome] || ""} onChange={(e: { target: { value: string } }) => setCampos(anteriores => ({...anteriores,[nome]:e.target.value}))} />
             </label>)}
             {podeEditar && <>
               <p className="text-xs text-slate-600 dark:text-slate-300">{t("editHelp")}</p>
               <div className="flex flex-wrap gap-2">
-                <button type="button" disabled={ocupado} className={`${botaoBase} bg-blue-700 text-white`} onClick={() => void atualizarDocumento("EDITAR")}>{t("saveVersion")}</button>
+                <button type="button" disabled={ocupado || !academicoValido} className={`${botaoBase} bg-blue-700 text-white`} onClick={() => void atualizarDocumento("EDITAR")}>{t("saveVersion")}</button>
                 {podeAssinarProfessor && <button
                   type="button"
                   disabled={ocupado}
@@ -395,7 +414,7 @@ ${resumo}` };
                 >
                   {t3("signWithPhanyx")}
                 </button>}
-                <button type="button" disabled={ocupado || camposNaoSalvos || (deveAssinar&&!assinaturaProfessor)} title={camposNaoSalvos ? t("saveFirst") : deveAssinar&&!assinaturaProfessor ? t3("signFirst") : undefined} className={`${botaoBase} border border-blue-700 text-blue-700 dark:text-blue-300`} onClick={() => void atualizarDocumento("ENVIAR")}>{t("send")}</button>
+                <button type="button" disabled={ocupado || camposNaoSalvos || pendentesAcademicos.length>0 || (deveAssinar&&!assinaturaProfessor)} title={camposNaoSalvos ? t("saveFirst") : deveAssinar&&!assinaturaProfessor ? t3("signFirst") : undefined} className={`${botaoBase} border border-blue-700 text-blue-700 dark:text-blue-300`} onClick={() => void atualizarDocumento("ENVIAR")}>{t("send")}</button>
               </div>
               {camposNaoSalvos && <p className="text-xs text-amber-800 dark:text-amber-300">{t("saveFirst")}</p>}
             </>}

@@ -20,9 +20,24 @@ import {
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+export const runtime = "nodejs";
+export const maxDuration = 60;
+
+let geracaoPdfEmAndamento = false;
+
+function registrarMemoriaPdf(etapa: string) {
+  const memoria = process.memoryUsage();
+
+  console.info("[PDF-PREVIEW]", {
+    etapa,
+    rssMB: Math.round(memoria.rss / 1048576),
+    heapMB: Math.round(memoria.heapUsed / 1048576),
+    externalMB: Math.round(memoria.external / 1048576),
+  });
+}
 
 const CHROMIUM_PACK =
-  "https://github.com/Sparticuz/chromium/releases/download/v131.0.0/chromium-v131.0.0-pack.tar";
+  "https://github.com/Sparticuz/chromium/releases/download/v149.0.0/chromium-v149.0.0-pack.x64.tar";
 
 function localizarChromeLocal() {
   const caminhos = [
@@ -154,6 +169,18 @@ export async function POST(
   req: NextRequest
 ) {
   let browser: any = null;
+
+  if (geracaoPdfEmAndamento) {
+    return NextResponse.json(
+      { error: "PDF_PREVIEW_BUSY" },
+      {
+        status: 429,
+        headers: { "Retry-After": "3" },
+      }
+    );
+  }
+
+  geracaoPdfEmAndamento = true;
 
   try {
     const user =
@@ -536,8 +563,12 @@ export async function POST(
         },
       });
 
+    registrarMemoriaPdf("antes-chromium");
+
     browser =
       await abrirNavegador();
+
+    registrarMemoriaPdf("depois-chromium");
 
     const page =
       await browser.newPage();
@@ -565,53 +596,62 @@ export async function POST(
       }
     );
 
-    await page.evaluate(
-      async () => {
-        const imagens =
-          Array.from(
-            document.images
-          );
+    await page.evaluate(async () => {
+      const imagens = Array.from(document.images);
 
-        await Promise.all(
-          imagens.map(
-            (imagem) => {
-              if (
-                imagem.complete
-              ) {
-                return Promise.resolve();
-              }
-
-              return new Promise<void>(
-                (resolve) => {
-                  imagem.addEventListener(
-                    "load",
-                    () => resolve(),
-                    {
-                      once: true,
-                    }
-                  );
-
-                  imagem.addEventListener(
-                    "error",
-                    () => resolve(),
-                    {
-                      once: true,
-                    }
-                  );
-                }
-              );
+      await Promise.race([
+        Promise.all(
+          imagens.map((imagem) => {
+            if (imagem.complete) {
+              return Promise.resolve();
             }
-          )
-        );
 
-        await document.fonts.ready;
+            return new Promise<void>((resolve) => {
+              imagem.addEventListener(
+                "load",
+                () => resolve(),
+                { once: true }
+              );
+
+              imagem.addEventListener(
+                "error",
+                () => resolve(),
+                { once: true }
+              );
+            });
+          })
+        ),
+        new Promise<void>((resolve) =>
+          setTimeout(resolve, 10000)
+        ),
+      ]);
+
+      await Promise.race([
+        document.fonts.ready,
+        new Promise<void>((resolve) =>
+          setTimeout(resolve, 5000)
+        ),
+      ]);
+
+      if (
+        imagens.some(
+          (imagem) =>
+            !imagem.complete || imagem.naturalWidth === 0
+        ) ||
+        document.fonts.status !== "loaded"
+      ) {
+        throw new Error("PDF_ASSETS_NOT_READY");
       }
-    );
+    });
+
+    registrarMemoriaPdf("antes-pdf");
 
     const pdfBuffer =
       await page.pdf(
         renderizacao.pdfOptions
       );
+
+    registrarMemoriaPdf("depois-pdf");
 
     return new NextResponse(
       Buffer.from(pdfBuffer),
@@ -652,5 +692,7 @@ export async function POST(
         .close()
         .catch(() => null);
     }
+
+    geracaoPdfEmAndamento = false;
   }
 }
