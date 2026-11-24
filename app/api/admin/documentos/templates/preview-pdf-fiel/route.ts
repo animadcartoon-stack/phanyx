@@ -3,6 +3,7 @@ import {
 } from "@/lib/documentos/variaveis-preview-documento";
 import { NextRequest, NextResponse } from "next/server";
 import fs from "node:fs";
+import sharp from "sharp";
 import chromium from "@sparticuz/chromium-min";
 import puppeteer from "puppeteer-core";
 import { prisma } from "@/lib/prisma";
@@ -137,6 +138,18 @@ async function imagemParaDataUri(
   } catch {
     return "";
   }
+}
+
+// Optimize only the PDF logo, preserving the stored original and transparency.
+async function otimizarLogoPdf(dataUri: string): Promise<string> {
+  if (!dataUri) return "";
+  const match = /^data:image\/[^;,]+;base64,([A-Za-z0-9+/=]+)$/i.exec(dataUri);
+  if (!match) throw new Error("PDF_LOGO_INVALID_DATA");
+  const entrada = Buffer.from(match[1], "base64");
+  const imagem = sharp(entrada, { limitInputPixels: 40_000_000, failOn: "error" });
+  const png = await imagem.rotate().resize({ width: 400, height: 400, fit: "inside", withoutEnlargement: true }).png({ compressionLevel: 9 }).toBuffer();
+  console.info("[PDF-LOGO]", { originalBytes: entrada.length, optimizedBytes: png.length });
+  return `data:image/png;base64,${png.toString("base64")}`;
 }
 
 function substituirExemplos(
@@ -402,7 +415,10 @@ export async function POST(
     ] = await Promise.all([
       imagemParaDataUri(
         logoUrl
-      ),
+      ).then(async (dataUri) => {
+        if (logoUrl && !dataUri) throw new Error('PDF_LOGO_FETCH_FAILED');
+        return otimizarLogoPdf(dataUri);
+      }),
 
       imagemParaDataUri(
         assinaturaUrl
