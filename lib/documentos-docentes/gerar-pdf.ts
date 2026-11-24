@@ -8,7 +8,7 @@ import type { documentoAutorizado } from "@/lib/documentos-docentes/seguranca";
 import { escaparHtmlDocente, hashVersaoDocente } from "@/lib/documentos-docentes/integridade";
 import { montarRenderizacaoDocumento } from "@/lib/documentos/renderizador-template-documento";
 
-const CHROMIUM_PACK = "https://github.com/Sparticuz/chromium/releases/download/v131.0.0/chromium-v131.0.0-pack.tar";
+const CHROMIUM_PACK = "https://github.com/Sparticuz/chromium/releases/download/v149.0.0/chromium-v149.0.0-pack.x64.tar";
 
 function htmlCampos(modelo: string, campos: unknown, branco: boolean): string {
   const mapa = campos && typeof campos === "object" && !Array.isArray(campos) ? campos as Record<string,unknown> : {};

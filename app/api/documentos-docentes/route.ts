@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { preencherIdentidadeDocente } from "@/lib/documentos-docentes/identidade-automatica";
 import { contextoDocumentosDocentes, lerCampos, modeloDocenteValido } from "@/lib/documentos-docentes/seguranca";
 
 export const dynamic = "force-dynamic";
@@ -41,18 +42,24 @@ export async function POST(req: Request) {
   if (professoresIds.length < 1 || professoresIds.length > 30 || professoresIds.some(x => !Number.isSafeInteger(x) || x <= 0)) return NextResponse.json({ error: "Selecione entre 1 e 30 professores" }, { status: 400 });
   const professores = await prisma.professor.findMany({
     where: { id: { in: professoresIds }, instituicaoId: ctx.instituicaoId, ativo: true },
-    select: { id: true, userId: true },
+    select: { id: true, userId: true, nome: true, instituicao: { select: { nome: true } } },
   });
   if (professores.length !== professoresIds.length) return NextResponse.json({ error: "Professor não vinculado à instituição" }, { status: 403 });
   const status = ctx.papel === "ADMIN" ? "AGUARDANDO_PROFESSOR" : "RASCUNHO";
   const ids = await prisma.$transaction(async tx => {
     const gerados: number[] = [];
     for (const professorId of professoresIds) {
+      const professor = professores.find(p => p.id === professorId);
+      if (!professor) throw new Error("Professor indisponivel na instituicao.");
+      const snapshotIdentidade = preencherIdentidadeDocente(modelo?.conteudo ?? "", {
+        professor: professor.nome,
+        instituicao: professor.instituicao.nome,
+      });
       const doc = await tx.documentoDocente.create({ data: {
         instituicaoId: ctx.instituicaoId, professorId, templateId: modelo?.id ?? null,
         titulo, tipo, origem: ctx.papel, status, criadoPorId: ctx.usuario.id,
         enviadoEm: ctx.papel === "ADMIN" ? new Date() : null,
-        versoes: { create: { numero: 1, modeloSnapshot: modelo?.conteudo ?? "", campos: campos as Prisma.InputJsonValue, criadoPorId: ctx.usuario.id } },
+        versoes: { create: { numero: 1, modeloSnapshot: snapshotIdentidade, campos: campos as Prisma.InputJsonValue, criadoPorId: ctx.usuario.id } },
         eventos: { create: { usuarioId: ctx.usuario.id, tipo: ctx.papel === "ADMIN" ? "INSTRUCAO_ENVIADA" : "RASCUNHO_CRIADO", versao: 1 } },
         ...(instrucao ? { mensagens: { create: { autorId: ctx.usuario.id, papel: ctx.papel, texto: instrucao } } } : {}),
       } });

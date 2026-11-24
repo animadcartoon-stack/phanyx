@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import sharp from "sharp";
 import { prisma } from "@/lib/prisma";
+import { camposAcademicos } from "@/lib/documentos-docentes/academico-automatico";
 import { documentoAutorizado } from "@/lib/documentos-docentes/seguranca";
 import { hashVersaoDocente } from "@/lib/documentos-docentes/integridade";
 import { professorPodeEditarDocumentoDocente } from "@/lib/documentos-docentes/fluxo";
@@ -54,6 +55,7 @@ export async function POST(req: Request, { params }: Params) {
     ctx.papel === "ADMIN" ? prisma.documentoDocenteAssinatura.findUnique({ where:{ documentoId_versao_papel:{ documentoId:documento.id, versao, papel:"PROFESSOR" } }, select:{ id:true } }) : Promise.resolve(null),
   ]);
   if (!snapshot) return NextResponse.json({ error:"Versão não encontrada." }, { status:404 });
+  if (camposAcademicos(snapshot.modeloSnapshot).length) return NextResponse.json({error:"Preencha e salve os dados acadêmicos antes de assinar."},{status:409});
   if (existente) return NextResponse.json({ error:"Esta versão já foi assinada por você." }, { status:409 });
   if (adminAssina && !assinaturaProfessor) return NextResponse.json({ error:"O professor precisa assinar esta versão antes da coordenação." }, { status:409 });
 

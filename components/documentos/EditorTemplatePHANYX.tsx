@@ -3541,9 +3541,12 @@ export default function EditorTemplatePHANYX({
       : "sem-campo-visual";
 
   const [fonteAtual, setFonteAtual] = useState("");
+  const [listaFontesAberta, setListaFontesAberta] = useState(false);
   const [tamanhoAtual, setTamanhoAtual] = useState("");
   const [ultimaCorTexto, setUltimaCorTexto] = useState("#000000");
   const [corTextoSelecionado, setCorTextoSelecionado] = useState<string | null>("#000000");
+  const [hexCorEmEdicao, setHexCorEmEdicao] = useState<string | null>(null);
+  const campoHexCorRef = useRef<HTMLInputElement | null>(null);
 
   const [
     mostrarPainelTabela,
@@ -5825,27 +5828,42 @@ export default function EditorTemplatePHANYX({
               {tToolbar("main.title")}
             </div>
             <div className="flex flex-wrap gap-2">
-              <select
-                value={fonteAtual}
-                onChange={(e) => {
-                  const fonte = e.target.value;
-                  if (!fonte) return;
-
-                  editor.chain().focus(undefined, { scrollIntoView: false }).setFontFamily(fonte).run();
-                  setFonteAtual(fonte);
-                  publicarConteudoEditor();
-                }}
-                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-100 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 [&>option]:bg-white [&>option]:text-slate-950 dark:[&>option]:bg-slate-950 dark:[&>option]:text-white"
-              >
-                <option value="">
-                  {tToolbar("main.font")}
-                </option>
-                {FONTES_WINDOWS.map((fonte) => (
-                  <option key={fonte} value={fonte}>
-                    {fonte}
-                  </option>
-                ))}
-              </select>
+              <div className="relative min-w-[180px]">
+                <button
+                  type="button"
+                  aria-expanded={listaFontesAberta}
+                  aria-label={tToolbar("main.font")}
+                  onClick={() => setListaFontesAberta((aberta) => !aberta)}
+                  onKeyDown={(event) => { if (event.key === "Escape") setListaFontesAberta(false); }}
+                  className="flex w-full items-center justify-between gap-3 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                >
+                  <span style={{ fontFamily: fonteAtual || "inherit" }}>{fonteAtual || tToolbar("main.font")}</span>
+                  <span aria-hidden="true">▾</span>
+                </button>
+                {listaFontesAberta && (
+                  <div
+                    role="group"
+                    aria-label={tToolbar("main.font")}
+                    onBlur={(event) => { if (!event.currentTarget.parentElement?.contains(event.relatedTarget as Node | null)) setListaFontesAberta(false); }}
+                    onKeyDown={(event) => { if (event.key === "Escape") setListaFontesAberta(false); }}
+                    className="absolute left-0 top-full z-[100] mt-1 max-h-72 w-64 max-w-[80vw] overflow-y-auto rounded-xl border border-slate-300 bg-white p-1 shadow-xl dark:border-slate-700 dark:bg-slate-950"
+                  >
+                    {FONTES_WINDOWS.map((fonte) => (
+                      <button key={fonte} type="button"
+                        aria-pressed={fonteAtual === fonte}
+                        onClick={() => {
+                          editor.chain().focus(undefined, { scrollIntoView: false }).setFontFamily(fonte).run();
+                          setFonteAtual(fonte);
+                          setListaFontesAberta(false);
+                          publicarConteudoEditor();
+                        }}
+                        style={{ fontFamily: fonte, fontWeight: 400 }}
+                        className="block w-full rounded-lg px-3 py-2 text-left text-base text-slate-950 hover:bg-slate-100 dark:text-white dark:hover:bg-slate-800 aria-pressed:bg-blue-100 dark:aria-pressed:bg-blue-900"
+                      >{fonte}</button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               <select
                 value={tamanhoAtual}
@@ -6135,14 +6153,73 @@ export default function EditorTemplatePHANYX({
                 />
                 </div>
                 <input
+                  ref={campoHexCorRef}
                   type="text"
-                  readOnly
-                  value={corTextoSelecionado ? corTextoSelecionado.toUpperCase() : tToolbar("main.mixedTextColors")}
-                  onFocus={(event) => event.target.select()}
+                  value={hexCorEmEdicao ?? (corTextoSelecionado ? corTextoSelecionado.toUpperCase() : "")}
+                  placeholder={corTextoSelecionado ? "#000000" : tToolbar("main.mixedTextColors")}
+                  onFocus={(event) => {
+                    setHexCorEmEdicao(corTextoSelecionado?.toUpperCase() ?? "");
+                    event.currentTarget.select();
+                  }}
+                  onChange={(event) => setHexCorEmEdicao(event.currentTarget.value)}
+                  onBlur={() => setHexCorEmEdicao(null)}
+                  onPaste={(event) => {
+                    event.stopPropagation();
+                    const texto = event.clipboardData.getData("text").trim();
+                    if (!/^#?[0-9a-f]{6}$/i.test(texto)) return;
+                    event.preventDefault();
+                    const cor = "#" + texto.replace(/^#/, "").toUpperCase();
+                    if (editor.chain().focus(undefined, { scrollIntoView: false }).setColor(cor).run()) {
+                      setUltimaCorTexto(cor);
+                      setCorTextoSelecionado(cor);
+                      publicarConteudoEditor();
+                    }
+                    setHexCorEmEdicao(null);
+                  }}
+                  onKeyDown={(event) => {
+                    event.stopPropagation();
+                    if (event.key === "Escape") {
+                      event.preventDefault();
+                      setHexCorEmEdicao(null);
+                      editor.commands.focus();
+                    }
+                    if (event.key !== "Enter") return;
+                    event.preventDefault();
+                    const texto = event.currentTarget.value.trim();
+                    if (!/^#?[0-9a-f]{6}$/i.test(texto)) return;
+                    const cor = "#" + texto.replace(/^#/, "").toUpperCase();
+                    if (editor.chain().focus(undefined, { scrollIntoView: false }).setColor(cor).run()) {
+                      setUltimaCorTexto(cor);
+                      setCorTextoSelecionado(cor);
+                      publicarConteudoEditor();
+                    }
+                    setHexCorEmEdicao(null);
+                  }}
+                  aria-invalid={hexCorEmEdicao !== null && hexCorEmEdicao !== "" && !/^#?[0-9a-f]{6}$/i.test(hexCorEmEdicao.trim())}
                   aria-label={tToolbar("main.textColorHex")}
                   title={tToolbar("main.textColorHex")}
-                  className="h-10 w-36 border-l border-slate-300 bg-transparent px-2 text-xs text-slate-900 dark:text-white"
+                  spellCheck={false}
+                  autoComplete="off"
+                  className="h-10 w-28 border-l border-slate-300 bg-transparent px-2 font-mono text-xs text-slate-900 dark:text-white"
                 />
+                <button
+                  type="button"
+                  disabled={!corTextoSelecionado}
+                  title={tToolbar("main.textColorHex") + " (Ctrl+C)"}
+                  aria-label={tToolbar("main.textColorHex") + " (Ctrl+C)"}
+                  className="h-10 border-l border-slate-300 px-2 hover:bg-slate-100 disabled:opacity-40 dark:hover:bg-slate-800"
+                  onClick={async () => {
+                    if (!corTextoSelecionado) return;
+                    try {
+                      await navigator.clipboard.writeText(corTextoSelecionado.toUpperCase());
+                    } catch {
+                      campoHexCorRef.current?.focus();
+                      campoHexCorRef.current?.select();
+                    }
+                  }}
+                >
+                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+                </button>
               </div>
 
               <div className="flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-2 py-1.5 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">

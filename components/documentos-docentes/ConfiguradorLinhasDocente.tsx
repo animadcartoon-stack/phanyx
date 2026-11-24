@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useLocale } from "next-intl";
+import { chavesAcademicas, rotulosAcademico, legendaAcademica } from "@/lib/documentos-docentes/academico-automatico";
 import {
   MAX_LINHAS_CAMPO_DOCENTE,
   atualizarLinhasCampoDocente,
@@ -56,6 +57,14 @@ const rotulos = {
 export default function ConfiguradorLinhasDocente({ tipo, contexto, conteudo, aoInserir, aoAlterar }: Props) {
   const locale = useLocale();
   const m = rotulos[locale as keyof typeof rotulos] ?? rotulos["pt-BR"];
+  const identidadeRotulos = {
+    "pt-BR": { titulo: "Variáveis automáticas", ajuda: "Preenchidas com dados reais na criação do documento. Os campos personalizados abaixo continuam manuais.", professor: "Nome do professor", instituicao: "Nome da instituição" },
+    "pt-PT": { titulo: "Variáveis automáticas", ajuda: "Preenchidas com dados reais ao criar o documento. Os campos personalizados abaixo continuam manuais.", professor: "Nome do professor", instituicao: "Nome da instituição" },
+    "en-US": { titulo: "Automatic variables", ajuda: "Filled with real data when the document is created. Custom fields below remain manual.", professor: "Teacher name", instituicao: "Institution name" },
+    "es-ES": { titulo: "Variables automáticas", ajuda: "Se completan con datos reales al crear el documento. Los campos personalizados siguen siendo manuales.", professor: "Nombre del docente", instituicao: "Nombre de la institución" },
+    "fr-FR": { titulo: "Variables automatiques", ajuda: "Renseignées avec les données réelles à la création du document. Les champs personnalisés restent manuels.", professor: "Nom de l'enseignant", instituicao: "Nom de l'établissement" },
+  } as const;
+  const identidade = identidadeRotulos[locale as keyof typeof identidadeRotulos] ?? identidadeRotulos["pt-BR"];
   const [nome, setNome] = useState("");
   const [linhas, setLinhas] = useState("1");
   const [aviso, setAviso] = useState("");
@@ -77,6 +86,22 @@ export default function ConfiguradorLinhasDocente({ tipo, contexto, conteudo, ao
   }
   return (
     <section className="pdoc-soft mb-4 space-y-3 rounded-xl border border-blue-300 bg-blue-50/60 p-4 text-slate-900 dark:border-blue-800 dark:bg-slate-900 dark:text-slate-100">
+      <div className="space-y-2 border-b border-blue-200 pb-3 dark:border-blue-900">
+        <h3 className="pdoc-label text-sm font-semibold">{identidade.titulo}</h3>
+        <p className="pdoc-muted text-xs">{identidade.ajuda}</p>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { nome: identidade.professor, tag: "{{docente:teacherName}}" },
+            { nome: identidade.instituicao, tag: "{{docente:institutionName}}" },
+          ].map(item => <button key={item.tag} type="button" title={item.tag}
+            className="rounded-lg border border-blue-600 px-3 py-2 text-xs font-semibold text-blue-800 dark:text-blue-200"
+            onMouseDown={event => event.preventDefault()} onClick={() => aoInserir(item.tag)}>{item.nome}</button>)}
+        </div>
+      </div>
+      <div className="space-y-2 border-b border-blue-200 pb-3 dark:border-blue-900">
+        <h3 className="pdoc-label text-sm font-semibold">{legendaAcademica(locale)[6]}</h3>
+        <div className="flex flex-wrap gap-2">{Object.keys(chavesAcademicas).map((chave,i)=><button key={chave} type="button" className="rounded-lg border border-blue-600 px-3 py-2 text-xs font-semibold text-blue-800 dark:text-blue-200" onMouseDown={e=>e.preventDefault()} onClick={()=>aoInserir(`{{docente:${chave}}}`)} title={`{{docente:${chave}}}`}>{rotulosAcademico(locale)[i]}</button>)}</div>
+      </div>
       <h3 className="pdoc-label text-sm font-semibold">{m.title}</h3>
       <p className="pdoc-muted text-xs text-slate-600 dark:text-slate-300">{m.help}</p>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_180px]">
