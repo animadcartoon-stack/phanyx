@@ -29,14 +29,29 @@ test('portal do aluno mantém histórico, ouvidoria e saída no menu compartilha
   const menu = read('components/layout/AlunoSidebar.tsx');
   assert.match(menu, /podeVer\.historico && \{[\s\S]*href: "\/aluno\/historico"/);
   assert.match(menu, /podeVer\.ouvidoria && \{[\s\S]*href: "\/aluno\/ouvidoria"/);
-  assert.match(menu, /<form action="\/api\/auth\/logout-aluno" method="post" className="p-4 lg:hidden">/);
+  assert.match(menu, /<form action="\/api\/auth\/logout-aluno" method="post"[^>]*className="p-4 lg:hidden">/);
 });
 
-test('menu móvel libera espaço, permite rolagem e informa o estado a tecnologias assistivas', () => {
+test('menu móvel cobre a página, começa pelos links e concentra a rolagem no painel', () => {
   const menu = read('components/layout/PortalNavigation.tsx');
   assert.match(menu, /aria-expanded=\{open\}/);
-  assert.match(menu, /max-h-\[60dvh\] overflow-y-auto/);
-  assert.doesNotMatch(menu, /\bfixed\b/);
+  assert.match(menu, /useState<"pages" \| "preferences">\("pages"\)/);
+  assert.match(menu, /<dialog[\s\S]*h-dvh[\s\S]*data-portal-navigation-panel[\s\S]*overflow-y-auto overscroll-contain/);
+  assert.match(menu, /dialog\.showModal\(\)/);
+  assert.match(menu, /document\.body\.style\.overflow = "hidden"/);
+  assert.match(menu, /aria-pressed=\{view === "pages"\}/);
+  assert.match(menu, /aria-pressed=\{view === "preferences"\}/);
+  for (const path of ['app/admin/AdminShell.tsx', 'components/layout/AlunoSidebar.tsx', 'components/layout/ProfessorSidebar.tsx']) {
+    const source = read(path);
+    assert.match(source, /<nav\s+data-portal-pages/);
+    assert.match(source, /<div\s+data-portal-preferences/);
+  }
+});
+
+test('o cabeçalho do novo aluno ganha espaço no celular e mantém a ação de voltar', () => {
+  const page = read('app/admin/alunos/novo/page.tsx');
+  assert.match(page, /text-xl[^"]*sm:text-3xl[^"]*"\s*>\s*\{t\("registration\.title"\)\}/);
+  assert.match(page, /min-h-11[^"]*"\s*>\s*\{t\("actions\.backToStudents"\)\}/);
 });
 
 test('aviso de instalação fica no fluxo e os controles novos têm os cinco idiomas', () => {
@@ -46,6 +61,8 @@ test('aviso de instalação fica no fluxo e os controles novos têm os cinco idi
   for (const locale of ['pt-BR', 'pt-PT', 'en-US', 'es-ES', 'fr-FR']) {
     const messages = JSON.parse(read(`messages/${locale}.json`).replace(/^\uFEFF/, ''));
     assert.ok(messages.Common.portalMenu, locale);
+    assert.ok(messages.Common.portalPages, locale);
+    assert.ok(messages.Common.portalPreferences, locale);
     assert.ok(messages.InstallPrompt?.install, locale);
     assert.match(messages.AdminCertificateEditor?.layers?.selectElement ?? '', /\{name\}/);
   }

@@ -118,13 +118,13 @@ export default function ProfessorSidebar({
 
   return (
       <aside className="professor-sidebar flex min-w-0 flex-col lg:min-h-screen lg:w-64">
-        <div className="border-b border-blue-500 p-4 lg:p-6">
-          <div className="text-xl font-bold">
+        <div data-portal-preferences className="border-b border-blue-500 p-4 lg:p-6">
+          <div className="hidden text-xl font-bold lg:block">
             👨‍🏫 {t("title")}
           </div>
 
-          <div className="mt-4 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 p-3">
-            <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-2xl border border-white/20 bg-white/10">
+          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 p-3 lg:mt-4">
+            <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-xl border border-white/20 bg-white/10 lg:h-14 lg:w-14 lg:rounded-2xl">
               {professor?.fotoPerfil ? (
                 <img
                   src={professor.fotoPerfil}
@@ -149,7 +149,7 @@ export default function ProfessorSidebar({
           </div>
         </div>
 
-        <nav aria-label={t("title")} className="flex-1 space-y-2 p-4">
+        <nav data-portal-pages aria-label={t("title")} className="flex-1 space-y-1 p-4 lg:space-y-2">
           {menu.map((item) => {
             const ativo =
               pathname === item.href || (item.href !== "/professor" && pathname.startsWith(item.href + "/"));
@@ -170,7 +170,7 @@ export default function ProfessorSidebar({
           })}
         </nav>
 
-        <form action="/api/auth/logout-professor" method="post" className="p-4 lg:hidden">
+        <form action="/api/auth/logout-professor" method="post" data-portal-pages className="p-4 lg:hidden">
           <button type="submit" className="min-h-11 w-full rounded-xl bg-red-700 px-4 py-2 font-semibold text-white hover:bg-red-800">
             {t("logout")}
           </button>

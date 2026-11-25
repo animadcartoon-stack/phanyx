@@ -989,9 +989,9 @@ export default function AdminShell({
   }
 
   const buttonClass =
-    "w-full flex items-center justify-between gap-2 p-2 rounded hover:bg-gray-100 font-semibold text-left";
+    "w-full flex items-center justify-between gap-2 p-2 rounded hover:bg-gray-100 font-semibold text-left max-lg:rounded-xl max-lg:bg-slate-100 max-lg:px-3 max-lg:dark:bg-slate-800";
   const sectionTitleClass =
-    "text-xs text-gray-500 font-semibold uppercase tracking-wide";
+    "text-sm font-semibold text-slate-900 dark:text-slate-100 lg:text-xs lg:uppercase lg:tracking-wide lg:text-gray-500";
 
   const emailsAuditoriaValidacoes = [
     "academicophanyx@gmail.com",
@@ -1044,8 +1044,8 @@ export default function AdminShell({
             className="flex min-w-0 flex-col bg-white p-4 shadow-lg dark:bg-slate-950 max-lg:[&_nav_a]:min-h-11 max-lg:[&_nav_button]:min-h-11 lg:fixed lg:left-0 lg:top-0 lg:z-40 lg:h-screen lg:w-72 lg:overflow-y-auto lg:p-6"
           >
             <div>
-              <div className="mb-8">
-                <h2 className="text-xl font-semibold">
+              <div data-portal-preferences className="mb-4 lg:mb-8">
+                <h2 className="hidden text-xl font-semibold lg:block">
                   PHANYX
                   <span className="block text-sm text-gray-500 font-normal">
                     {tNav("adminPanel")}
@@ -1055,7 +1055,8 @@ export default function AdminShell({
                 <button
                   type="button"
                   onClick={abrirTourAdmin}
-                  className={`${styles.tutorialButton} mt-4 w-full rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100`}
+                  data-close-portal-menu
+                  className={`${styles.tutorialButton} min-h-11 w-full rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 lg:mt-4 lg:min-h-0`}
                 >
                   ✨ {tNav("openGuidedTutorial")}
                 </button>
@@ -1069,9 +1070,9 @@ export default function AdminShell({
                 </div>
               </div>
 
-              <div className="mb-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div data-portal-preferences className="rounded-2xl border border-slate-200 bg-slate-50 p-3 lg:mb-6 lg:p-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-16 w-16 overflow-hidden rounded-2xl border bg-slate-200">
+                  <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border bg-slate-200 lg:h-16 lg:w-16 lg:rounded-2xl">
                     {funcionario?.fotoPerfil ? (
                       <FotoPerfilAtual foto={funcionario.fotoPerfil} nome={funcionario.nome || tNav("employee")} />
                     ) : (
@@ -1095,7 +1096,7 @@ export default function AdminShell({
                 </div>
               </div>
 
-              <nav className="flex flex-col space-y-2">
+              <nav data-portal-pages aria-label={tCommon("portalPages")} className="flex flex-col space-y-1.5 lg:space-y-2">
                 <Link
                   href="/admin"
                   className={getLinkClass("/admin")}
@@ -2240,8 +2241,8 @@ export default function AdminShell({
               </nav>
             </div>
 
-            <div className="mt-auto pt-6">
-              <div className="mt-6 bg-white pt-4 dark:bg-slate-950 lg:sticky lg:bottom-0">
+            <div data-portal-preferences className="mt-auto pt-4 lg:pt-6">
+              <div className="bg-white dark:bg-slate-950 lg:sticky lg:bottom-0 lg:mt-6 lg:pt-4">
                 <button
                   onClick={handleLogout}
                   type="button"

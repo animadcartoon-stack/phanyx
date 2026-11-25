@@ -359,6 +359,13 @@ export default async function AlunoLayout({
 
   const caminhoAluno = (await headers()).get("x-phanyx-rota-aluno") || "";
   if ((caminhoAluno === "/aluno/desenvolvimento" || caminhoAluno.startsWith("/aluno/desenvolvimento/")) && !visibilidadeAluno.desenvolvimento) redirect("/aluno/sem-acesso");
+  const preferencias = (
+    <>
+      <SeletorIdioma className="phanyx-aluno-seletor-idioma w-full sm:w-64" />
+      <PhanyxThemeToggle />
+    </>
+  );
+
   return (
     <>
       <ImpersonacaoBanner />
@@ -366,7 +373,7 @@ export default async function AlunoLayout({
       <AlunoProvider>
         <Header />
         <div className="min-h-[calc(100dvh-56px)] bg-slate-100 dark:bg-slate-950 lg:flex">
-          <PortalNavigation actions={(
+          <PortalNavigation preferences={preferencias} actions={(
             <div className="flex items-center gap-2 lg:contents">
               <PhanyxNotificationBell mostrarLinkTodas={false} />
               <ChatGlobalWidget mobileInline />
@@ -389,10 +396,8 @@ export default async function AlunoLayout({
           </form>
 
           <main className="phanyx-aluno-conteudo w-full min-w-0 flex-1 px-3 py-4 lg:ml-64 lg:p-8">
-            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-end">
-              <SeletorIdioma className="phanyx-aluno-seletor-idioma w-full sm:w-64" />
-
-              <PhanyxThemeToggle />
+            <div className="mb-4 hidden flex-row items-end justify-end gap-3 lg:flex">
+              {preferencias}
             </div>
 
             {visibilidadeAluno.dados && (

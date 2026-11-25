@@ -192,13 +192,13 @@ export default function AlunoSidebar({
 
   return (
       <aside className="min-w-0 border-r border-blue-800 bg-blue-950 text-white shadow-xl dark:border-slate-800 dark:bg-slate-950 lg:fixed lg:min-h-screen lg:w-64">
-        <div className="p-4 lg:p-6">
-          <div className="text-lg font-bold text-white">
+        <div data-portal-preferences className="p-4 lg:p-6">
+          <div className="hidden text-lg font-bold text-white lg:block">
             🎓 {t("areaTitle")}
           </div>
 
-          <div className="mt-4 flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 p-3 backdrop-blur">
-            <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-2xl border border-white/30 bg-white/10">
+          <div className="flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 p-3 backdrop-blur lg:mt-4">
+            <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-xl border border-white/30 bg-white/10 lg:h-14 lg:w-14 lg:rounded-2xl">
               {aluno?.fotoPerfil ? (
                 <img
                   src={
@@ -234,7 +234,8 @@ export default function AlunoSidebar({
         </div>
 
         <nav
-          className="space-y-1 px-3"
+          data-portal-pages
+          className="space-y-1 px-3 max-lg:pt-3"
           aria-label={t("areaTitle")}
         >
           {menu.map((item) => {
@@ -277,7 +278,7 @@ export default function AlunoSidebar({
           })}
         </nav>
 
-        <form action="/api/auth/logout-aluno" method="post" className="p-4 lg:hidden">
+        <form action="/api/auth/logout-aluno" method="post" data-portal-pages className="p-4 lg:hidden">
           <button type="submit" className="min-h-11 w-full rounded-xl bg-red-700 px-4 py-2 font-semibold text-white hover:bg-red-800">
             {tLayout("logout")}
           </button>

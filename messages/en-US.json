@@ -82,6 +82,8 @@
     "portalChat": "Chat",
     "portalNotificationsEmpty": "No notifications.",
     "portalMenu": "Menu",
+    "portalPages": "Pages",
+    "portalPreferences": "Preferences",
     "close": "Close",
     "changingLanguage": "Changing language...",
     "languageChangeError": "Could not change the language. Please try again.",

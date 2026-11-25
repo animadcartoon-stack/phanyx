@@ -158,6 +158,13 @@ export default async function ProfessorLayout({
       documentos: await paginaProfessorVisivel(professor.instituicaoId,"PROFESSOR","professor.documentos",professor.id,false),
     };
 
+  const preferencias = (
+    <>
+      <div className="w-full sm:w-auto"><SeletorIdioma /></div>
+      <PhanyxThemeToggle />
+    </>
+  );
+
   return (
     <>
       <ImpersonacaoBanner />
@@ -169,7 +176,7 @@ export default async function ProfessorLayout({
             <Header />
 
             <div className="min-h-[calc(100dvh-56px)] bg-gray-100 dark:bg-slate-950 lg:flex">
-              <PortalNavigation actions={(
+              <PortalNavigation preferences={preferencias} actions={(
                 <div className="flex items-center gap-2 lg:contents">
                   <PhanyxNotificationBell mostrarLinkTodas={false} modoSuporte={Boolean((decoded as typeof decoded & { impersonacao?: boolean }).impersonacao)} />
                   <ChatGlobalWidget mobileInline />
@@ -179,12 +186,8 @@ export default async function ProfessorLayout({
               </PortalNavigation>
 
               <main className="w-full min-w-0 px-3 py-4 lg:flex-1 lg:p-8">
-                <div className="mb-4 flex flex-wrap items-center justify-end gap-3 lg:mb-6">
-                  <div className="w-full sm:w-auto">
-                    <SeletorIdioma />
-                  </div>
-
-                  <PhanyxThemeToggle />
+                <div className="hidden flex-wrap items-center justify-end gap-3 lg:mb-6 lg:flex">
+                  {preferencias}
 
                   <form
                     action="/api/auth/logout-professor"
