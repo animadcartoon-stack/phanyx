@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import PhanyxTour from "@/components/tutorial/PhanyxTour";
 import CentralAvisosPhanyx from "@/components/phanyx/CentralAvisosPhanyx";
 import { useTranslations } from "next-intl";
 import FotoPerfilAtual from "@/components/perfil/FotoPerfilAtual";
@@ -44,7 +43,7 @@ const TOUR_STORAGE_KEY = "phanyx_admin_tour_oculto_v2";
 
 function getRectFromSelector(selector: string) {
   const elemento = document.querySelector(selector);
-  if (!elemento) return null;
+  if (!elemento?.getClientRects().length) return null;
 
   const rect = elemento.getBoundingClientRect();
 
@@ -311,7 +310,7 @@ function AdminTour({
 
       {spotlight && (
         <div
-          className="absolute rounded-2xl border-2 border-blue-400 shadow-[0_0_0_9999px_rgba(2,6,23,0.72)] transition-all"
+          className="absolute hidden rounded-2xl border-2 border-blue-400 shadow-[0_0_0_9999px_rgba(2,6,23,0.72)] transition-all motion-reduce:transition-none lg:block"
           style={{
             top: spotlight.top,
             left: spotlight.left,
@@ -323,7 +322,9 @@ function AdminTour({
 
       <div
         ref={bubbleRef}
-        className="absolute max-h-[calc(100vh-32px)] w-[min(420px,calc(100vw-32px))] overflow-y-auto rounded-[28px] border border-slate-200 bg-white px-5 py-4 shadow-2xl transition-all duration-300"
+        role="dialog"
+        aria-label={t("guidedTutorial")}
+        className="absolute max-h-[calc(100dvh-32px)] w-[min(420px,calc(100vw-32px))] overflow-y-auto overscroll-contain rounded-[28px] border border-slate-200 bg-white px-5 py-4 shadow-2xl transition-all duration-300 max-lg:top-1/2! max-lg:left-1/2! max-lg:transform-none! max-lg:-translate-x-1/2 max-lg:-translate-y-1/2 motion-reduce:transition-none"
         style={
           tourConcluido
             ? {
@@ -337,7 +338,7 @@ function AdminTour({
         {!tourConcluido &&
           (spotlight && spotlight.left < 320 ? (
             <div
-              className="absolute h-3 w-3 -translate-y-1/2 rotate-45 border border-gray-200 bg-white shadow-sm"
+              className="absolute hidden h-3 w-3 -translate-y-1/2 rotate-45 border border-gray-200 bg-white shadow-sm lg:block"
               style={{
                 left: "-6px",
                 top: "50%",
@@ -345,7 +346,7 @@ function AdminTour({
             />
           ) : (
             <div
-              className="absolute h-3 w-3 rotate-45 border border-gray-200 bg-white shadow-sm"
+              className="absolute hidden h-3 w-3 rotate-45 border border-gray-200 bg-white shadow-sm lg:block"
               style={{
                 left: "40px",
                 top: "-6px",
@@ -355,11 +356,11 @@ function AdminTour({
 
         {!tourConcluido ? (
           <>
-            <div className="flex items-start gap-4">
+            <div className="flex flex-col items-start gap-3 sm:flex-row sm:gap-4">
               <img
                 src={step.mascoteSrc}
                 alt={step.mascoteAlt}
-                className="h-24 w-24 shrink-0 object-contain drop-shadow-lg animate-mascote"
+                className="animate-mascote h-14 w-14 shrink-0 object-contain drop-shadow-lg motion-reduce:animate-none sm:h-24 sm:w-24"
               />
 
               <div className="min-w-0">
@@ -383,7 +384,7 @@ function AdminTour({
               </div>
             </div>
 
-            <div className="mt-5 flex items-center justify-between gap-3">
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
               <div className="text-sm text-slate-500">
                 {t("tourStepProgress", {
                   current: stepIndex + 1,

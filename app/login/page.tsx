@@ -176,7 +176,6 @@ if (
 
   return (
     <>
-      <InstallPromptPHANYX />
 
       <main className="relative min-h-screen overflow-hidden bg-gradient-to-b from-slate-50 via-blue-50/60 to-white">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.18),transparent_45%),radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.12),transparent_30%)] lg:hidden" />
@@ -356,6 +355,7 @@ if (
           </div>
         </div>
       </main>
+      <div className="mx-auto w-full max-w-lg px-4"><InstallPromptPHANYX /></div>
     </>
   );
 }

@@ -1,3 +1,6 @@
+import { posicionarAssinaturasAntesDoAnexo } from "@/lib/documentos/campos-interativos";
+import camposInterativos from "@/messages/document-interactive-fields.json";
+import type { LocalePhanyx } from "@/i18n/config";
 import {
   substituirVariaveisPreviewDocumento,
   montarValoresPreviewDocumento,
@@ -506,12 +509,20 @@ export async function POST(
         ? "DUAS_VIAS_A4"
         : "A4_INTEIRA";
 
+    const rotulosCampos = camposInterativos[localeDocumento as LocalePhanyx];
     const renderizacao =
       montarRenderizacaoDocumento({
-        conteudo:
-          conteudoHtml,
+        conteudo: body?.tipo === "CONTRATO" ? posicionarAssinaturasAntesDoAnexo(conteudoHtml) : conteudoHtml,
 
         formatoImpressao,
+
+        rotulosCampos: {
+          assinaturas: rotulosCampos.signatures,
+          titular: rotulosCampos.holder,
+          diretor: rotulosCampos.director,
+          secretaria: rotulosCampos.secretariat,
+          testemunhas: rotulosCampos.witnesses,
+        },
 
         camposVisuais,
 

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { lerCamposEscolha } from "@/lib/documentos/campos-interativos";
+import { calcularIdadeContrato } from "@/lib/contratos/contrato-matricula";
 
 export async function GET(
   _req: Request,
@@ -34,7 +36,15 @@ export async function GET(
       );
     }
 
+    const camposEscolha = lerCamposEscolha(contrato.conteudo);
+    const idade = calcularIdadeContrato(contrato.aluno.dataNascimento);
+    const responsavelAssina = camposEscolha.length > 0 && idade !== null && idade < 18;
+
     return NextResponse.json({
+      camposEscolha,
+      titular: responsavelAssina
+        ? { nome: contrato.aluno.nomeResponsavel }
+        : null,
       id: contrato.id,
       tokenAssinatura: contrato.tokenAssinatura,
       status: contrato.status,
@@ -45,7 +55,7 @@ export async function GET(
         ? {
             id: contrato.aluno.id,
             nome: contrato.aluno.nome,
-            cpf: contrato.aluno.cpf,
+            cpf: responsavelAssina ? null : contrato.aluno.cpf,
             matricula: contrato.aluno.matricula,
           }
         : null,
@@ -68,6 +78,7 @@ export async function GET(
             nome: contrato.assinatura.nome,
             cpf: contrato.assinatura.cpf,
             data: contrato.assinatura.data,
+            respostasCampos: contrato.assinatura.respostasCampos,
           }
         : null,
     });

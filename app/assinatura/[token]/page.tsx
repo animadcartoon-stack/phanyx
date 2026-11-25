@@ -2,6 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import {
+  renderizarCamposEscolha,
+  validarRespostasCampos,
+  type CampoEscolha,
+  type RespostasCampos,
+} from "@/lib/documentos/campos-interativos";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 
 type ContratoApi = {
@@ -9,6 +16,8 @@ type ContratoApi = {
   tokenAssinatura?: string | null;
   status: string;
   conteudo: string;
+  camposEscolha: CampoEscolha[];
+  titular: { nome: string | null } | null;
   dataCriacao?: string;
   dataAssinatura?: string | null;
   aluno?: {
@@ -31,10 +40,12 @@ type ContratoApi = {
     nome: string;
     cpf: string;
     data: string;
+    respostasCampos?: RespostasCampos | null;
   } | null;
 };
 
 export default function AssinaturaPorTokenPage() {
+  const tCampos = useTranslations("DocumentInteractiveFields");
   const params = useParams();
   const token = String(params.token || "");
 
@@ -52,6 +63,20 @@ export default function AssinaturaPorTokenPage() {
   const [tipoAssinatura, setTipoAssinatura] = useState<"DESENHO" | "DIGITAL">("DESENHO");
   const [assinaturaDigital, setAssinaturaDigital] = useState("");
   const [aceitouTermos, setAceitouTermos] = useState(false);
+  const [respostas, setRespostas] = useState<RespostasCampos>({});
+  const camposEscolha = contrato?.camposEscolha ?? [];
+
+  const conteudoLegivel = contrato && camposEscolha.length
+    ? new DOMParser().parseFromString(
+        renderizarCamposEscolha(contrato.conteudo, respostas)
+          .replace(/<br\s*\/?>|<\/(?:p|h[1-6]|li|tr|div)>/gi, "$&\n"),
+        "text/html",
+      ).body.textContent
+    : contrato?.conteudo;
+
+  function limparEscolha(id: string) {
+    setRespostas(atuais => Object.fromEntries(Object.entries(atuais).filter(([chave]) => chave !== id)));
+  }
 
   function iniciarDesenho(e: React.MouseEvent<HTMLCanvasElement>) {
     setDesenhando(true);
@@ -131,9 +156,11 @@ function gerarAssinaturaDigitalBase64() {
       }
 
       setContrato(data);
-      setNome(data?.aluno?.nome || "");
-      setCpf(data?.assinatura?.cpf || data?.aluno?.cpf || "");
-      setAssinaturaDigital(data?.assinatura?.nome || data?.aluno?.nome || "");
+      const nomeTitular = data.assinatura?.nome || (data.titular ? data.titular.nome : data.aluno?.nome) || "";
+      setNome(nomeTitular);
+      setCpf(data.assinatura?.cpf || data.aluno?.cpf || "");
+      setAssinaturaDigital(nomeTitular);
+      setRespostas(data.assinatura?.respostasCampos ?? {});
     } catch (error: any) {
       console.error(error);
       setMensagem(error?.message || "Erro ao carregar contrato");
@@ -149,6 +176,12 @@ function gerarAssinaturaDigitalBase64() {
 
       if (contrato.status === "ASSINADO") {
         setErro("Este contrato já foi assinado.");
+        return;
+      }
+
+      const validacao = validarRespostasCampos(camposEscolha, respostas);
+      if (validacao.erro) {
+        setErro(tCampos(validacao.erro));
         return;
       }
 
@@ -202,12 +235,16 @@ console.log("ASSINATURA GERADA");
           nome,
           cpf,
           assinaturaBase64,
+          aceitouTermos,
+          respostasCampos: validacao.respostas,
         }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
+        const codigos = ["respostaObrigatoria", "respostaInvalida", "campoInvalido", "acceptTerms", "holderCpf"];
+        if (codigos.includes(data?.codigo)) throw new Error(tCampos(data.codigo));
         throw new Error(data?.error || "Erro ao assinar");
       }
 
@@ -317,9 +354,35 @@ console.log("ASSINATURA GERADA");
             <div className="rounded-2xl border bg-white p-4">
               <p className="mb-2 text-sm font-medium text-gray-700">Contrato</p>
               <div className="max-h-[320px] overflow-auto whitespace-pre-wrap rounded-xl border bg-gray-50 p-4 text-sm leading-7 text-gray-800">
-                {contrato.conteudo}
+                {conteudoLegivel}
               </div>
             </div>
+
+            {camposEscolha.length > 0 && (
+              <section className="space-y-4 rounded-2xl border bg-white p-4 text-slate-900" aria-labelledby="escolhas-contrato">
+                <h2 id="escolhas-contrato" className="font-semibold">{tCampos("choices")}</h2>
+                {contrato.status === "PENDENTE" && <p className="text-sm text-slate-700">{tCampos("responseHelp")}</p>}
+                {camposEscolha.map(campo => (
+                  <fieldset key={campo.id} disabled={contrato.status !== "PENDENTE" || saving} className="space-y-2 rounded-lg border p-3">
+                    <legend className="max-w-full px-1 font-medium">
+                      {campo.pergunta} <span className="text-xs text-slate-600">({tCampos(campo.obrigatoria ? "requiredShort" : "optional")})</span>
+                    </legend>
+                    {campo.opcoes.map((opcao, indice) => (
+                      <label key={opcao} className="flex min-h-10 items-center gap-3 rounded-lg border px-3 py-2 text-sm">
+                        <input type="radio" name={`campo-${campo.id}`} required={campo.obrigatoria}
+                          checked={respostas[campo.id] === indice}
+                          onChange={() => setRespostas(atuais => ({ ...atuais, [campo.id]: indice }))} />
+                        <span className="min-w-0 break-words">{opcao}</span>
+                      </label>
+                    ))}
+                    {!campo.obrigatoria && respostas[campo.id] !== undefined && contrato.status === "PENDENTE" && (
+                      <button type="button" className="text-sm font-semibold text-blue-700 underline"
+                        onClick={() => limparEscolha(campo.id)}>{tCampos("clearResponse")}</button>
+                    )}
+                  </fieldset>
+                ))}
+              </section>
+            )}
 
             <div>
               <div className="rounded-2xl border bg-white p-4">

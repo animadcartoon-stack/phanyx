@@ -21,6 +21,7 @@ import {
 
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
   } from "react";
@@ -42,6 +43,8 @@ import { Table,
   TableCell,
   TableHeader } from "@tiptap/extension-table";
 import { createPortal } from "react-dom";
+import { AssinaturasContratoPHANYX, CampoEscolhaPHANYX, InicioAnexoPHANYX } from "@/components/documentos/CamposInterativosEditor";
+import { CONFIG_ASSINATURAS_PADRAO, ATRIBUTO_ASSINATURAS_CONTRATO } from "@/lib/documentos/campos-interativos";
 import { useTranslations, useLocale } from "next-intl";
 import { ESTILOS_LISTA, estiloListaValido, nomeFonteValido, CSS_LISTAS_PHANYX, type EstiloLista } from "@/lib/documentos/estilos-listas-editor";
 import {
@@ -1483,6 +1486,7 @@ type DadosAssinaturaPreview = {
   nomeInstituicao?: string | null;
   cnpjInstituicao?: string | null;
   campoVisual?: CampoVisualAssinaturaPreview | null;
+  chaveVisual?: string;
 
   aoMoverBloco?: (
     x: number,
@@ -2456,7 +2460,7 @@ function criarBotaoRemoverAssinatura(
 }
 
 const AssinaturaPreviewPHANYX =
-  Extension.create<DadosAssinaturaPreview>({
+  Extension.create<DadosAssinaturaPreview, DadosAssinaturaPreview>({
     name:
       "assinaturaPreviewPHANYX",
 
@@ -2471,9 +2475,12 @@ const AssinaturaPreviewPHANYX =
       };
     },
 
+    addStorage() {
+      return { ...this.options };
+    },
+
     addProseMirrorPlugins() {
-      const dados =
-        this.options;
+      const dados = this.storage;
 
       return [
         new Plugin({
@@ -2664,7 +2671,7 @@ const AssinaturaPreviewPHANYX =
                             side: -1,
 
                             key:
-                              `${padrao.tipo}-${inicio}`,
+                              `${padrao.tipo}-${inicio}-${dados.chaveVisual ?? ""}`,
                           }
                         )
                       );
@@ -2885,6 +2892,8 @@ type Props = {
   onChange: (
     html: string
   ) => void;
+
+  contratoAcademico?: boolean;
 
   inserirTextoRef?: { current: ((texto: string) => boolean) | null };
 
@@ -3417,6 +3426,7 @@ export default function EditorTemplatePHANYX({
   value,
   onChange,
   inserirTextoRef,
+  contratoAcademico = false,
 
   formatoImpressao =
   "A4_INTEIRA",
@@ -3447,6 +3457,7 @@ export default function EditorTemplatePHANYX({
   configPreview =
   null,
 }: Props) {
+  const tCampos = useTranslations("DocumentInteractiveFields");
   const tToolbar =
     useTranslations(
       "AdminDocumentsEditorToolbar"
@@ -3493,27 +3504,13 @@ export default function EditorTemplatePHANYX({
     );
 
 
-  const valoresPreviewVariaveis =
-    montarValoresPreviewDocumento({
-      ...(configPreview || {}),
-
-      nomeFantasia:
-        nomeInstituicao ||
-        configPreview?.nomeFantasia,
-
-      cnpj:
-        cnpjInstituicao ||
-        configPreview?.cnpj,
-
-      responsavelNome:
-        responsavelNome ||
-        configPreview?.responsavelNome,
-    });
-
-  const chaveValoresPreviewVariaveis =
-    JSON.stringify(
-      valoresPreviewVariaveis
-    );
+  const valoresPreviewVariaveis = useMemo(() =>
+    expandDocumentTagValues(montarValoresPreviewDocumento({
+      ...configPreview,
+      nomeFantasia: nomeInstituicao || configPreview?.nomeFantasia,
+      cnpj: cnpjInstituicao || configPreview?.cnpj,
+      responsavelNome: responsavelNome || configPreview?.responsavelNome,
+    })), [configPreview, nomeInstituicao, cnpjInstituicao, responsavelNome]);
 
   const duasVias =
     formatoImpressao ===
@@ -3571,6 +3568,15 @@ export default function EditorTemplatePHANYX({
           "sem-y-papel",
       ].join("|")
       : "sem-campo-visual";
+
+  const chaveAssinaturaPreview = JSON.stringify([
+    assinaturaDiretorUrl,
+    responsavelNome,
+    responsavelCargo,
+    nomeInstituicao,
+    cnpjInstituicao,
+    chaveCampoVisualAssinatura,
+  ]);
 
   const localeFerramentas = useLocale();
   const ferramentas = ROTULOS_FERRAMENTAS[localeFerramentas as keyof typeof ROTULOS_FERRAMENTAS] ?? ROTULOS_FERRAMENTAS["en-US"];
@@ -3694,6 +3700,9 @@ export default function EditorTemplatePHANYX({
       // A área de escrita e a seta para baixo criam o parágrafo quando ele for usado.
       StarterKit.configure({ trailingNode: false }),
       EstilosListaPHANYX,
+      CampoEscolhaPHANYX,
+      AssinaturasContratoPHANYX,
+      InicioAnexoPHANYX,
 
       PageBreakPHANYX.configure({
         textoRodape:
@@ -3708,10 +3717,7 @@ export default function EditorTemplatePHANYX({
 
 
       PreviewVariaveisPHANYX.configure({
-        valores:
-          expandDocumentTagValues(
-            valoresPreviewVariaveis
-          ),
+        valores: valoresPreviewVariaveis,
       }),
 
       LinhaDigitadaPHANYX,
@@ -3730,6 +3736,8 @@ export default function EditorTemplatePHANYX({
 
         campoVisual:
           campoVisualAssinatura,
+
+        chaveVisual: chaveAssinaturaPreview,
 
         aoMoverBloco:
           onMoverBlocoAssinatura,
@@ -4132,13 +4140,7 @@ export default function EditorTemplatePHANYX({
       setResultadoLimpeza(null);
       onChange(html);
     },
-  }, [
-    assinaturaDiretorUrl,
-    responsavelNome,
-    responsavelCargo,
-    nomeInstituicao,
-    cnpjInstituicao,
-  ]);
+  });
 
   /*
    * Atualiza os textos visuais dos PageBreaks quando o locale muda
@@ -4268,92 +4270,48 @@ export default function EditorTemplatePHANYX({
    * no HTML salvo pelo TipTap.
    */
   useEffect(() => {
-    if (!editor) {
-      return;
-    }
+    if (!editor || editor.isDestroyed) return;
+    const dados = editor.storage[PreviewVariaveisPHANYX.name] as DadosPreviewVariaveisPHANYX;
+    dados.valores = valoresPreviewVariaveis;
 
-    const extensao =
-      editor.extensionManager
-        .extensions.find(
-          (item) =>
-            item.name ===
-            "previewVariaveisPHANYX"
-        );
-
-    if (!extensao) {
-      return;
-    }
-
-    (
-      extensao.options as
-        DadosPreviewVariaveisPHANYX
-    ).valores =
-      expandDocumentTagValues(
-        valoresPreviewVariaveis
-      );
-
-    const transacao =
-      editor.state.tr.setMeta(
-        "phanyxAtualizarPreviewVariaveis",
-        chaveValoresPreviewVariaveis
-      );
-
-    transacao.setMeta(
-      "addToHistory",
-      false
-    );
-
-    editor.view.dispatch(
-      transacao
-    );
-  }, [
-    editor,
-    chaveValoresPreviewVariaveis,
-  ]);
+    editor.view.dispatch(editor.state.tr
+      .setMeta("phanyxAtualizarPreviewVariaveis", true)
+      .setMeta("addToHistory", false));
+  }, [editor, valoresPreviewVariaveis]);
 
   useEffect(() => {
-    if (!editor) return;
+    if (!editor || editor.isDestroyed) return;
 
-    const extensao =
-      editor.extensionManager.extensions.find(
-        (item) =>
-          item.name ===
-          "assinaturaPreviewPHANYX"
-      );
+    const dados = editor.storage[AssinaturaPreviewPHANYX.name] as DadosAssinaturaPreview;
 
-    if (!extensao) return;
-
-    (
-      extensao.options as
-      DadosAssinaturaPreview
-    ).campoVisual =
-      campoVisualAssinatura;
-
-    (
-      extensao.options as
-      DadosAssinaturaPreview
-    ).aoMoverBloco =
-      onMoverBlocoAssinatura;
-
-    
+    // A configuração da instituição pode chegar depois que o usuário começou a editar.
+    Object.assign(dados, {
+      assinaturaUrl: assinaturaDiretorUrl,
+      responsavelNome,
+      responsavelCargo,
+      nomeInstituicao,
+      cnpjInstituicao,
+      campoVisual: campoVisualAssinatura,
+      chaveVisual: chaveAssinaturaPreview,
+      aoMoverBloco: onMoverBlocoAssinatura,
+    } satisfies DadosAssinaturaPreview);
 
     const tr =
-      editor.state.tr.setMeta(
-        "phanyxAtualizarAssinaturaPreview",
-        chaveCampoVisualAssinatura
-      );
-
-    tr.setMeta(
-      "addToHistory",
-      false
-    );
+      editor.state.tr
+        .setMeta("phanyxAtualizarAssinaturaPreview", true)
+        .setMeta("addToHistory", false);
 
     editor.view.dispatch(tr);
   }, [
     editor,
-    chaveCampoVisualAssinatura,
+    assinaturaDiretorUrl,
+    responsavelNome,
+    responsavelCargo,
+    nomeInstituicao,
+    cnpjInstituicao,
+    campoVisualAssinatura,
+    chaveAssinaturaPreview,
     onMoverBlocoAssinatura,
-  
   ]);
 
   useEffect(() => {
@@ -4694,9 +4652,8 @@ export default function EditorTemplatePHANYX({
 
           if (
             alturaPaginaAtual > 0 &&
-            alturaPaginaAtual +
-            alturaElemento >
-            alturaUtilPx
+            (node.type.name === InicioAnexoPHANYX.name ||
+              alturaPaginaAtual + alturaElemento > alturaUtilPx)
           ) {
             quebrasDesejadas.push({
               posicao:
@@ -4853,16 +4810,11 @@ export default function EditorTemplatePHANYX({
     }: {
       transaction: any;
     }) {
-      if (
-        !transaction.docChanged ||
-        transaction.getMeta(
-          "phanyxPagination"
-        )
-      ) {
-        return;
+      if (transaction.getMeta("phanyxPagination")) return;
+      if (transaction.docChanged || transaction.getMeta("phanyxAtualizarAssinaturaPreview") ||
+          transaction.getMeta("phanyxAtualizarPreviewVariaveis")) {
+        agendarPaginacao();
       }
-
-      agendarPaginacao();
     }
 
     editor.on(
@@ -5913,6 +5865,39 @@ export default function EditorTemplatePHANYX({
               {tToolbar("main.title")}
             </div>
             <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                  <button type="button" className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold dark:border-slate-600"
+                    onClick={() => editor.chain().focus().insertContent({
+                      type: CampoEscolhaPHANYX.name,
+                      attrs: { config: {
+                        id: crypto.randomUUID(),
+                        pergunta: tCampos("question"),
+                        opcoes: [tCampos("allow"), tCampos("decline")],
+                        obrigatoria: true,
+                        estilo: "parenteses",
+                      } },
+                    }).run()}>
+                    {tCampos("addChoice")}
+                  </button>
+                  <button type="button" className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold dark:border-slate-600"
+                    disabled={duasVias}
+                    onClick={() => editor.chain().focus().insertContent([
+                      { type: InicioAnexoPHANYX.name },
+                      { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: tCampos("annexTitle") }] },
+                      { type: "paragraph" },
+                    ]).run()}>
+                    {tCampos("addAnnex")}
+                  </button>
+                  {contratoAcademico && <button type="button" className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold disabled:opacity-50 dark:border-slate-600"
+                    disabled={value.includes(ATRIBUTO_ASSINATURAS_CONTRATO)}
+                    onClick={() => editor.chain().focus().insertContent({
+                      type: AssinaturasContratoPHANYX.name,
+                      attrs: { config: CONFIG_ASSINATURAS_PADRAO },
+                    }).run()}>
+                    {tCampos("signatureBlock")}
+                  </button>}
+              </div>
+
               <div className="relative min-w-[180px]">
                 <div className="flex max-w-full items-center rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950">
                   <input ref={campoFonteRef} type="text" value={fonteDigitada ?? fonteAtual} placeholder={tToolbar("main.font")}

@@ -9,7 +9,7 @@ Ter uma imagem associada não significa que todas as funções, estados ou etapa
 | Guia | Imagens associadas |
 | --- | ---: |
 | Configurar a instituição pela primeira vez | 1 |
-| Configurações da Instituição | 6 |
+| Configurações da Instituição | 25 |
 | Polos | 3 |
 | Departamentos | 1 |
 | Logos institucionais | 0 |

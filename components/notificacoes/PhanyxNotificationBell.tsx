@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 type Notificacao = {
   id: number;
@@ -13,6 +14,8 @@ type Notificacao = {
 };
 
 export default function PhanyxNotificationBell({ modoSuporte = false, mostrarLinkTodas = true }: { modoSuporte?: boolean; mostrarLinkTodas?: boolean } = {}) {
+  const t = useTranslations("AdminNavigation");
+  const tCommon = useTranslations("Common");
   const [aberto, setAberto] = useState(false);
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [totalNaoLidas, setTotalNaoLidas] = useState(0);
@@ -47,11 +50,13 @@ export default function PhanyxNotificationBell({ modoSuporte = false, mostrarLin
   }, []);
 
   return (
-    <div className={`fixed right-6 z-[9998] ${modoSuporte ? "top-48 md:top-32" : "top-6"}`}>
+    <div className={`relative z-60 max-lg:top-auto! lg:fixed lg:right-6 lg:z-[9998] ${modoSuporte ? "top-48 md:top-32" : "top-6"}`}>
       <button
         type="button"
         onClick={() => setAberto((prev) => !prev)}
-        className="relative flex h-12 w-12 items-center justify-center rounded-full bg-slate-900 text-xl text-white shadow-xl"
+        aria-label={t("notifications")}
+        aria-expanded={aberto}
+        className="relative flex h-11 w-11 items-center justify-center rounded-full bg-slate-900 text-xl text-white shadow-lg lg:h-12 lg:w-12 lg:shadow-xl"
       >
         🔔
 
@@ -63,14 +68,14 @@ export default function PhanyxNotificationBell({ modoSuporte = false, mostrarLin
       </button>
 
       {aberto && (
-        <div className="mt-3 max-h-[420px] w-80 overflow-y-auto rounded-2xl border border-slate-700 bg-slate-950 p-3 shadow-2xl">
+        <div className="absolute right-0 top-full mt-3 max-h-[min(420px,55dvh)] w-[min(20rem,calc(100vw-4.75rem))] overflow-y-auto rounded-2xl border border-slate-700 bg-slate-950 p-3 shadow-2xl lg:w-80">
           <p className="mb-3 text-sm font-bold text-white">
-            Notificações
+            {t("notifications")}
           </p>
 
           {notificacoes.length === 0 && (
             <p className="text-sm text-slate-400">
-              Nenhuma notificação.
+              {tCommon("portalNotificationsEmpty")}
             </p>
           )}
 
@@ -177,7 +182,7 @@ export default function PhanyxNotificationBell({ modoSuporte = false, mostrarLin
     }}
     className="w-full rounded-xl border border-blue-500 bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
   >
-    Ver todas as notificações →
+    {t("viewAllNotifications")} →
   </button>
 </div>)}
 

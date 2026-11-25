@@ -12,6 +12,7 @@ function load(file, imports = {}) {
 }
 const models=load('lib/documentos/modelos-papel-timbrado.ts');
 const renderer = load('lib/documentos/renderizador-template-documento.ts', {
+  '@/lib/documentos/campos-interativos': load('lib/documentos/campos-interativos.ts'),
   '@/lib/documentos/modelos-papel-timbrado': models,
   '@/lib/documentos/estilos-listas-editor': { CSS_LISTAS_PHANYX: '' },
   '@/lib/documentos/tipografia-template': load('lib/documentos/tipografia-template.ts'),

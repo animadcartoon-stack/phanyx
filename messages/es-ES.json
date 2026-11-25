@@ -61,11 +61,29 @@
     "ORGANIZACAO_GRADE_NECESSARIA": "Organice las asignaturas directas en etapas antes de cambiar entre semestral y anual. Así se conservarán sus vínculos.",
     "ETAPA_INVALIDA": "Indique una etapa curricular válida para este curso."
   },
+  "InstallPrompt": {
+    "title": "Instala la aplicación PHANYX",
+    "dismiss": "Ahora no",
+    "install": "Instalar",
+    "done": "Entendido",
+    "iosIntro": "En iPhone o iPad, abre PHANYX en Safari.",
+    "iosShare": "Toca Compartir.",
+    "iosAdd": "Selecciona “Añadir a pantalla de inicio” y confirma.",
+    "androidIntro": "En Android, abre PHANYX en Chrome.",
+    "androidMenu": "Abre el menú del navegador.",
+    "androidAdd": "Toca “Instalar aplicación” o “Añadir a pantalla de inicio”.",
+    "openApp": "Abre PHANYX desde su icono en la pantalla de inicio."
+  },
   "Common": {
     "cancel": "Cancelar",
     "save": "Guardar",
     "loading": "Cargando...",
     "language": "Idioma",
+    "portalChat": "Chat",
+    "portalNotificationsEmpty": "No hay notificaciones.",
+    "portalMenu": "Menú",
+    "portalPages": "Páginas",
+    "portalPreferences": "Preferencias",
     "close": "Cerrar",
     "changingLanguage": "Cambiando idioma...",
     "languageChangeError": "No se pudo cambiar el idioma. Inténtalo de nuevo.",
@@ -10246,6 +10264,7 @@
       "imageUploaded": "Imagen subida"
     },
     "layers": {
+      "selectElement": "Seleccionar {name}",
       "hideElement": "Ocultar",
       "showElement": "Mostrar",
       "title": "Capas",

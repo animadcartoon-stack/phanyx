@@ -43,12 +43,12 @@ export default function ContatoPage() {
         </section>
 
         <section className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-12">
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {canais.map((canal) => (
               <article
                 key={canal.canal}
                 id={`email-${canal.canal}`}
-                className="scroll-mt-36 space-y-3 rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950"
+                className="min-w-0 scroll-mt-36 space-y-3 rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm wrap-anywhere dark:border-slate-800 dark:bg-slate-950"
               >
                 <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">{canal.titulo}</h2>
                 <p className="text-slate-600 dark:text-slate-300">{canal.descricao}</p>

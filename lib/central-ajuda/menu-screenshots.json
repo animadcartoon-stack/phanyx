@@ -1,0 +1,1241 @@
+[
+  {
+    "file": "menu-configuracoes-pt-br.jpg",
+    "group": "configuracoes",
+    "width": 225,
+    "height": 558,
+    "items": [
+      {
+        "height": 40,
+        "href": null,
+        "label": "💬 Comunicação▸",
+        "width": 240,
+        "x": 0,
+        "y": 9
+      },
+      {
+        "height": 40,
+        "href": null,
+        "label": "⚙️ Configurações▾",
+        "width": 240,
+        "x": 0,
+        "y": 74
+      },
+      {
+        "height": 36,
+        "href": "/admin/configuracoes/instituicao",
+        "label": "⚙️ Instituição",
+        "width": 228,
+        "x": 12,
+        "y": 122
+      },
+      {
+        "height": 36,
+        "href": "/admin/configuracoes/contas-financeiras",
+        "label": "🏦 Contas financeiras",
+        "width": 228,
+        "x": 12,
+        "y": 162
+      },
+      {
+        "height": 36,
+        "href": "/admin/configuracoes/logos",
+        "label": "🖼️ Logos institucionais",
+        "width": 228,
+        "x": 12,
+        "y": 202
+      },
+      {
+        "height": 36,
+        "href": "/admin/integracoes/email",
+        "label": "📧 E-mail institucional",
+        "width": 228,
+        "x": 12,
+        "y": 242
+      },
+      {
+        "height": 36,
+        "href": "/admin/integracoes/whatsapp",
+        "label": "💬 WhatsApp institucional",
+        "width": 228,
+        "x": 12,
+        "y": 282
+      },
+      {
+        "height": 36,
+        "href": "/admin/polos",
+        "label": "🏢 Polos e unidades",
+        "width": 228,
+        "x": 12,
+        "y": 322
+      },
+      {
+        "height": 36,
+        "href": "/admin/departamentos",
+        "label": "🔐 Permissões por setor",
+        "width": 228,
+        "x": 12,
+        "y": 362
+      },
+      {
+        "height": 36,
+        "href": "/admin/configuracoes/documentos",
+        "label": "📄 Documentos institucionais",
+        "width": 228,
+        "x": 12,
+        "y": 402
+      },
+      {
+        "height": 36,
+        "href": "/admin/configuracoes/portais",
+        "label": "👁️ Visibilidade dos Portais",
+        "width": 228,
+        "x": 12,
+        "y": 442
+      },
+      {
+        "height": 36,
+        "href": "/admin/certificados",
+        "label": "🏅 Gestão de Certificados",
+        "width": 228,
+        "x": 12,
+        "y": 482
+      },
+      {
+        "height": 36,
+        "href": "/admin/configuracoes/certificado",
+        "label": "🎨 Editor de Certificado",
+        "width": 228,
+        "x": 12,
+        "y": 522
+      }
+    ],
+    "sourceLocale": "pt-br",
+    "reviewed": true,
+    "capturedAt": "2026-11-25",
+    "role": "admin",
+    "sha256": "c793572ac6860210d4f778ebd11a75b14d622b04cc1454169546e55e53b3d5a0"
+  },
+  {
+    "file": "menu-academico-pt-br.jpg",
+    "group": "academico",
+    "width": 225,
+    "height": 758,
+    "items": [
+      {
+        "height": 40,
+        "href": null,
+        "label": "🎓 Acadêmico▾",
+        "width": 225,
+        "x": 0,
+        "y": 8
+      },
+      {
+        "height": 36,
+        "href": "/admin/alunos",
+        "label": "👨‍🎓 Alunos",
+        "width": 213,
+        "x": 12,
+        "y": 56
+      },
+      {
+        "height": 36,
+        "href": "/admin/student-success",
+        "label": "🧠 Student Success",
+        "width": 213,
+        "x": 12,
+        "y": 96
+      },
+      {
+        "height": 36,
+        "href": "/admin/professores",
+        "label": "👨‍🏫 Professores",
+        "width": 213,
+        "x": 12,
+        "y": 136
+      },
+      {
+        "height": 56,
+        "href": "/admin/professores/acessos",
+        "label": "🔐 Acesso individual dos professores",
+        "width": 213,
+        "x": 12,
+        "y": 176
+      },
+      {
+        "height": 36,
+        "href": "/admin/acompanhamento-aulas",
+        "label": "🗓️ Acompanhamento de aulas",
+        "width": 213,
+        "x": 12,
+        "y": 236
+      },
+      {
+        "height": 36,
+        "href": "/admin/documentos-docentes",
+        "label": "📄 Documentos docentes",
+        "width": 213,
+        "x": 12,
+        "y": 276
+      },
+      {
+        "height": 36,
+        "href": "/admin/substituicoes-docentes",
+        "label": "🔁 Substituições Docentes",
+        "width": 213,
+        "x": 12,
+        "y": 316
+      },
+      {
+        "height": 36,
+        "href": "/admin/funcionarios",
+        "label": "🧑‍💼 Funcionários",
+        "width": 213,
+        "x": 12,
+        "y": 356
+      },
+      {
+        "height": 36,
+        "href": "/admin/departamentos",
+        "label": "🏢 Departamentos",
+        "width": 213,
+        "x": 12,
+        "y": 396
+      },
+      {
+        "height": 36,
+        "href": "/admin/cursos",
+        "label": "🎓 Cursos",
+        "width": 213,
+        "x": 12,
+        "y": 436
+      },
+      {
+        "height": 36,
+        "href": "/admin/disciplinas",
+        "label": "📚 Disciplinas",
+        "width": 213,
+        "x": 12,
+        "y": 476
+      },
+      {
+        "height": 36,
+        "href": "/admin/matriculas",
+        "label": "📝 Matrículas",
+        "width": 213,
+        "x": 12,
+        "y": 516
+      },
+      {
+        "height": 36,
+        "href": "/admin/rematriculas-semestrais",
+        "label": "🔄 Rematrículas semestrais",
+        "width": 213,
+        "x": 12,
+        "y": 556
+      },
+      {
+        "height": 36,
+        "href": "/admin/turmas",
+        "label": "🏫 Turmas",
+        "width": 213,
+        "x": 12,
+        "y": 596
+      },
+      {
+        "height": 36,
+        "href": "/admin/agenda-operacional",
+        "label": "🗓️ Agenda / Escala",
+        "width": 213,
+        "x": 12,
+        "y": 636
+      },
+      {
+        "height": 36,
+        "href": "/admin/atividades-externas",
+        "label": "🚌 Atividades externas",
+        "width": 213,
+        "x": 12,
+        "y": 676
+      },
+      {
+        "height": 36,
+        "href": "/admin/academico/publicacoes",
+        "label": "📤 Publicações Acadêmicas",
+        "width": 213,
+        "x": 12,
+        "y": 716
+      }
+    ],
+    "sourceLocale": "pt-br",
+    "reviewed": true,
+    "capturedAt": "2026-11-25",
+    "role": "admin",
+    "sha256": "029ff361f4fc1a0a8eb30977bfbe5977c8cd4542938ef73aa066f8193fb2ec0e"
+  },
+  {
+    "file": "menu-biblioteca-pt-br.jpg",
+    "group": "biblioteca",
+    "width": 240,
+    "height": 104,
+    "items": [
+      {
+        "height": 40,
+        "href": null,
+        "label": "📚 Biblioteca Virtual▾",
+        "width": 240,
+        "x": 0,
+        "y": 8
+      },
+      {
+        "height": 36,
+        "href": "/admin/biblioteca",
+        "label": "📊 Visão geral",
+        "width": 228,
+        "x": 12,
+        "y": 56
+      }
+    ],
+    "sourceLocale": "pt-br",
+    "reviewed": true,
+    "capturedAt": "2026-11-25",
+    "role": "admin",
+    "sha256": "38b29138d4a77dc61f09a7c3b7160bac69b1e4189600d5b9bc5467b98dd9bc47"
+  },
+  {
+    "file": "menu-financeiro-pt-br.jpg",
+    "group": "financeiro",
+    "width": 240,
+    "height": 416,
+    "items": [
+      {
+        "height": 40,
+        "href": null,
+        "label": "💰 Financeiro▾",
+        "width": 240,
+        "x": 0,
+        "y": 8
+      },
+      {
+        "height": 36,
+        "href": "/admin/financeiro",
+        "label": "💰 Visão geral",
+        "width": 228,
+        "x": 12,
+        "y": 56
+      },
+      {
+        "height": 36,
+        "href": "/admin/financeiro/recebimentos",
+        "label": "💵 Recebimentos",
+        "width": 228,
+        "x": 12,
+        "y": 96
+      },
+      {
+        "height": 36,
+        "href": "/admin/financeiro/boletos",
+        "label": "🧾 Boletos",
+        "width": 228,
+        "x": 12,
+        "y": 136
+      },
+      {
+        "height": 36,
+        "href": "/admin/financeiro/taxas",
+        "label": "🧾 Taxas Avulsas",
+        "width": 228,
+        "x": 12,
+        "y": 176
+      },
+      {
+        "height": 36,
+        "href": "/admin/financeiro/caixa",
+        "label": "🏦 Caixa",
+        "width": 228,
+        "x": 12,
+        "y": 216
+      },
+      {
+        "height": 36,
+        "href": "/admin/financeiro/relatorios",
+        "label": "📊 Relatórios",
+        "width": 228,
+        "x": 12,
+        "y": 256
+      },
+      {
+        "height": 36,
+        "href": "/admin/financeiro/inadimplentes",
+        "label": "🚨 Inadimplentes",
+        "width": 228,
+        "x": 12,
+        "y": 296
+      },
+      {
+        "height": 36,
+        "href": "/admin/financeiro/fechamento-geral",
+        "label": "📦 Fechamento Geral",
+        "width": 228,
+        "x": 12,
+        "y": 336
+      },
+      {
+        "height": 36,
+        "href": "/admin/financeiro/configuracoes",
+        "label": "⚙️ Configurações",
+        "width": 228,
+        "x": 12,
+        "y": 376
+      }
+    ],
+    "sourceLocale": "pt-br",
+    "reviewed": true,
+    "capturedAt": "2026-11-25",
+    "role": "admin",
+    "sha256": "d137ebc6137d60f8391f0f47c419a02fb8e845dd70dbd669c7468425569173ea"
+  },
+  {
+    "file": "menu-rh-inicio-pt-br.jpg",
+    "group": "rh",
+    "width": 240,
+    "height": 573,
+    "items": [
+      {
+        "height": 40,
+        "href": null,
+        "label": "👥 Pessoal / RH▾",
+        "width": 240,
+        "x": 0,
+        "y": 8
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh",
+        "label": "👥 Visão geral",
+        "width": 228,
+        "x": 12,
+        "y": 56
+      },
+      {
+        "height": 36,
+        "href": "/admin/funcionarios",
+        "label": "👤 Funcionários",
+        "width": 228,
+        "x": 12,
+        "y": 96
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/professores",
+        "label": "👨‍🏫 Professores",
+        "width": 228,
+        "x": 12,
+        "y": 136
+      },
+      {
+        "height": 36,
+        "href": "/admin/departamentos",
+        "label": "🏢 Departamentos",
+        "width": 228,
+        "x": 12,
+        "y": 176
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/remuneracao-variavel",
+        "label": "💰 Remuneração Variável",
+        "width": 228,
+        "x": 12,
+        "y": 216
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/comissoes",
+        "label": "💵 Comissões comerciais",
+        "width": 228,
+        "x": 12,
+        "y": 256
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/ponto",
+        "label": "⏱️ Ponto",
+        "width": 228,
+        "x": 12,
+        "y": 296
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/ponto/configuracoes",
+        "label": "⚙️ Configurações de Ponto",
+        "width": 228,
+        "x": 12,
+        "y": 336
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/ponto/mobile",
+        "label": "📱 Ponto Mobile",
+        "width": 228,
+        "x": 12,
+        "y": 376
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/ponto/importacao-afd",
+        "label": "📥 Importação AFD",
+        "width": 228,
+        "x": 12,
+        "y": 416
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/banco-horas",
+        "label": "📊 Banco de Horas",
+        "width": 228,
+        "x": 12,
+        "y": 456
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/holerites",
+        "label": "💵 Holerites",
+        "width": 228,
+        "x": 12,
+        "y": 496
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/eventos-folha",
+        "label": "🧾 Eventos da Folha",
+        "width": 228,
+        "x": 12,
+        "y": 536
+      }
+    ],
+    "sourceLocale": "pt-br",
+    "reviewed": true,
+    "capturedAt": "2026-11-25",
+    "role": "admin",
+    "sha256": "3949164c5840867c316a04de19433a2b2fbc46e39a669969dceae9669b5aa163"
+  },
+  {
+    "file": "menu-rh-final-pt-br.jpg",
+    "group": "rh",
+    "width": 240,
+    "height": 820,
+    "items": [
+      {
+        "height": 36,
+        "href": "/admin/rh/ponto/configuracoes",
+        "label": "⚙️ Configurações de Ponto",
+        "width": 228,
+        "x": 12,
+        "y": 9
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/ponto/mobile",
+        "label": "📱 Ponto Mobile",
+        "width": 228,
+        "x": 12,
+        "y": 49
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/ponto/importacao-afd",
+        "label": "📥 Importação AFD",
+        "width": 228,
+        "x": 12,
+        "y": 89
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/banco-horas",
+        "label": "📊 Banco de Horas",
+        "width": 228,
+        "x": 12,
+        "y": 129
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/holerites",
+        "label": "💵 Holerites",
+        "width": 228,
+        "x": 12,
+        "y": 169
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/eventos-folha",
+        "label": "🧾 Eventos da Folha",
+        "width": 228,
+        "x": 12,
+        "y": 209
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/beneficios",
+        "label": "🎁 Benefícios",
+        "width": 228,
+        "x": 12,
+        "y": 249
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/ferias",
+        "label": "🏖️ Férias",
+        "width": 228,
+        "x": 12,
+        "y": 289
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/exames",
+        "label": "🩺 Exames Médicos",
+        "width": 228,
+        "x": 12,
+        "y": 329
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/rescisoes",
+        "label": "🚪 Rescisões",
+        "width": 228,
+        "x": 12,
+        "y": 369
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/historico",
+        "label": "🕒 Histórico Funcional",
+        "width": 228,
+        "x": 12,
+        "y": 409
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/arquivados",
+        "label": "🗄️ Arquivados RH",
+        "width": 228,
+        "x": 12,
+        "y": 449
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/ocorrencias",
+        "label": "⚠️ Ocorrências",
+        "width": 228,
+        "x": 12,
+        "y": 489
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/contabilidade",
+        "label": "📊 Relatórios Contábeis",
+        "width": 228,
+        "x": 12,
+        "y": 529
+      },
+      {
+        "height": 36,
+        "href": "/admin/rh/documentos",
+        "label": "📄 Documentos RH",
+        "width": 228,
+        "x": 12,
+        "y": 569
+      },
+      {
+        "height": 40,
+        "href": null,
+        "label": "📄 Documentos▸",
+        "width": 240,
+        "x": 0,
+        "y": 630
+      },
+      {
+        "height": 40,
+        "href": null,
+        "label": "💬 Comunicação▸",
+        "width": 240,
+        "x": 0,
+        "y": 695
+      },
+      {
+        "height": 40,
+        "href": null,
+        "label": "⚙️ Configurações▸",
+        "width": 240,
+        "x": 0,
+        "y": 760
+      }
+    ],
+    "sourceLocale": "pt-br",
+    "reviewed": true,
+    "capturedAt": "2026-11-25",
+    "role": "admin",
+    "sha256": "22fcf997e52221625207ba4de95b7e73e6bbe6fa0a3314a105a69bbdb740e0c5"
+  },
+  {
+    "file": "menu-documentos-pt-br.jpg",
+    "group": "documentos",
+    "width": 240,
+    "height": 256,
+    "items": [
+      {
+        "height": 40,
+        "href": null,
+        "label": "📄 Documentos▾",
+        "width": 240,
+        "x": 0,
+        "y": 8
+      },
+      {
+        "height": 36,
+        "href": "/admin/contratos",
+        "label": "📄 Contratos",
+        "width": 228,
+        "x": 12,
+        "y": 56
+      },
+      {
+        "height": 36,
+        "href": "/admin/documentos/gerados",
+        "label": "📚 Documentos Gerados",
+        "width": 228,
+        "x": 12,
+        "y": 96
+      },
+      {
+        "height": 36,
+        "href": "/admin/documentos/gerar",
+        "label": "⚡ Gerar Documento",
+        "width": 228,
+        "x": 12,
+        "y": 136
+      },
+      {
+        "height": 36,
+        "href": "/admin/validacoes",
+        "label": "🔐 Validação",
+        "width": 228,
+        "x": 12,
+        "y": 176
+      },
+      {
+        "height": 36,
+        "href": "/admin/crachas",
+        "label": "🪪 Crachás",
+        "width": 228,
+        "x": 12,
+        "y": 216
+      }
+    ],
+    "sourceLocale": "pt-br",
+    "reviewed": true,
+    "capturedAt": "2026-11-25",
+    "role": "admin",
+    "sha256": "52cbc62cd9ebd90d7e6664ee51efc01502b92cbb501ac1bd7214f8c1c0b403e3"
+  },
+  {
+    "file": "menu-comercial-pt-br.jpg",
+    "group": "comercial",
+    "width": 240,
+    "height": 456,
+    "items": [
+      {
+        "height": 40,
+        "href": null,
+        "label": "📈 Comercial▾",
+        "width": 240,
+        "x": 0,
+        "y": 8
+      },
+      {
+        "height": 36,
+        "href": "/admin/comercial",
+        "label": "📊 Visão geral",
+        "width": 228,
+        "x": 12,
+        "y": 56
+      },
+      {
+        "height": 36,
+        "href": "/admin/comercial/captacao",
+        "label": "🎯 Central de Captação",
+        "width": 228,
+        "x": 12,
+        "y": 96
+      },
+      {
+        "height": 36,
+        "href": "/admin/comercial/funis",
+        "label": "🧭 Funis comerciais",
+        "width": 228,
+        "x": 12,
+        "y": 136
+      },
+      {
+        "height": 36,
+        "href": "/admin/comercial/pipeline",
+        "label": "🗂️ Pipeline comercial",
+        "width": 228,
+        "x": 12,
+        "y": 176
+      },
+      {
+        "height": 36,
+        "href": "/admin/comercial/agenda",
+        "label": "📅 Agenda comercial",
+        "width": 228,
+        "x": 12,
+        "y": 216
+      },
+      {
+        "height": 36,
+        "href": "/admin/leads",
+        "label": "🎯 Leads e oportunidades",
+        "width": 228,
+        "x": 12,
+        "y": 256
+      },
+      {
+        "height": 36,
+        "href": "/admin/comercial/equipes",
+        "label": "👥 Equipes comerciais",
+        "width": 228,
+        "x": 12,
+        "y": 296
+      },
+      {
+        "height": 36,
+        "href": "/admin/comercial/metas",
+        "label": "📈 Metas comerciais",
+        "width": 228,
+        "x": 12,
+        "y": 336
+      },
+      {
+        "height": 36,
+        "href": "/admin/comercial/relatorios",
+        "label": "📈 Relatórios",
+        "width": 228,
+        "x": 12,
+        "y": 376
+      },
+      {
+        "height": 36,
+        "href": "/admin/comercial/configuracoes",
+        "label": "⚙️ Planos de comissão",
+        "width": 228,
+        "x": 12,
+        "y": 416
+      }
+    ],
+    "sourceLocale": "pt-br",
+    "reviewed": true,
+    "capturedAt": "2026-11-25",
+    "role": "admin",
+    "sha256": "e2999a6422c3747168ebc1fa2a56cb46ad21a8c0b2c63750796c86ee94b3ddda"
+  },
+  {
+    "file": "menu-principal-pt-br.jpg",
+    "group": "principal",
+    "width": 240,
+    "height": 140,
+    "items": [
+      {
+        "height": 36,
+        "href": "/admin",
+        "label": "📊 Painel Administrativo",
+        "width": 240,
+        "x": 0,
+        "y": 8
+      },
+      {
+        "height": 36,
+        "href": "/admin/perfil",
+        "label": "👤 Meu Perfil",
+        "width": 240,
+        "x": 0,
+        "y": 52
+      },
+      {
+        "height": 36,
+        "href": "/admin/assinatura",
+        "label": "💳 Assinatura PHANYX",
+        "width": 240,
+        "x": 0,
+        "y": 96
+      }
+    ],
+    "sourceLocale": "pt-br",
+    "reviewed": true,
+    "capturedAt": "2026-11-25",
+    "role": "admin",
+    "sha256": "aac719cda20e9c186fefde9f6bac1be55307ad9f8093075f4b4821bb841f1411"
+  },
+  {
+    "file": "menu-mobilidade-validado-pt-br.jpg",
+    "group": "mobilidade",
+    "width": 240,
+    "height": 296,
+    "items": [
+      {
+        "height": 40,
+        "href": null,
+        "label": "🌍 Mobilidade Internacional▾",
+        "width": 240,
+        "x": 0,
+        "y": 8
+      },
+      {
+        "height": 36,
+        "href": "/admin/mobilidade",
+        "label": "📊 Visão geral",
+        "width": 228,
+        "x": 12,
+        "y": 56
+      },
+      {
+        "height": 36,
+        "href": "/admin/mobilidade/instituicoes-parceiras",
+        "label": "🌐 Instituições parceiras",
+        "width": 228,
+        "x": 12,
+        "y": 96
+      },
+      {
+        "height": 36,
+        "href": "/admin/mobilidade/convenios",
+        "label": "🤝 Convênios",
+        "width": 228,
+        "x": 12,
+        "y": 136
+      },
+      {
+        "height": 36,
+        "href": "/admin/mobilidade/programas",
+        "label": "🎓 Programas",
+        "width": 228,
+        "x": 12,
+        "y": 176
+      },
+      {
+        "height": 36,
+        "href": "/admin/mobilidade/ofertas",
+        "label": "📣 Ofertas / Editais",
+        "width": 228,
+        "x": 12,
+        "y": 216
+      },
+      {
+        "height": 36,
+        "href": "/admin/mobilidade/candidaturas",
+        "label": "📝 Candidaturas",
+        "width": 228,
+        "x": 12,
+        "y": 256
+      }
+    ],
+    "sourceLocale": "pt-br",
+    "reviewed": true,
+    "capturedAt": "2026-11-25",
+    "role": "admin",
+    "sha256": "4262b724a1c267a384ad4637fd78071e3e528e75534c66264a842cb8b274914a"
+  },
+  {
+    "file": "menu-comunicacao-validado-pt-br.jpg",
+    "group": "comunicacao",
+    "width": 240,
+    "height": 176,
+    "items": [
+      {
+        "height": 40,
+        "href": null,
+        "label": "💬 Comunicação▾",
+        "width": 240,
+        "x": 0,
+        "y": 8
+      },
+      {
+        "height": 36,
+        "href": "/admin/reunioes",
+        "label": "📅 Reuniões",
+        "width": 228,
+        "x": 12,
+        "y": 56
+      },
+      {
+        "height": 36,
+        "href": "/admin/aniversariantes",
+        "label": "🎂 Aniversariantes",
+        "width": 228,
+        "x": 12,
+        "y": 96
+      },
+      {
+        "height": 36,
+        "href": "/admin/ouvidoria",
+        "label": "🧠 Ouvidoria",
+        "width": 228,
+        "x": 12,
+        "y": 136
+      }
+    ],
+    "sourceLocale": "pt-br",
+    "reviewed": true,
+    "capturedAt": "2026-11-25",
+    "role": "admin",
+    "sha256": "b83554dc1962e46d50cc546d49ba5271f4f1a2109a0f604243bfa427a893ed24"
+  },
+  {
+    "file": "menu-controle-acesso-validado-pt-br.jpg",
+    "group": "acesso",
+    "width": 240,
+    "height": 136,
+    "items": [
+      {
+        "height": 40,
+        "href": null,
+        "label": "🚪 Controle de Acesso ▾",
+        "width": 240,
+        "x": 0,
+        "y": 8
+      },
+      {
+        "height": 36,
+        "href": "/admin/visitantes",
+        "label": "🪪 Visitantes",
+        "width": 228,
+        "x": 12,
+        "y": 56
+      },
+      {
+        "height": 36,
+        "href": "/admin/ips-bloqueados",
+        "label": "🚫 IPs bloqueados",
+        "width": 228,
+        "x": 12,
+        "y": 96
+      }
+    ],
+    "sourceLocale": "pt-br",
+    "reviewed": true,
+    "capturedAt": "2026-11-25",
+    "role": "admin",
+    "sha256": "d521ea3c7d0d66beb57860848953a7024ac83d244a08b069ed62b5d595615dc7"
+  },
+  {
+    "file": "menu-professor-pt-br.jpg",
+    "group": "principal",
+    "role": "teacher",
+    "width": 239,
+    "height": 608,
+    "items": [
+      {
+        "height": 40,
+        "href": "/professor",
+        "label": "Painel Docente",
+        "width": 223,
+        "x": 8,
+        "y": 8
+      },
+      {
+        "height": 40,
+        "href": "/professor/turmas",
+        "label": "Turmas",
+        "width": 223,
+        "x": 8,
+        "y": 56
+      },
+      {
+        "height": 40,
+        "href": "/professor/substituicoes",
+        "label": "Substituições Docentes",
+        "width": 223,
+        "x": 8,
+        "y": 104
+      },
+      {
+        "height": 40,
+        "href": "/professor/alunos",
+        "label": "Alunos",
+        "width": 223,
+        "x": 8,
+        "y": 152
+      },
+      {
+        "height": 40,
+        "href": "/professor/aulas",
+        "label": "Materiais/Aulas",
+        "width": 223,
+        "x": 8,
+        "y": 200
+      },
+      {
+        "height": 40,
+        "href": "/professor/biblioteca",
+        "label": "Biblioteca",
+        "width": 223,
+        "x": 8,
+        "y": 248
+      },
+      {
+        "height": 40,
+        "href": "/professor/atividades",
+        "label": "Atividades",
+        "width": 223,
+        "x": 8,
+        "y": 296
+      },
+      {
+        "height": 40,
+        "href": "/professor/provas",
+        "label": "Avaliações",
+        "width": 223,
+        "x": 8,
+        "y": 344
+      },
+      {
+        "height": 40,
+        "href": "/professor/trabalhos",
+        "label": "Trabalhos",
+        "width": 223,
+        "x": 8,
+        "y": 392
+      },
+      {
+        "height": 40,
+        "href": "/professor/reunioes",
+        "label": "Reuniões",
+        "width": 223,
+        "x": 8,
+        "y": 440
+      },
+      {
+        "height": 64,
+        "href": "/professor/mobilidade",
+        "label": "Oportunidades de intercâmbio",
+        "width": 223,
+        "x": 8,
+        "y": 488
+      },
+      {
+        "height": 40,
+        "href": "/professor/ouvidoria",
+        "label": "Ouvidoria",
+        "width": 223,
+        "x": 8,
+        "y": 560
+      }
+    ],
+    "reviewed": true,
+    "capturedAt": "2026-11-25",
+    "sourceLocale": "pt-br",
+    "sha256": "558852e2fc9b0458dcccec34f614a4a0978a08f68f3c846f2bcec978572a7654"
+  },
+  {
+    "file": "menu-aluno-escuro-validado-pt-br.jpg",
+    "group": "principal",
+    "role": "student",
+    "sourceTheme": "dark",
+    "width": 255,
+    "height": 480,
+    "items": [
+      {
+        "height": 40,
+        "href": "/aluno",
+        "label": "📊Painel Acadêmico",
+        "width": 231,
+        "x": 12,
+        "y": 0
+      },
+      {
+        "height": 40,
+        "href": "/aluno/disciplinas",
+        "label": "📘Disciplinas",
+        "width": 231,
+        "x": 12,
+        "y": 44
+      },
+      {
+        "height": 40,
+        "href": "/aluno/biblioteca",
+        "label": "📚Biblioteca",
+        "width": 231,
+        "x": 12,
+        "y": 88
+      },
+      {
+        "height": 40,
+        "href": "/aluno/progresso",
+        "label": "📈Progresso",
+        "width": 231,
+        "x": 12,
+        "y": 132
+      },
+      {
+        "height": 40,
+        "href": "/aluno/trabalhos",
+        "label": "📄Trabalhos",
+        "width": 231,
+        "x": 12,
+        "y": 176
+      },
+      {
+        "height": 40,
+        "href": "/aluno/presencas",
+        "label": "📅Presença",
+        "width": 231,
+        "x": 12,
+        "y": 220
+      },
+      {
+        "height": 40,
+        "href": "/aluno/boletim",
+        "label": "📋Boletim",
+        "width": 231,
+        "x": 12,
+        "y": 264
+      },
+      {
+        "height": 40,
+        "href": "/aluno/historico",
+        "label": "📚Histórico Acadêmico",
+        "width": 231,
+        "x": 12,
+        "y": 308
+      },
+      {
+        "height": 40,
+        "href": "/aluno/reunioes",
+        "label": "📹Reuniões",
+        "width": 231,
+        "x": 12,
+        "y": 352
+      },
+      {
+        "height": 40,
+        "href": "/aluno/mobilidade",
+        "label": "🌍Mobilidade Internacional",
+        "width": 231,
+        "x": 12,
+        "y": 396
+      },
+      {
+        "height": 40,
+        "href": "/aluno/ouvidoria",
+        "label": "📣Ouvidoria",
+        "width": 231,
+        "x": 12,
+        "y": 440
+      }
+    ],
+    "reviewed": true,
+    "capturedAt": "2026-11-25",
+    "sourceLocale": "pt-br",
+    "sha256": "a92acd50a648cafa98b930cff8ff55fc37f95dd5d5e96005231997a4df747de0"
+  }
+]

@@ -16,5 +16,21 @@ Estado: inventário inicial, não certificado como homologado. Expandir por mód
 
 O editor administrativo remove linhas vazias no fim do modelo em uma única ação reversível. A limpeza preserva os elementos do documento e o espaçamento entre seções.
 
+## Campos interativos em documentos
+
+- O editor insere anexos em nova página nos modelos A4 e permite perguntas de escolha única configuráveis.
+- A assinatura eletrônica do contrato exige as respostas obrigatórias e registra a opção escolhida na mesma transação da assinatura. O PDF usa o conteúdo emitido e marca as respostas gravadas.
+- O PDF para assinatura presencial deixa as opções livres. O bloco de assinaturas automáticas aceita posição, largura e exibição de testemunhas.
+
 ## Defeito aberto
 A Segoe Script solicitada no editor é substituída por Open Sans no Chromium do Preview atual. Não tratar como resolvido até verificar a fonte efetiva e o PDF. Não copiar fontes proprietárias nem alterar o catálogo silenciosamente.
+
+## Central de Ajuda — navegação (25/11/2026)
+
+Preservar os guias dos três perfis, os cinco idiomas, as imagens já existentes e o visualizador com zoom. A seção inicial de cada artigo informa o menu e seus rótulos, os botões dentro das páginas e o acesso por celular quando disponível. Os mapas são representações visuais, sem dados de clientes. Acesso direto é indicado quando não há caminho completo identificado no menu. A cobertura por artigo está em `central-ajuda-caminhos-auditoria.md`.
+
+Cobertura: 10 testes de navegação, incluindo 1.045 versões dos artigos e checagem das rotas nos arquivos de origem. Verificação visual no navegador e novas capturas reais dos menus permanecem pendentes; os mapas não substituem a homologação de cada tela protegida.
+
+## Central de Ajuda — apresentação para iniciantes (25/11/2026)
+
+Preservar imagens de procedimentos existentes, os cinco idiomas, acesso em outra guia, zoom por roda/botões/teclado, retorno de foco e os textos de navegação. O catálogo de capturas revisadas separa os perfis e guarda hash e coordenadas; a imagem só é associada quando contém o destino correspondente. Configurações da Instituição usa passos por campo e exemplos fictícios. Figuras do menu não certificam a cobertura das funções. Conferências e pendências estão em `central-ajuda-ilustrada.md` e no relatório por guia.

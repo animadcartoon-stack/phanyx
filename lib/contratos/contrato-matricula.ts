@@ -60,7 +60,7 @@ function montarEnderecoContrato(
     .join(" \u2022 ") || "-";
 }
 
-function calcularIdadeContrato(
+export function calcularIdadeContrato(
   dataNascimento?:
     | Date
     | string

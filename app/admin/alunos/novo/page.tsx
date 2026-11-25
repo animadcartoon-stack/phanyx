@@ -2550,7 +2550,7 @@ function AdminAlunosPage() {
   }, [filtroTurmaId, turmas, t]);
   return (
     <div className="phanyx-admin-alunos-page">
-      <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-6">
+      <div className="mx-auto max-w-5xl space-y-3 sm:space-y-6 sm:p-4 md:p-6">
 
         {feedback && (
           <div
@@ -2564,18 +2564,18 @@ function AdminAlunosPage() {
           </div>
         )}
 
-        <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <section className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:rounded-[28px] sm:p-5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-300">
+              <p className="hidden text-xs font-semibold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-300 sm:block">
                 {t("eyebrow")}
               </p>
 
-              <h1 className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white sm:mt-2 sm:text-3xl">
                 {t("registration.title")}
               </h1>
 
-              <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-sm leading-5 text-slate-600 dark:text-slate-400 sm:mt-2 sm:leading-6 sm:text-slate-500">
                 {t("registration.description")}
               </p>
             </div>
@@ -2583,7 +2583,7 @@ function AdminAlunosPage() {
             <button
               type="button"
               onClick={() => router.push("/admin/alunos")}
-              className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
+              className="min-h-11 w-fit rounded-xl px-2 text-sm font-semibold text-blue-700 hover:bg-blue-50 dark:text-blue-300 dark:hover:bg-slate-800 sm:min-h-0 sm:rounded-2xl sm:border sm:border-slate-300 sm:bg-white sm:px-4 sm:py-2 sm:text-slate-700 sm:transition sm:hover:bg-slate-50 sm:dark:border-slate-700 sm:dark:bg-slate-950 sm:dark:text-slate-200 sm:dark:hover:bg-slate-800"
             >
               {t("actions.backToStudents")}
             </button>

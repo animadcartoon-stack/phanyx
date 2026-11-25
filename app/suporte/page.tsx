@@ -38,11 +38,11 @@ export default function SuportePage() {
 </section>
         {/* CARDS */}
         <section className="mx-auto max-w-5xl px-6 py-16 md:px-10 lg:px-12">
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 
             <article
               id="email-suporte"
-              className="scroll-mt-36 space-y-3 rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950"
+              className="min-w-0 scroll-mt-36 space-y-3 rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm wrap-anywhere dark:border-slate-800 dark:bg-slate-950"
             >
               <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
                 Suporte por e-mail

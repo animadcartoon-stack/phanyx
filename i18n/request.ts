@@ -1,3 +1,4 @@
+import camposInterativos from "../messages/document-interactive-fields.json";
 import { cookies, headers } from "next/headers";
 import { getRequestConfig } from "next-intl/server";
 
@@ -58,6 +59,9 @@ export default getRequestConfig(async () => {
 
   return {
     locale,
-    messages: await carregarMensagens(locale),
+    messages: {
+      ...await carregarMensagens(locale),
+      DocumentInteractiveFields: camposInterativos[locale],
+    },
   };
 });

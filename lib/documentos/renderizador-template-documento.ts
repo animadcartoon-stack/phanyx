@@ -1,3 +1,4 @@
+import { renderizarPreviaCamposDocumento } from "@/lib/documentos/campos-interativos";
 import { CSS_LISTAS_PHANYX } from "@/lib/documentos/estilos-listas-editor";
 import { normalizarModeloPapelTimbrado, visualPapelTimbrado } from "@/lib/documentos/modelos-papel-timbrado";
 import { cssTitulosTemplate, FONTE_PADRAO_TEMPLATE } from "@/lib/documentos/tipografia-template";
@@ -60,6 +61,7 @@ export type DadosValidacaoDocumento = {
 
 export type OpcoesRenderizacaoDocumento = {
   conteudo: string;
+  rotulosCampos?: Parameters<typeof renderizarPreviaCamposDocumento>[1];
 
   formatoImpressao:
   FormatoImpressaoDocumento;
@@ -1652,6 +1654,14 @@ function cssCompartilhado(
       > * {
       display: none !important;
     }
+    .phanyx-inicio-anexo {
+      break-before: page;
+      page-break-before: always;
+    }
+    .phanyx-conteudo-compacto .phanyx-inicio-anexo {
+      break-before: auto;
+      page-break-before: auto;
+    }
     .phanyx-logo-instituicao-inline {
       display: inline-block;
       max-width: 36mm;
@@ -2722,6 +2732,14 @@ export function montarRenderizacaoDocumento(
             .ancorarBlocoAssinaturaAoFluxo
         ),
     });
+
+  conteudo = renderizarPreviaCamposDocumento(conteudo, opcoes.rotulosCampos ?? {
+    assinaturas: "Assinaturas",
+    titular: "Aluno ou titular",
+    diretor: "Diretor",
+    secretaria: "Secretaria",
+    testemunhas: "Testemunhas",
+  });
 
   const possuiQuebrasDePagina =
     /data-phanyx-page-break\s*=\s*["']true["']/i.test(

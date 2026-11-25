@@ -2807,6 +2807,7 @@ model Assinatura {
   nome       String
   cpf        String
   imagem     String
+  respostasCampos Json?
   data       DateTime @default(now())
   contrato   Contrato @relation(fields: [contratoId], references: [id], onDelete: Cascade)
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { lerCamposEscolha } from "@/lib/documentos/campos-interativos";
 
 export async function POST(req: Request) {
   try {
@@ -42,6 +43,13 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: "Contrato não encontrado" },
         { status: 404 }
+      );
+    }
+
+    if (lerCamposEscolha(contrato.conteudo).length) {
+      return NextResponse.json(
+        { error: "Use o link de assinatura enviado ao titular do contrato." },
+        { status: 403 },
       );
     }
 

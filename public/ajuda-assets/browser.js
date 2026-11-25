@@ -4,10 +4,29 @@ root.querySelector('#locale').addEventListener('change', event => {
 });
 const dialog = root.querySelector('dialog');
 const image = dialog.querySelector('img');
+const canvas = dialog.querySelector('.image-canvas');
+const highlightLayer = canvas.querySelector('svg');
 const viewport = dialog.querySelector('.image-viewport');
 const output = dialog.querySelector('output');
-let scale = 1, fitted = true, trigger, drag;
+let scale = 1, fitted = true, trigger, drag, highlights = [], focus;
 const clamp = value => Math.min(8, Math.max(0.1, value));
+function readBoxes(value) {
+  try {
+    const boxes = JSON.parse(value || '[]');
+    return Array.isArray(boxes) ? boxes.filter(box => ['x','y','width','height'].every(key => Number.isFinite(box?.[key])) && box.x >= 0 && box.y >= 0 && box.width > 0 && box.height > 0) : [];
+  } catch {return [];}
+}
+function drawHighlights() {
+  highlightLayer.replaceChildren();
+  highlightLayer.setAttribute('viewBox', `0 0 ${image.naturalWidth} ${image.naturalHeight}`);
+  for (const box of highlights) {
+    if (box.x + box.width > image.naturalWidth || box.y + box.height > image.naturalHeight) continue;
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    for (const key of ['x','y','width','height']) rect.setAttribute(key,String(box[key]));
+    rect.setAttribute('rx','3');
+    highlightLayer.append(rect);
+  }
+}
 function zoom(next, x = viewport.clientWidth / 2, y = viewport.clientHeight / 2) {
   if (!image.naturalWidth) return;
   const oldWidth = image.naturalWidth * scale, oldHeight = image.naturalHeight * scale;
@@ -16,6 +35,7 @@ function zoom(next, x = viewport.clientWidth / 2, y = viewport.clientHeight / 2)
   scale = clamp(next);
   const width = image.naturalWidth * scale, height = image.naturalHeight * scale;
   image.style.width = width + 'px'; image.style.height = height + 'px';
+  canvas.style.width = width + 'px'; canvas.style.height = height + 'px';
   viewport.scrollLeft = anchorX * scale + Math.max(0, (viewport.clientWidth - width) / 2) - x;
   viewport.scrollTop = anchorY * scale + Math.max(0, (viewport.clientHeight - height) / 2) - y;
   output.value = Math.round(scale * 100) + '%';
@@ -25,10 +45,16 @@ function zoom(next, x = viewport.clientWidth / 2, y = viewport.clientHeight / 2)
 function fit() {
   if (!image.naturalWidth) return;
   fitted = true;
+  if (focus && focus.x + focus.width <= image.naturalWidth && focus.y + focus.height <= image.naturalHeight) {
+    zoom(Math.min(2, (viewport.clientWidth - 2) / focus.width, (viewport.clientHeight - 2) / focus.height));
+    viewport.scrollLeft = Math.max(0,(focus.x + focus.width / 2) * scale - viewport.clientWidth / 2);
+    viewport.scrollTop = Math.max(0,(focus.y + focus.height / 2) * scale - viewport.clientHeight / 2);
+    return;
+  }
   zoom(Math.min(1, (viewport.clientWidth - 2) / image.naturalWidth, (viewport.clientHeight - 2) / image.naturalHeight));
   viewport.scrollTo(0, 0);
 }
-image.addEventListener('load', () => {if (fitted) fit(); else zoom(scale);});
+image.addEventListener('load', () => {drawHighlights(); if (fitted) fit(); else zoom(scale);});
 root.addEventListener('click', event => {
   const button = event.target.closest('[data-image]');
   if (!button) return;
@@ -36,10 +62,14 @@ root.addEventListener('click', event => {
   fitted = true;
   scale = 1;
   image.removeAttribute('style');
+  canvas.removeAttribute('style');
+  highlightLayer.replaceChildren();
+  highlights = readBoxes(button.dataset.highlights);
+  focus = readBoxes(button.dataset.focus ? '[' + button.dataset.focus + ']' : '')[0];
   image.alt = button.dataset.description;
   image.src = button.dataset.image;
   dialog.showModal();
-  if (image.complete) fit();
+  if (image.complete) {drawHighlights(); fit();}
 });
 dialog.addEventListener('click', event => {
   const action = event.target.closest('[data-zoom]')?.dataset.zoom;

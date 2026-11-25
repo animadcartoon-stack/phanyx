@@ -44,7 +44,7 @@ export type DadosPreviewVariaveisPHANYX = {
  * tooltip (title), sem modificar o HTML persistido.
  */
 export const PreviewVariaveisPHANYX =
-  Extension.create<DadosPreviewVariaveisPHANYX>({
+  Extension.create<DadosPreviewVariaveisPHANYX, DadosPreviewVariaveisPHANYX>({
     name:
       "previewVariaveisPHANYX",
 
@@ -54,9 +54,12 @@ export const PreviewVariaveisPHANYX =
       };
     },
 
+    addStorage() {
+      return { valores: this.options.valores };
+    },
+
     addProseMirrorPlugins() {
-      const dados =
-        this.options;
+      const dados = this.storage;
 
       return [
         new Plugin({

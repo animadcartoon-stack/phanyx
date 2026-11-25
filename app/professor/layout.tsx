@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
 import Header from "@/components/layout/Header";
+import PortalNavigation from "@/components/layout/PortalNavigation";
 import ProfessorSidebar from "@/components/layout/ProfessorSidebar";
 import { ProfessorProvider } from "@/app/context/ProfessorContext";
 import { ConfirmDialogProvider } from "@/components/providers/ConfirmDialogProvider";
@@ -17,8 +18,8 @@ import { headers } from "next/headers";
 import { CHAVE_MOBILIDADE_DOCENTE } from "@/lib/mobilidade-docente-config";
 import ImpersonacaoBanner from "@/components/suporte/ImpersonacaoBanner";
 import PhanyxNotificationBell from "@/components/notificacoes/PhanyxNotificationBell";
-import { getTranslations, getLocale } from "next-intl/server";
-import { traduzirDocumentoDocente } from "@/lib/documentos-docentes/i18n";
+import ChatGlobalWidget from "@/components/chat/ChatGlobalWidget";
+import { getTranslations } from "next-intl/server";
 import { bibliotecaDisponivel } from "@/lib/biblioteca-catalogo-leitor";
 
 export default async function ProfessorLayout({
@@ -31,8 +32,6 @@ export default async function ProfessorLayout({
       "ProfessorLayout"
     );
 
-  const tPlanning = await getTranslations("PlanningTracking");
-  const tituloDocumentosDocentes = traduzirDocumentoDocente(await getLocale(), "menuProfessor");
   const cookieStore =
     await cookies();
 
@@ -159,286 +158,41 @@ export default async function ProfessorLayout({
       documentos: await paginaProfessorVisivel(professor.instituicaoId,"PROFESSOR","professor.documentos",professor.id,false),
     };
 
-  const classeItemMobile =
-    "flex min-w-0 flex-col items-center justify-center rounded-xl px-1 py-2 text-center transition hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50 dark:hover:text-blue-300";
+  const preferencias = (
+    <>
+      <div className="w-full sm:w-auto"><SeletorIdioma /></div>
+      <PhanyxThemeToggle />
+    </>
+  );
 
   return (
     <>
       <ImpersonacaoBanner />
-      <PhanyxNotificationBell mostrarLinkTodas={false}
-        modoSuporte={Boolean((decoded as typeof decoded & { impersonacao?: boolean }).impersonacao)}
-      />
 
       <ProfessorProvider>
-        <InstallPromptPHANYX />
 
         <ToastProvider>
           <ConfirmDialogProvider>
             <Header />
 
             <div className="min-h-[calc(100dvh-56px)] bg-gray-100 dark:bg-slate-950 lg:flex">
-              <div className="hidden lg:block">
-                <ProfessorSidebar
-                  professor={
-                    professor
-                  }
-                  visibilidade={
-                    visibilidadeProfessor
-                  }
-                />
-              </div>
-
-              <nav
-                aria-label={t(
-                  "mobileNav.ariaLabel"
-                )}
-                className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/95 lg:hidden"
-              >
-                <div className="grid grid-cols-5 gap-1 text-[9px] font-semibold text-slate-600 dark:text-slate-300">
-                  {visibilidadeProfessor.planejamento && <a href="/professor/planejamento" className={classeItemMobile}><span aria-hidden="true" className="text-lg">🗓️</span><span className="mt-0.5 max-w-full truncate">{tPlanning("planningShort")}</span></a>}
-                  {visibilidadeProfessor.relatorios && <a href="/professor/relatorios" className={classeItemMobile}><span aria-hidden="true" className="text-lg">📋</span><span className="mt-0.5 max-w-full truncate">{tPlanning("reportsShort")}</span></a>}
-                  {visibilidadeProfessor.desenvolvimento && <a href="/professor/desenvolvimento" className={classeItemMobile}><span aria-hidden="true" className="text-lg">📈</span><span className="mt-0.5 max-w-full truncate">{tPlanning("developmentShort")}</span></a>}
-                  {visibilidadeProfessor.documentos && <a href="/professor/documentos" className={classeItemMobile}><span aria-hidden="true" className="text-lg">📄</span><span className="mt-0.5 max-w-full truncate">{tituloDocumentosDocentes}</span></a>}
-                  {visibilidadeProfessor.biblioteca && <a href="/professor/biblioteca" className={classeItemMobile}><span aria-hidden="true" className="text-lg">📚</span><span className="mt-0.5 max-w-full truncate">{t("mobileNav.library")}</span></a>}
-                  {visibilidadeProfessor.painel && (
-                    <a
-                      href="/professor"
-                      className={
-                        classeItemMobile
-                      }
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="text-lg"
-                      >
-                        📊
-                      </span>
-
-                      <span className="mt-0.5 max-w-full truncate">
-                        {t(
-                          "mobileNav.dashboard"
-                        )}
-                      </span>
-                    </a>
-                  )}
-
-                  {visibilidadeProfessor.turmas && (
-                    <a
-                      href="/professor/turmas"
-                      className={
-                        classeItemMobile
-                      }
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="text-lg"
-                      >
-                        🏫
-                      </span>
-
-                      <span className="mt-0.5 max-w-full truncate">
-                        {t(
-                          "mobileNav.classes"
-                        )}
-                      </span>
-                    </a>
-                  )}
-
-                  {visibilidadeProfessor.substituicoes && (
-                    <a
-                      href="/professor/substituicoes"
-                      className={
-                        classeItemMobile
-                      }
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="text-lg"
-                      >
-                        🔁
-                      </span>
-
-                      <span className="mt-0.5 max-w-full truncate">
-                        {t(
-                          "mobileNav.substitutions"
-                        )}
-                      </span>
-                    </a>
-                  )}
-
-                  {visibilidadeProfessor.alunos && (
-                    <a
-                      href="/professor/alunos"
-                      className={
-                        classeItemMobile
-                      }
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="text-lg"
-                      >
-                        👥
-                      </span>
-
-                      <span className="mt-0.5 max-w-full truncate">
-                        {t(
-                          "mobileNav.students"
-                        )}
-                      </span>
-                    </a>
-                  )}
-
-                  {visibilidadeProfessor.materiais && (
-                    <a
-                      href="/professor/aulas"
-                      className={
-                        classeItemMobile
-                      }
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="text-lg"
-                      >
-                        🎬
-                      </span>
-
-                      <span className="mt-0.5 max-w-full truncate">
-                        {t(
-                          "mobileNav.lessons"
-                        )}
-                      </span>
-                    </a>
-                  )}
-
-                  {visibilidadeProfessor.atividades && (
-                    <a
-                      href="/professor/atividades"
-                      className={
-                        classeItemMobile
-                      }
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="text-lg"
-                      >
-                        📝
-                      </span>
-
-                      <span className="mt-0.5 max-w-full truncate">
-                        {t(
-                          "mobileNav.activities"
-                        )}
-                      </span>
-                    </a>
-                  )}
-
-                  {visibilidadeProfessor.provas && (
-                    <a
-                      href="/professor/provas"
-                      className={
-                        classeItemMobile
-                      }
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="text-lg"
-                      >
-                        ✅
-                      </span>
-
-                      <span className="mt-0.5 max-w-full truncate">
-                        {t(
-                          "mobileNav.assessments"
-                        )}
-                      </span>
-                    </a>
-                  )}
-
-                  {visibilidadeProfessor.trabalhos && (
-                    <a
-                      href="/professor/trabalhos"
-                      className={
-                        classeItemMobile
-                      }
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="text-lg"
-                      >
-                        📄
-                      </span>
-
-                      <span className="mt-0.5 max-w-full truncate">
-                        {t(
-                          "mobileNav.assignments"
-                        )}
-                      </span>
-                    </a>
-                  )}
-
-                  {visibilidadeProfessor.reunioes && (
-                    <a
-                      href="/professor/reunioes"
-                      className={
-                        classeItemMobile
-                      }
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="text-lg"
-                      >
-                        📅
-                      </span>
-
-                      <span className="mt-0.5 max-w-full truncate">
-                        {t(
-                          "mobileNav.meetings"
-                        )}
-                      </span>
-                    </a>
-                  )}
-
-                  {visibilidadeProfessor.mobilidade && (
-                    <a href="/professor/mobilidade" className={classeItemMobile}>
-                      <span aria-hidden="true" className="text-lg">🌍</span>
-                      <span className="mt-0.5 max-w-full truncate">{t("mobileNav.mobility")}</span>
-                    </a>
-                  )}
-                  {visibilidadeProfessor.ouvidoria && (
-                    <a
-                      href="/professor/ouvidoria"
-                      className={
-                        classeItemMobile
-                      }
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="text-lg"
-                      >
-                        💬
-                      </span>
-
-                      <span className="mt-0.5 max-w-full truncate">
-                        {t(
-                          "mobileNav.ombudsman"
-                        )}
-                      </span>
-                    </a>
-                  )}
+              <PortalNavigation preferences={preferencias} actions={(
+                <div className="flex items-center gap-2 lg:contents">
+                  <PhanyxNotificationBell mostrarLinkTodas={false} modoSuporte={Boolean((decoded as typeof decoded & { impersonacao?: boolean }).impersonacao)} />
+                  <ChatGlobalWidget mobileInline />
                 </div>
-              </nav>
+              )}>
+                <ProfessorSidebar professor={professor} visibilidade={visibilidadeProfessor} />
+              </PortalNavigation>
 
-              <main className="w-full px-3 py-4 pb-32 lg:min-w-0 lg:flex-1 lg:p-8">
-                <div className="mb-4 flex flex-wrap items-center justify-end gap-3 lg:mb-6">
-                  <div className="w-full sm:w-auto">
-                    <SeletorIdioma />
-                  </div>
-
-                  <PhanyxThemeToggle />
+              <main className="w-full min-w-0 px-3 py-4 lg:flex-1 lg:p-8">
+                <div className="hidden flex-wrap items-center justify-end gap-3 lg:mb-6 lg:flex">
+                  {preferencias}
 
                   <form
                     action="/api/auth/logout-professor"
                     method="post"
+                    className="hidden lg:block"
                   >
                     <button
                       type="submit"
@@ -452,6 +206,7 @@ export default async function ProfessorLayout({
                 </div>
 
                 {children}
+                <InstallPromptPHANYX />
               </main>
             </div>
           </ConfirmDialogProvider>
