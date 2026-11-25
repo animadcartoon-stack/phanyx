@@ -14,5 +14,8 @@ export async function abrirVisualizacaoNavegador(url:string, init?:RequestInit) 
     const objeto = URL.createObjectURL(new Blob([dados.html],{type:'text/html;charset=utf-8'}));
     aba.location.replace(objeto);
     window.setTimeout(()=>URL.revokeObjectURL(objeto),120000);
-  } catch(e) {aba.close();throw e;}
+  } catch(e) {
+    if (!aba.closed) aba.document.body.textContent = 'PHANYX — '+(e instanceof Error ? e.message : 'Preview error');
+    throw e;
+  }
 }

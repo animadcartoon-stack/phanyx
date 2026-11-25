@@ -185,17 +185,7 @@ export async function POST(
 ) {
   let browser: any = null;
 
-  if (geracaoPdfEmAndamento) {
-    return NextResponse.json(
-      { error: "PDF_PREVIEW_BUSY" },
-      {
-        status: 429,
-        headers: { "Retry-After": "3" },
-      }
-    );
-  }
-
-  geracaoPdfEmAndamento = true;
+  let possuiBloqueioPdf = false;
 
   try {
     const user =
@@ -218,6 +208,21 @@ export async function POST(
 
     const body =
       await req.json();
+
+    if (body?.visualizacao !== "navegador") {
+      if (geracaoPdfEmAndamento) {
+        return NextResponse.json(
+          { error: "PDF_PREVIEW_BUSY" },
+          {
+            status: 429,
+            headers: { "Retry-After": "3" },
+          }
+        );
+      }
+
+      geracaoPdfEmAndamento = true;
+      possuiBloqueioPdf = true;
+    }
 
     const localesDocumento =
       new Set([
@@ -766,6 +771,6 @@ export async function POST(
         .catch(() => null);
     }
 
-    geracaoPdfEmAndamento = false;
+    if (possuiBloqueioPdf) geracaoPdfEmAndamento = false;
   }
 }
