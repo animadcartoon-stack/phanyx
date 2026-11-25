@@ -26,3 +26,23 @@ test('preview academic aliases preserve formatting in all five locales',()=>{
   assert.equal(scope.previa(input,{nomeFantasia:'Escola Teste',__documentLocale:locale}),'<p><span style="font-family:Segoe Script;color:orange">'+course+'</span> '+course+' / '+group+' '+group+' / '+subject+' '+subject+'</p>');
  }
 });
+
+test('a prévia preserva a tabela e a seção depois de um campo incompleto', () => {
+ const periodo = '<p>Período: <span>{{campo:periodoD</span></p>';
+ const tabela = '<table data-phanyx-table-mode="free" style="left: 200px; top: 150px"><tbody>' +
+  '<tr><th colspan="2" style="background-color: #c81d36"><p>Abacaxi</p></th></tr>' +
+  '<tr><td><p></p></td><td><p></p></td></tr></tbody></table>';
+ const secao = '<hr><h2>1. TEMA DA AULA</h2>';
+ const objetivo = '<h2>2. OBJETIVOS DE APRENDIZAGEM</h2>';
+ const html = periodo + tabela + secao + '<p>{{campo:tema}}</p>' + objetivo;
+
+ assert.equal(scope.previa(html, {}), periodo + tabela + secao + '<p>-</p>' + objetivo);
+});
+
+test('a prévia substitui apenas marcadores inteiros sem consumir outras linhas ou marcas HTML', () => {
+ const fragmento = '<span>{{campo:incompleto</span><strong>texto</strong><span>}}</span>';
+ const quebra = '{{campo:rascunho\ntexto da próxima linha}}';
+ const html = `<p>${fragmento} ${quebra} {{campo:parcial {{campo:Plano de aula|linhas:3}}</p>`;
+
+ assert.equal(scope.previa(html, {}), `<p>${fragmento} ${quebra} {{campo:parcial -</p>`);
+});

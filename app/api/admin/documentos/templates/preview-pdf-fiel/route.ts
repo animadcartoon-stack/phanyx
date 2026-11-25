@@ -202,10 +202,9 @@ function substituirExemplos(
         "__PHANYX_BLOCO_ASSINATURA_DIRETOR__"
       );
 
-  return final.replace(
-    /{{[^}]+}}/g,
-    "-"
-  );
+  // Um marcador incompleto pode anteceder outras seções do modelo.
+  // Substitua apenas marcadores fechados na mesma linha e no mesmo trecho de texto.
+  return final.replace(/\{\{[^{}<>\r\n]+\}\}/g, "-");
 }
 
 export async function POST(
