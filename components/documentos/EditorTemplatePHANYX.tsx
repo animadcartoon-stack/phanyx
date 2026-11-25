@@ -1,6 +1,7 @@
 "use client";
 
 import { obterCorTextoSelecionado } from "@/lib/documentos/cor-selecao-editor";
+import { limparFimModelo } from "@/lib/documentos/limpar-fim-modelo";
 import { cssTitulosTemplate, FONTE_PADRAO_TEMPLATE } from "@/lib/documentos/tipografia-template";
 
 import {
@@ -47,6 +48,7 @@ import {
   Plugin,
   PluginKey,
   NodeSelection,
+  Selection,
 } from "@tiptap/pm/state";
 
 import {
@@ -3576,6 +3578,7 @@ export default function EditorTemplatePHANYX({
   const [fonteDigitada, setFonteDigitada] = useState<string | null>(null);
   const campoFonteRef = useRef<HTMLInputElement | null>(null);
   const [menuListas, setMenuListas] = useState(false);
+  const [resultadoLimpeza, setResultadoLimpeza] = useState<"endCleaned" | "endAlreadyClean" | null>(null);
   const [pincel, setPincel] = useState<{ attrs: Record<string, any>; bold: boolean; italic: boolean; underline: boolean; strike: boolean } | null>(null);
   const [listaFontesAberta, setListaFontesAberta] = useState(false);
   const [tamanhoAtual, setTamanhoAtual] = useState("");
@@ -3688,7 +3691,8 @@ export default function EditorTemplatePHANYX({
   const editor = useEditor({
 
     extensions: [
-      StarterKit,
+      // A área de escrita e a seta para baixo criam o parágrafo quando ele for usado.
+      StarterKit.configure({ trailingNode: false }),
       EstilosListaPHANYX,
 
       PageBreakPHANYX.configure({
@@ -3762,6 +3766,18 @@ export default function EditorTemplatePHANYX({
       handleKeyDown(view, event) {
         const selecao =
           view.state.selection;
+
+        const { doc, schema, tr } = view.state;
+        if (
+          event.key === "ArrowDown" && !event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey &&
+          selecao.empty && doc.lastChild?.type !== schema.nodes.paragraph &&
+          selecao.eq(Selection.atEnd(doc)) && view.endOfTextblock("down")
+        ) {
+          tr.insert(doc.content.size, schema.nodes.paragraph.create({ textAlign: "left" }));
+          tr.setSelection(Selection.atEnd(tr.doc));
+          view.dispatch(tr.scrollIntoView());
+          return true;
+        }
 
         const tabelaSelecionadaComoObjeto =
           selecao instanceof
@@ -4113,6 +4129,7 @@ export default function EditorTemplatePHANYX({
 
       const html = removerQuebrasAutomaticasPaginacaoHtml(editor.getHTML());
       ultimoHtmlEmitidoRef.current = html;
+      setResultadoLimpeza(null);
       onChange(html);
     },
   }, [
@@ -4353,6 +4370,7 @@ export default function EditorTemplatePHANYX({
       emitUpdate: false,
       parseOptions: { preserveWhitespace: "full" },
     });
+    setResultadoLimpeza(null);
     ultimoHtmlEmitidoRef.current = novoConteudo;
   }, [value, editor]);
 
@@ -5170,6 +5188,12 @@ export default function EditorTemplatePHANYX({
     publicarConteudoEditor();
   }
 
+  function limparLinhasVaziasDoFim() {
+    if (!editor.isEditable) return;
+    const transacao = limparFimModelo(editor.state);
+    if (transacao) editor.view.dispatch(transacao);
+    setResultadoLimpeza(transacao ? "endCleaned" : "endAlreadyClean");
+  }
 
   function selecionarLinhaTabelaPersistente(
     event: any
@@ -6196,6 +6220,9 @@ export default function EditorTemplatePHANYX({
                 { label: ferramentas[10], symbol: "▧", disabled: !pincel || editor.state.selection.empty, action: () => { aplicarFormatacaoCopiada(); return false; } },
                 { label: ferramentas[11], symbol: "Tx", disabled: editor.state.selection.empty, action: () => editor.chain().focus(undefined, { scrollIntoView: false }).unsetAllMarks().run() },
               ].map(item => <button key={item.label} type="button" disabled={item.disabled} title={item.label} aria-label={item.label} className={`${classeBotaoFormatacao(false)} disabled:opacity-40`} onClick={() => { if (item.action()) publicarConteudoEditor(); }}>{item.symbol}</button>)}
+              <button type="button" onClick={limparLinhasVaziasDoFim} className={classeBotaoFormatacao(false)}>
+                {tToolbar("main.cleanEnd")}
+              </button>
               <style>{CSS_LISTAS_PHANYX}</style>
 
               <div className="flex items-center overflow-hidden rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950">
@@ -7160,8 +7187,10 @@ export default function EditorTemplatePHANYX({
                   )}
                 </div>
               ) : null}
-
             </div>
+            <p role="status" className={resultadoLimpeza ? "mt-2 text-xs text-slate-800 dark:text-slate-100" : "sr-only"}>
+              {resultadoLimpeza ? tToolbar(`main.${resultadoLimpeza}`) : ""}
+            </p>
           </div>
         </div>
       </div>
