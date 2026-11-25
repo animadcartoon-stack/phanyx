@@ -1,0 +1,422 @@
+{
+  "/admin/academico/publicacoes/nova": {
+    "from": "/admin/academico/publicacoes",
+    "labels": {
+      "pt-br": "+ Nova publicação acadêmica",
+      "pt-pt": "+ Nova publicação académica",
+      "en": "+ New academic publication",
+      "es": "+ Nueva publicación académica",
+      "fr": "+ Nouvelle publication académique"
+    },
+    "source": "app/admin/academico/publicacoes/page.tsx",
+    "line": 373
+  },
+  "/admin/alunos/novo": {
+    "from": "/admin/alunos",
+    "labels": {
+      "pt-br": "Novo aluno",
+      "pt-pt": "Novo aluno",
+      "en": "New student",
+      "es": "Nuevo estudiante",
+      "fr": "Nouvel étudiant"
+    },
+    "source": "app/admin/alunos/page.tsx",
+    "line": 1947
+  },
+  "/admin/alunos/importar": {
+    "from": "/admin/alunos",
+    "labels": {
+      "pt-br": "Importar alunos",
+      "pt-pt": "Importar alunos",
+      "en": "Import students",
+      "es": "Importar alumnos",
+      "fr": "Importer des étudiants"
+    },
+    "source": "app/admin/alunos/page.tsx",
+    "line": 1957
+  },
+  "/admin/atividades-externas/nova": {
+    "from": "/admin/atividades-externas",
+    "labels": {
+      "pt-br": "Nova atividade",
+      "pt-pt": "Nova atividade",
+      "en": "New activity",
+      "es": "Nueva actividad",
+      "fr": "Nouvelle activité"
+    },
+    "source": "app/admin/atividades-externas/page.tsx",
+    "line": 564
+  },
+  "/admin/biblioteca/acervo/importar": {
+    "from": "/admin/biblioteca/acervo",
+    "labels": {
+      "pt-br": "📥 Importar acervo",
+      "pt-pt": "📥 Importar acervo",
+      "en": "📥 Import collection",
+      "es": "📥 Importar colección",
+      "fr": "📥 Importer le fonds"
+    },
+    "source": "app/admin/biblioteca/acervo/page.tsx",
+    "line": 1243
+  },
+  "/admin/matriculas/modalidades": {
+    "from": "/admin/matriculas",
+    "labels": {
+      "pt-br": "Matricular em modalidades e combos",
+      "pt-pt": "Inscrever em modalidades e conjuntos",
+      "en": "Enroll in courses and bundles",
+      "es": "Matricular en modalidades y combos",
+      "fr": "Inscrire aux cours et forfaits"
+    },
+    "source": "app/admin/matriculas/page.tsx",
+    "line": 3992
+  },
+  "/admin/comercial/captacao/formularios": {
+    "from": "/admin/comercial/captacao",
+    "labels": {
+      "pt-br": "Formulários",
+      "pt-pt": "Formulários",
+      "en": "Forms",
+      "es": "Formularios",
+      "fr": "Formulaires"
+    },
+    "source": "app/admin/comercial/captacao/page.tsx",
+    "line": 945
+  },
+  "/admin/comercial/captacao/integracoes": {
+    "from": "/admin/comercial/captacao",
+    "labels": {
+      "pt-br": "Integrações",
+      "pt-pt": "Integrações",
+      "en": "Integrations",
+      "es": "Integraciones",
+      "fr": "Intégrations"
+    },
+    "source": "app/admin/comercial/captacao/page.tsx",
+    "line": 1045
+  },
+  "/admin/comercial/captacao/canais": {
+    "from": "/admin/comercial/captacao",
+    "labels": {
+      "pt-br": "Canais",
+      "pt-pt": "Canais",
+      "en": "Channels",
+      "es": "Canales",
+      "fr": "Canaux"
+    },
+    "source": "app/admin/comercial/captacao/page.tsx",
+    "line": 870
+  },
+  "/admin/comercial/captacao/campanhas": {
+    "from": "/admin/comercial/captacao",
+    "labels": {
+      "pt-br": "Campanhas",
+      "pt-pt": "Campanhas",
+      "en": "Campaigns",
+      "es": "Campañas",
+      "fr": "Campagnes"
+    },
+    "source": "app/admin/comercial/captacao/page.tsx",
+    "line": 907
+  },
+  "/admin/comercial/captacao/submissoes": {
+    "from": "/admin/comercial/captacao",
+    "labels": {
+      "pt-br": "Submissões",
+      "pt-pt": "Submissões",
+      "en": "Submissions",
+      "es": "Envíos",
+      "fr": "Soumissions"
+    },
+    "source": "app/admin/comercial/captacao/page.tsx",
+    "line": 976
+  },
+  "/admin/comercial/captacao/distribuicao": {
+    "from": "/admin/comercial/captacao",
+    "labels": {
+      "pt-br": "Distribuição",
+      "pt-pt": "Distribuição",
+      "en": "Distribution",
+      "es": "Distribución",
+      "fr": "Distribution"
+    },
+    "source": "app/admin/comercial/captacao/page.tsx",
+    "line": 1008
+  },
+  "/admin/documentos/templates": {
+    "from": "/admin/configuracoes/documentos",
+    "labels": {
+      "pt-br": "Templates de documentos",
+      "pt-pt": "Modelos de documentos",
+      "en": "Document templates",
+      "es": "Plantillas de documentos",
+      "fr": "Modèles de documents"
+    },
+    "source": "app/admin/configuracoes/documentos/page.tsx",
+    "line": 27
+  },
+  "/admin/integracoes": {
+    "from": "/admin/configuracoes/documentos",
+    "labels": {
+      "pt-br": "Integrações Google",
+      "pt-pt": "Integrações Google",
+      "en": "Google integrations",
+      "es": "Integraciones de Google",
+      "fr": "Intégrations Google"
+    },
+    "source": "app/admin/configuracoes/documentos/page.tsx",
+    "line": 69
+  },
+  "/admin/matriculas/cursos-livres": {
+    "from": "/admin/cursos",
+    "labels": {
+      "pt-br": "Cursos livres — pagamento por período",
+      "pt-pt": "Cursos livres — pagamento por período",
+      "en": "Open courses — pay per period",
+      "es": "Cursos libres — pago por período",
+      "fr": "Cours libres — paiement par période"
+    },
+    "source": "app/admin/cursos/page.tsx",
+    "line": 742
+  },
+  "/admin/combos": {
+    "from": "/admin/cursos",
+    "labels": {
+      "pt-br": "Pacotes e combos",
+      "pt-pt": "Pacotes e conjuntos",
+      "en": "Packages and bundles",
+      "es": "Paquetes y combos",
+      "fr": "Forfaits et offres groupées"
+    },
+    "source": "app/admin/cursos/page.tsx",
+    "line": 877
+  },
+  "/admin/financeiro/boletos-compensados": {
+    "from": "/admin/financeiro/boletos",
+    "labels": {
+      "pt-br": "Boletos compensados aguardando baixa",
+      "pt-pt": "Boletos compensados a aguardar baixa",
+      "en": "Cleared bank slips awaiting posting",
+      "es": "Boletos compensados pendientes de registro",
+      "fr": "Bordereaux compensés en attente d'enregistrement"
+    },
+    "source": "app/admin/financeiro/boletos/page.tsx",
+    "line": 874
+  },
+  "/admin/financeiro/historico": {
+    "from": "/admin/financeiro",
+    "labels": {
+      "pt-br": "Histórico",
+      "pt-pt": "Histórico",
+      "en": "History",
+      "es": "Historial",
+      "fr": "Historique"
+    },
+    "source": "app/admin/financeiro/page.tsx",
+    "line": 1138
+  },
+  "/admin/integracoes/marketing": {
+    "from": "/admin/integracoes",
+    "labels": {
+      "pt-br": "PHANYX Growth",
+      "pt-pt": "PHANYX Growth",
+      "en": "PHANYX Growth",
+      "es": "PHANYX Growth",
+      "fr": "PHANYX Growth"
+    },
+    "source": "app/admin/integracoes/page.tsx",
+    "line": 16
+  },
+  "/admin/integracoes/google-analytics": {
+    "from": "/admin/integracoes",
+    "labels": {
+      "pt-br": "Google Analytics",
+      "pt-pt": "Google Analytics",
+      "en": "Google Analytics",
+      "es": "Google Analytics",
+      "fr": "Google Analytics"
+    },
+    "source": "app/admin/integracoes/page.tsx",
+    "line": 23
+  },
+  "/admin/integracoes/google-tag-manager": {
+    "from": "/admin/integracoes",
+    "labels": {
+      "pt-br": "Google Tag Manager",
+      "pt-pt": "Google Tag Manager",
+      "en": "Google Tag Manager",
+      "es": "Google Tag Manager",
+      "fr": "Google Tag Manager"
+    },
+    "source": "app/admin/integracoes/page.tsx",
+    "line": 30
+  },
+  "/admin/integracoes/search-console": {
+    "from": "/admin/integracoes",
+    "labels": {
+      "pt-br": "Google Search Console",
+      "pt-pt": "Google Search Console",
+      "en": "Google Search Console",
+      "es": "Google Search Console",
+      "fr": "Google Search Console"
+    },
+    "source": "app/admin/integracoes/page.tsx",
+    "line": 37
+  },
+  "/admin/integracoes/google-ads": {
+    "from": "/admin/integracoes",
+    "labels": {
+      "pt-br": "Google Ads",
+      "pt-pt": "Google Ads",
+      "en": "Google Ads",
+      "es": "Google Ads",
+      "fr": "Google Ads"
+    },
+    "source": "app/admin/integracoes/page.tsx",
+    "line": 44
+  },
+  "/admin/integracoes/google-business": {
+    "from": "/admin/integracoes",
+    "labels": {
+      "pt-br": "Google Business",
+      "pt-pt": "Google Business",
+      "en": "Google Business",
+      "es": "Google Business",
+      "fr": "Google Business"
+    },
+    "source": "app/admin/integracoes/page.tsx",
+    "line": 51
+  },
+  "/admin/rh/documentos/gerar": {
+    "from": "/admin/rh/documentos",
+    "labels": {
+      "pt-br": "+ Novo Documento RH",
+      "pt-pt": "+ Novo documento de RH",
+      "en": "+ New HR document",
+      "es": "+ Nuevo documento de RR. HH.",
+      "fr": "+ Nouveau document RH"
+    },
+    "source": "app/admin/rh/documentos/page.tsx",
+    "line": 257
+  },
+  "/admin/rh/ponto/mobile/locais": {
+    "from": "/admin/rh/ponto/mobile",
+    "labels": {
+      "pt-br": "Gerenciar locais",
+      "pt-pt": "Gerir locais",
+      "en": "Manage locations",
+      "es": "Gestionar ubicaciones",
+      "fr": "Gérer les lieux"
+    },
+    "source": "app/admin/rh/ponto/mobile/page.tsx",
+    "line": 558
+  },
+  "/admin/rh/ponto/mobile/funcionarios": {
+    "from": "/admin/rh/ponto/mobile",
+    "labels": {
+      "pt-br": "Gerenciar funcionários",
+      "pt-pt": "Gerir funcionários",
+      "en": "Manage employees",
+      "es": "Gestionar empleados",
+      "fr": "Gérer les employés"
+    },
+    "source": "app/admin/rh/ponto/mobile/page.tsx",
+    "line": 570
+  },
+  "/aluno/completar-cadastro": {
+    "from": "/aluno",
+    "labels": {
+      "pt-br": "Atualizar meus dados",
+      "pt-pt": "Atualizar os meus dados",
+      "en": "Update my information",
+      "es": "Actualizar mis datos",
+      "fr": "Mettre à jour mes données"
+    },
+    "source": "app/aluno/layout.tsx",
+    "line": 606
+  },
+  "/aluno/mobilidade/oportunidades": {
+    "from": "/aluno/mobilidade",
+    "labels": {
+      "pt-br": "Oportunidades",
+      "pt-pt": "Oportunidades",
+      "en": "Opportunities",
+      "es": "Oportunidades",
+      "fr": "Opportunités"
+    },
+    "source": "app/aluno/mobilidade/page.tsx",
+    "line": 1040
+  },
+  "/professor/provas/nova": {
+    "from": "/professor",
+    "labels": {
+      "pt-br": "Nova prova",
+      "pt-pt": "Nova prova",
+      "en": "New exam",
+      "es": "Nuevo examen",
+      "fr": "Nouvel examen"
+    },
+    "source": "app/professor/ProfessorDashboardClient.tsx",
+    "line": 435
+  },
+  "/professor/atividades/nova": {
+    "from": "/professor/atividades",
+    "labels": {
+      "pt-br": "Nova atividade",
+      "pt-pt": "Nova atividade",
+      "en": "New activity",
+      "es": "Nueva actividad",
+      "fr": "Nouvelle activité"
+    },
+    "source": "app/professor/atividades/ProfessorAtividadesClient.tsx",
+    "line": 422
+  },
+  "/professor/disciplinas/nova": {
+    "from": "/professor/disciplinas",
+    "labels": {
+      "pt-br": "Nova disciplina",
+      "pt-pt": "Nova disciplina",
+      "en": "New discipline",
+      "es": "Nueva disciplina",
+      "fr": "Nouvelle discipline"
+    },
+    "source": "app/professor/disciplinas/page.tsx",
+    "line": 204
+  },
+  "/professor/entregas": {
+    "from": "/professor/notas",
+    "labels": {
+      "pt-br": "Entregas",
+      "pt-pt": "Entregas",
+      "en": "Submissions",
+      "es": "Entregas",
+      "fr": "Remises"
+    },
+    "source": "app/professor/notas/page.tsx",
+    "line": 56
+  },
+  "/professor/turmas/avulsas": {
+    "from": "/professor/turmas",
+    "labels": {
+      "pt-br": "Turmas avulsas — chamada sem disciplinas",
+      "pt-pt": "Turmas avulsas — chamada sem disciplinas",
+      "en": "Standalone classes — attendance without subjects",
+      "es": "Clases independientes — asistencia sin asignaturas",
+      "fr": "Classes indépendantes — présences sans matières"
+    },
+    "source": "app/professor/turmas/page.tsx",
+    "line": 832
+  },
+  "/professor/turmas/optativas-avulsas": {
+    "from": "/professor/turmas/avulsas",
+    "labels": {
+      "pt-br": "Optativas e regência",
+      "pt-pt": "Optativas e regência",
+      "en": "Optativas e regência",
+      "es": "Optativas e regência",
+      "fr": "Optativas e regência"
+    },
+    "source": "app/professor/turmas/avulsas/page.tsx",
+    "line": 57
+  }
+}

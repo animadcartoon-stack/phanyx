@@ -1,0 +1,300 @@
+{
+  "guide-institution-signature": {
+    "type": "card",
+    "labels": {
+      "pt-br": "Assinatura do diretor",
+      "pt-pt": "Assinatura do diretor",
+      "en": "Director signature",
+      "es": "Firma del director",
+      "fr": "Signature du directeur"
+    }
+  },
+  "guide-institution-letterhead": {
+    "type": "card",
+    "labels": {
+      "pt-br": "Papel Timbrado e Layout",
+      "pt-pt": "Papel timbrado e layout",
+      "en": "Letterhead and Layout",
+      "es": "Membrete y diseño",
+      "fr": "Papier à en-tête et mise en page"
+    }
+  },
+  "guide-roles": {
+    "type": "department",
+    "labels": {
+      "pt-br": "Cargos",
+      "pt-pt": "Cargos",
+      "en": "Roles",
+      "es": "Cargos",
+      "fr": "Postes"
+    }
+  },
+  "guide-permissions": {
+    "type": "department",
+    "labels": {
+      "pt-br": "Permissões",
+      "pt-pt": "Permissões",
+      "en": "Permissions",
+      "es": "Permisos",
+      "fr": "Autorisations"
+    }
+  },
+  "guide-coordination-development": {
+    "type": "tab",
+    "labels": {
+      "pt-br": "Desenvolvimento e tarefas",
+      "pt-pt": "Desenvolvimento e tarefas",
+      "en": "Development and assignments",
+      "es": "Desarrollo y tareas",
+      "fr": "Développement et devoirs"
+    }
+  },
+  "guide-coordination-requirements": {
+    "type": "tab",
+    "labels": {
+      "pt-br": "Exigências da coordenação",
+      "pt-pt": "Exigências da coordenação",
+      "en": "Coordination requirements",
+      "es": "Requisitos de coordinación",
+      "fr": "Exigences de coordination"
+    }
+  },
+  "guide-external-overview": {
+    "type": "record",
+    "labels": {
+      "pt-br": "Visão geral",
+      "pt-pt": "Visão geral",
+      "en": "Overview",
+      "es": "Resumen",
+      "fr": "Vue générale"
+    },
+    "open": {
+      "pt-br": "Abrir atividade",
+      "pt-pt": "Abrir atividade",
+      "en": "Open activity",
+      "es": "Abrir actividad",
+      "fr": "Ouvrir l’activité"
+    }
+  },
+  "guide-external-participants": {
+    "type": "record",
+    "labels": {
+      "pt-br": "Participantes",
+      "pt-pt": "Participantes",
+      "en": "Participants",
+      "es": "Participantes",
+      "fr": "Participants"
+    },
+    "open": {
+      "pt-br": "Abrir atividade",
+      "pt-pt": "Abrir atividade",
+      "en": "Open activity",
+      "es": "Abrir actividad",
+      "fr": "Ouvrir l’activité"
+    }
+  },
+  "guide-external-authorizations": {
+    "type": "record",
+    "labels": {
+      "pt-br": "Autorizações",
+      "pt-pt": "Autorizações",
+      "en": "Permissions",
+      "es": "Autorizaciones",
+      "fr": "Autorisations"
+    },
+    "open": {
+      "pt-br": "Abrir atividade",
+      "pt-pt": "Abrir atividade",
+      "en": "Open activity",
+      "es": "Abrir actividad",
+      "fr": "Ouvrir l’activité"
+    }
+  },
+  "guide-external-team": {
+    "type": "record",
+    "labels": {
+      "pt-br": "Equipe",
+      "pt-pt": "Equipa",
+      "en": "Team",
+      "es": "Equipo",
+      "fr": "Équipe"
+    },
+    "open": {
+      "pt-br": "Abrir atividade",
+      "pt-pt": "Abrir atividade",
+      "en": "Open activity",
+      "es": "Abrir actividad",
+      "fr": "Ouvrir l’activité"
+    }
+  },
+  "guide-external-transport": {
+    "type": "record",
+    "labels": {
+      "pt-br": "Transporte",
+      "pt-pt": "Transporte",
+      "en": "Transportation",
+      "es": "Transporte",
+      "fr": "Transport"
+    },
+    "open": {
+      "pt-br": "Abrir atividade",
+      "pt-pt": "Abrir atividade",
+      "en": "Open activity",
+      "es": "Abrir actividad",
+      "fr": "Ouvrir l’activité"
+    }
+  },
+  "guide-external-transport-providers": {
+    "type": "record",
+    "labels": {
+      "pt-br": "Transporte",
+      "pt-pt": "Transporte",
+      "en": "Transportation",
+      "es": "Transporte",
+      "fr": "Transport"
+    },
+    "open": {
+      "pt-br": "Abrir atividade",
+      "pt-pt": "Abrir atividade",
+      "en": "Open activity",
+      "es": "Abrir actividad",
+      "fr": "Ouvrir l’activité"
+    }
+  },
+  "guide-external-transport-vehicles": {
+    "type": "record",
+    "labels": {
+      "pt-br": "Transporte",
+      "pt-pt": "Transporte",
+      "en": "Transportation",
+      "es": "Transporte",
+      "fr": "Transport"
+    },
+    "open": {
+      "pt-br": "Abrir atividade",
+      "pt-pt": "Abrir atividade",
+      "en": "Open activity",
+      "es": "Abrir actividad",
+      "fr": "Ouvrir l’activité"
+    }
+  },
+  "guide-external-transport-drivers": {
+    "type": "record",
+    "labels": {
+      "pt-br": "Transporte",
+      "pt-pt": "Transporte",
+      "en": "Transportation",
+      "es": "Transporte",
+      "fr": "Transport"
+    },
+    "open": {
+      "pt-br": "Abrir atividade",
+      "pt-pt": "Abrir atividade",
+      "en": "Open activity",
+      "es": "Abrir actividad",
+      "fr": "Ouvrir l’activité"
+    }
+  },
+  "guide-external-boarding": {
+    "type": "record",
+    "labels": {
+      "pt-br": "Transporte",
+      "pt-pt": "Transporte",
+      "en": "Transportation",
+      "es": "Transporte",
+      "fr": "Transport"
+    },
+    "open": {
+      "pt-br": "Abrir atividade",
+      "pt-pt": "Abrir atividade",
+      "en": "Open activity",
+      "es": "Abrir actividad",
+      "fr": "Ouvrir l’activité"
+    }
+  },
+  "guide-external-safety": {
+    "type": "record",
+    "labels": {
+      "pt-br": "Segurança",
+      "pt-pt": "Segurança",
+      "en": "Safety",
+      "es": "Seguridad",
+      "fr": "Sécurité"
+    },
+    "open": {
+      "pt-br": "Abrir atividade",
+      "pt-pt": "Abrir atividade",
+      "en": "Open activity",
+      "es": "Abrir actividad",
+      "fr": "Ouvrir l’activité"
+    }
+  },
+  "guide-external-emergency": {
+    "type": "record",
+    "labels": {
+      "pt-br": "Segurança",
+      "pt-pt": "Segurança",
+      "en": "Safety",
+      "es": "Seguridad",
+      "fr": "Sécurité"
+    },
+    "open": {
+      "pt-br": "Abrir atividade",
+      "pt-pt": "Abrir atividade",
+      "en": "Open activity",
+      "es": "Abrir actividad",
+      "fr": "Ouvrir l’activité"
+    }
+  },
+  "guide-external-checkpoints": {
+    "type": "record",
+    "labels": {
+      "pt-br": "Segurança",
+      "pt-pt": "Segurança",
+      "en": "Safety",
+      "es": "Seguridad",
+      "fr": "Sécurité"
+    },
+    "open": {
+      "pt-br": "Abrir atividade",
+      "pt-pt": "Abrir atividade",
+      "en": "Open activity",
+      "es": "Abrir actividad",
+      "fr": "Ouvrir l’activité"
+    }
+  },
+  "guide-external-health": {
+    "type": "record",
+    "labels": {
+      "pt-br": "Saúde",
+      "pt-pt": "Saúde",
+      "en": "Health",
+      "es": "Salud",
+      "fr": "Santé"
+    },
+    "open": {
+      "pt-br": "Abrir atividade",
+      "pt-pt": "Abrir atividade",
+      "en": "Open activity",
+      "es": "Abrir actividad",
+      "fr": "Ouvrir l’activité"
+    }
+  },
+  "guide-external-documents": {
+    "type": "record",
+    "labels": {
+      "pt-br": "Documentos",
+      "pt-pt": "Documentos",
+      "en": "Documents",
+      "es": "Documentos",
+      "fr": "Documents"
+    },
+    "open": {
+      "pt-br": "Abrir atividade",
+      "pt-pt": "Abrir atividade",
+      "en": "Open activity",
+      "es": "Abrir actividad",
+      "fr": "Ouvrir l’activité"
+    }
+  }
+}

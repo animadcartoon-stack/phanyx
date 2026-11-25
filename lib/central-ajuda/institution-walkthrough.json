@@ -1,0 +1,929 @@
+{
+  "steps": {
+    "pt-br": [
+      "Na parte principal da tela, encontre **Dados institucionais**. Clique no espaço **Nome fantasia** e escreva o nome pelo qual a instituição é conhecida. Confira a escrita: esse nome poderá aparecer nos documentos.",
+      "Logo abaixo, clique em **Nome da unidade principal**. Escreva o nome da sede, por exemplo, “Sede — Centro”. O sistema usa esse nome na variável {{nomePolo}} quando o aluno não está vinculado a outro polo.",
+      "Em **Razão social**, escreva o nome registrado da empresa. Use a grafia do cadastro da instituição, pois essa informação será usada nos documentos.",
+      "Em **CNPJ**, informe o número fiscal da instituição. Os zeros que aparecem no exemplo da figura apenas mostram o formato do campo; não devem substituir o número verdadeiro.",
+      "Em **Telefone**, clique primeiro no país, ao lado da bandeira. Escolha o país do número e depois escreva o telefone institucional no espaço ao lado. Confira o código do país e os números digitados.",
+      "Em **E-mail**, escreva o endereço usado pela instituição para contato. Confira se não faltou nenhuma letra e se o endereço está completo.",
+      "Em **CEP**, escreva o código postal da sede. Confira o endereço da instituição e preencha os campos seguintes; não presuma que o endereço está correto apenas porque informou o CEP.",
+      "Procure **País da instituição**. Clique na caixa que mostra o país e escolha o país onde a instituição está localizada. Essa escolha participa da configuração de feriados nacionais e recursos internacionais.",
+      "Em **Fuso horário**, escolha o horário local da instituição. **Usar fuso deste dispositivo** utiliza o horário configurado neste computador; só escolha esse botão quando ele corresponder à localização da instituição.",
+      "Em **Estado**, escreva a sigla do estado da instituição, como SC em um exemplo brasileiro. Use o estado real da sede.",
+      "Em **Endereço**, escreva o nome da rua ou avenida. Confira a informação antes de seguir.",
+      "Em **Número**, escreva o número do imóvel. Este espaço é separado do campo Endereço.",
+      "Em **Cidade**, escreva o nome da cidade da sede. Confira cidade, estado, rua e número juntos para evitar um endereço incompleto.",
+      "Em **Responsável legal**, escreva o nome da pessoa autorizada a representar a instituição. Esse nome pode ser usado nos documentos.",
+      "Em **Cargo do responsável**, escreva o cargo dessa pessoa, por exemplo, Diretor(a), quando for o caso.",
+      "Em **Cidade de assinatura**, escreva a cidade que deve acompanhar as assinaturas nos documentos.",
+      "Em **Observações contratuais**, registre as informações institucionais que precisam acompanhar os contratos. Não coloque senhas, credenciais ou chaves de integração neste espaço.",
+      "Confira os dados preenchidos. Depois clique uma vez em **Salvar configurações** e aguarde a resposta. Se aparecer um aviso de campo inválido, leia o aviso e corrija o campo indicado antes de tentar novamente.",
+      "Depois da confirmação, abra novamente **Configurações → Instituição** e confira os dados gravados. Isso permite verificar se a informação ficou salva como você pretendia.",
+      "Procure a seção **Logo** na página. Quando não houver uma imagem, use **Selecionar logo**. Para substituir uma logo já cadastrada, clique no lápis **Editar logo** e depois em **Trocar logo**. Na janela de arquivos do computador, escolha a imagem da instituição. Aguarde o envio e confira a prévia. São aceitos PNG, JPG, JPEG e WEBP.",
+      "Se precisar retirar o fundo da imagem, clique em **Abrir removedor PHANYX**, na orientação abaixo da logo. Prepare e baixe a imagem com fundo transparente; depois volte a esta página e selecione o arquivo preparado. O link do removedor abre em outra guia.",
+      "Na seção **Assinatura do diretor**, use **Selecionar assinatura** quando ainda não houver uma imagem. Se já houver, clique no lápis **Editar assinatura do diretor** e depois em **Trocar assinatura**. Escolha o arquivo autorizado, aguarde o envio e confira a imagem. PNG com fundo transparente é recomendado; JPG e JPEG também são aceitos. A figura deste manual deixa a assinatura vazia para preservar a privacidade.",
+      "Em **Papel Timbrado e Layout**, escolha uma das três opções: **Sem papel**, para um layout simples; **Modelo PHANYX**, para os modelos prontos; ou **Papel próprio**, para a arte da instituição. Depois siga os controles que aparecerem no modo escolhido. O guia de Papel Timbrado e Layout aprofunda cada modo.",
+      "Em **Cor dos relatórios (PDF e Excel)**, clique na caixa de seleção e escolha uma cor. Ela será usada nos cabeçalhos desses relatórios.",
+      "Na área **Pré-visualização**, clique em **Ampliar** para ver o layout maior. Confira a leitura dos nomes e a proporção da logo. Salve quando a página solicitar e confira um novo documento gerado com esses dados.",
+      "Para alterar o texto reutilizado em contratos e outros documentos, use **Gerenciar templates de documentos**. Esse link abre outro editor. Mudar os dados da instituição não altera sozinho o texto escrito dentro de cada modelo de documento."
+    ],
+    "en": [
+      "In the main area, find **Institutional data**. Click **Trade name** and type the institution’s public name. Check its spelling: it may appear in documents.",
+      "Below it, click **Main unit name**. Enter the headquarters name, for example “Central headquarters”. This supplies {{nomePolo}} when a student has no other campus assigned.",
+      "In **Legal name**, type the institution’s registered company name. Use the spelling in its records because it is used in documents.",
+      "In **CNPJ**, enter the institution’s tax number. The zeros in the example figure show the field format; they must not replace the actual number.",
+      "In **Phone**, first click the country beside the flag. Choose the phone number’s country, then enter the institutional number in the space beside it. Check the country code and digits.",
+      "In **Email**, enter the institution’s contact address. Check that it is complete and correctly spelled.",
+      "In **CEP**, enter the headquarters postal code. Check the address and fill in the following fields; entering a postal code alone does not prove that the address is correct.",
+      "Find **Institution country**. Click the country selector and choose the institution’s location. This setting affects national holidays and international features.",
+      "In **Time zone**, choose the institution’s local zone. **Use this device’s time zone** uses this computer’s setting; use it only when it matches the institution.",
+      "In **State**, enter the institution’s state code, such as SC in a Brazilian example. Use the headquarters’ actual state.",
+      "In **Address**, type the street or avenue name. Check it before continuing.",
+      "In **Number**, enter the building number. This is a separate space from Address.",
+      "In **City**, enter the headquarters city. Review the city, state, street and building number together.",
+      "In **Legal representative**, enter the name of the person authorised to represent the institution. This name may be used in documents.",
+      "In **Representative role**, enter that person’s position, such as Director when applicable.",
+      "In **Signing city**, enter the city that should accompany signatures in documents.",
+      "In **Contract notes**, enter the institutional information that should accompany contracts. Do not put passwords, credentials or integration keys here.",
+      "Review the completed fields. Click **Save settings** once and wait for the response. If a field warning appears, read it and correct the indicated field before trying again.",
+      "After confirmation, reopen **Settings → Institution** and check the stored information. This verifies that the values were saved as intended.",
+      "Find the **Logo** section. If no image exists, use **Select logo**. To replace an existing image, click the **Edit logo** pencil, then **Change logo**. In the computer’s file window, choose the institution’s image. Wait for the upload and check the preview. PNG, JPG, JPEG and WEBP are accepted.",
+      "If you need to remove the image background, click **Open PHANYX remover** below the logo. Prepare and download the transparent image, return here and select the prepared file. The remover opens in another tab.",
+      "In **Director signature**, use **Select signature** when no image exists. Otherwise, click the **Edit director signature** pencil, then **Change signature**. Choose the authorised file, wait for the upload and check the image. Transparent PNG is recommended; JPG and JPEG are accepted. This manual’s figure keeps the signature empty for privacy.",
+      "In **Letterhead and layout**, choose **No letterhead** for a simple layout, **PHANYX model** for presets, or **Own letterhead** for institutional artwork. Follow the controls shown for your choice. The Letterhead and layout guide explains each mode further.",
+      "In **Report colour (PDF and Excel)**, click the selector and choose a colour. It is used in those reports’ headers.",
+      "In **Preview**, click **Enlarge** to inspect the larger layout. Check the names and logo proportions. Save when requested and inspect a newly generated document using these details.",
+      "To change reusable document text, use **Manage document templates**. This opens a separate editor. Editing institutional data does not by itself change the text written inside each template."
+    ],
+    "es": [
+      "En la zona principal, localiza **Datos institucionales**. Haz clic en **Nombre comercial** y escribe el nombre por el que se conoce la institución. Revisa la escritura: puede aparecer en documentos.",
+      "Debajo, haz clic en **Nombre de la unidad principal**. Escribe el nombre de la sede, por ejemplo “Sede Centro”. Este dato alimenta {{nomePolo}} cuando el estudiante no tiene otro polo vinculado.",
+      "En **Razón social**, escribe el nombre registrado de la empresa. Usa la escritura de su registro, porque se emplea en los documentos.",
+      "En **CNPJ**, introduce el número fiscal de la institución. Los ceros de la figura solo muestran el formato; no sustituyen al número verdadero.",
+      "En **Teléfono**, primero haz clic en el país junto a la bandera. Elige el país del número y escribe el teléfono institucional en el espacio contiguo. Revisa el prefijo y los dígitos.",
+      "En **Correo electrónico**, escribe la dirección de contacto de la institución. Comprueba que esté completa y correctamente escrita.",
+      "En **CEP**, escribe el código postal de la sede. Comprueba la dirección y completa los campos siguientes; el código postal por sí solo no confirma una dirección correcta.",
+      "Localiza **País de la institución**. Abre el selector y elige la ubicación de la institución. Esta opción influye en festivos nacionales y recursos internacionales.",
+      "En **Zona horaria**, elige la hora local de la institución. **Usar la zona horaria de este dispositivo** utiliza la configuración de este ordenador; úsala solo si coincide con la institución.",
+      "En **Estado**, escribe el código del estado de la institución, como SC en un ejemplo brasileño. Usa el estado real de la sede.",
+      "En **Dirección**, escribe el nombre de la calle o avenida. Compruébalo antes de continuar.",
+      "En **Número**, escribe el número del inmueble. Este espacio está separado de Dirección.",
+      "En **Ciudad**, escribe la ciudad de la sede. Revisa juntos ciudad, estado, calle y número.",
+      "En **Representante legal**, escribe el nombre de la persona autorizada para representar a la institución. Puede aparecer en los documentos.",
+      "En **Cargo del representante**, escribe su puesto, por ejemplo Director(a), si corresponde.",
+      "En **Ciudad de firma**, escribe la ciudad que debe acompañar a las firmas de los documentos.",
+      "En **Observaciones contractuales**, escribe la información institucional que debe acompañar a los contratos. No pongas contraseñas, credenciales ni claves de integración.",
+      "Revisa los datos. Haz un clic en **Guardar configuración** y espera la respuesta. Si aparece un aviso, léelo y corrige el campo indicado antes de volver a intentarlo.",
+      "Tras la confirmación, vuelve a abrir **Configuración → Institución** y comprueba los datos guardados.",
+      "Localiza **Logo**. Si no hay imagen, usa **Seleccionar logo**. Para reemplazar una imagen existente, pulsa el lápiz **Editar logo** y después **Cambiar logo**. Elige el archivo en el ordenador, espera la carga y revisa la vista previa. Se aceptan PNG, JPG, JPEG y WEBP.",
+      "Para quitar el fondo, usa **Abrir removedor PHANYX** debajo del logo. Prepara y descarga la imagen transparente, vuelve a esta página y selecciona el archivo preparado. El removedor se abre en otra pestaña.",
+      "En **Firma del director**, usa **Seleccionar firma** cuando no haya imagen. Si ya existe, pulsa el lápiz **Editar firma del director** y después **Cambiar firma**. Elige el archivo autorizado, espera la carga y revísalo. Se recomienda PNG transparente; se aceptan JPG y JPEG. La figura deja la firma vacía por privacidad.",
+      "En **Membrete y diseño**, elige **Sin membrete**, **Modelo PHANYX** o **Membrete propio** según lo que necesites. Sigue los controles del modo elegido. La guía de membretes explica cada modo con más detalle.",
+      "En **Color de informes (PDF y Excel)**, abre el selector y elige un color. Se utiliza en los encabezados de esos informes.",
+      "En **Vista previa**, pulsa **Ampliar** para ver el diseño mayor. Revisa los nombres y las proporciones del logo. Guarda cuando se solicite y comprueba un documento nuevo generado con esos datos.",
+      "Para cambiar el texto reutilizado en documentos, usa **Administrar plantillas de documentos**. Abre otro editor. Cambiar los datos institucionales no modifica por sí solo el texto escrito en cada plantilla."
+    ],
+    "fr": [
+      "Dans la zone principale, repérez **Données institutionnelles**. Cliquez dans **Nom commercial** et saisissez le nom public de l’établissement. Vérifiez son orthographe : il peut apparaître dans les documents.",
+      "Juste dessous, cliquez dans **Nom de l’unité principale**. Saisissez le nom du siège, par exemple « Siège Centre ». Il alimente {{nomePolo}} lorsqu’aucune autre unité n’est liée à l’étudiant.",
+      "Dans **Raison sociale**, saisissez le nom enregistré de l’entreprise. Respectez son orthographe, car il est utilisé dans les documents.",
+      "Dans **CNPJ**, saisissez le numéro fiscal de l’établissement. Les zéros de la figure illustrent le format du champ ; ils ne remplacent pas le vrai numéro.",
+      "Dans **Téléphone**, cliquez d’abord sur le pays près du drapeau. Choisissez le pays du numéro, puis saisissez le téléphone institutionnel dans l’espace voisin. Vérifiez l’indicatif et les chiffres.",
+      "Dans **E-mail**, saisissez l’adresse de contact de l’établissement. Vérifiez qu’elle est complète et correctement écrite.",
+      "Dans **CEP**, saisissez le code postal du siège. Vérifiez l’adresse et complétez les champs suivants ; le code postal seul ne garantit pas une adresse correcte.",
+      "Repérez **Pays de l’établissement**. Ouvrez la liste et choisissez son pays. Ce réglage influence les jours fériés nationaux et les fonctions internationales.",
+      "Dans **Fuseau horaire**, choisissez l’heure locale de l’établissement. **Utiliser le fuseau de cet appareil** reprend celui de cet ordinateur ; utilisez-le uniquement s’il correspond à l’établissement.",
+      "Dans **État**, saisissez le code de l’État du siège, par exemple SC pour un exemple brésilien. Utilisez son État réel.",
+      "Dans **Adresse**, saisissez le nom de la rue ou de l’avenue. Vérifiez-le avant de continuer.",
+      "Dans **Numéro**, saisissez le numéro du bâtiment. Cet espace est distinct de l’adresse.",
+      "Dans **Ville**, saisissez la ville du siège. Vérifiez ensemble la ville, l’État, la rue et le numéro.",
+      "Dans **Représentant légal**, saisissez le nom de la personne autorisée à représenter l’établissement. Ce nom peut figurer dans les documents.",
+      "Dans **Fonction du représentant**, saisissez son poste, par exemple Directeur ou Directrice lorsque cela convient.",
+      "Dans **Ville de signature**, saisissez la ville qui doit accompagner les signatures dans les documents.",
+      "Dans **Observations contractuelles**, saisissez les informations institutionnelles nécessaires aux contrats. N’y mettez pas de mots de passe, d’identifiants secrets ou de clés d’intégration.",
+      "Vérifiez les données. Cliquez une fois sur **Enregistrer les paramètres** et attendez la réponse. Si un avertissement apparaît, lisez-le et corrigez le champ indiqué avant de réessayer.",
+      "Après confirmation, rouvrez **Paramètres → Établissement** et vérifiez les valeurs enregistrées.",
+      "Repérez **Logo**. Sans image, utilisez **Sélectionner le logo**. Pour remplacer une image, cliquez sur le crayon **Modifier le logo**, puis sur **Changer le logo**. Choisissez le fichier sur l’ordinateur, attendez l’envoi et vérifiez l’aperçu. PNG, JPG, JPEG et WEBP sont acceptés.",
+      "Pour retirer le fond, utilisez **Ouvrir le détoureur PHANYX** sous le logo. Préparez et téléchargez l’image transparente, revenez ici et sélectionnez ce fichier. Le détoureur s’ouvre dans un autre onglet.",
+      "Dans **Signature du directeur**, utilisez **Sélectionner la signature** sans image existante. Sinon, cliquez sur le crayon **Modifier la signature du directeur**, puis **Changer la signature**. Choisissez le fichier autorisé, attendez l’envoi et vérifiez l’image. Le PNG transparent est recommandé ; JPG et JPEG sont acceptés. La figure ne présente aucune signature pour préserver la confidentialité.",
+      "Dans **Papier à en-tête et mise en page**, choisissez **Sans en-tête**, **Modèle PHANYX** ou **En-tête personnel** selon votre besoin. Suivez les contrôles du mode choisi. Le guide du papier à en-tête détaille chaque mode.",
+      "Dans **Couleur des rapports (PDF et Excel)**, ouvrez la liste et choisissez une couleur. Elle est utilisée dans les en-têtes de ces rapports.",
+      "Dans **Aperçu**, cliquez sur **Agrandir** pour examiner la mise en page. Vérifiez les noms et les proportions du logo. Enregistrez lorsque cela est demandé et vérifiez un nouveau document généré avec ces données.",
+      "Pour modifier le texte réutilisé dans les documents, utilisez **Gérer les modèles de documents**. Ce lien ouvre un autre éditeur. Modifier les données institutionnelles ne change pas, à lui seul, le texte rédigé dans chaque modèle."
+    ],
+    "pt-pt": [
+      "Na parte principal da ecrã, encontre **Dados institucionais**. Clique no espaço **Nome fantasia** e escreva o nome pelo qual a instituição é conhecida. Confira a escrita: esse nome poderá aparecer nos documentos.",
+      "Logo abaixo, clique em **Nome da unidade principal**. Escreva o nome da sede, por exemplo, “Sede — Centro”. O sistema usa esse nome na variável {{nomePolo}} quando o aluno não está vinculado a outro polo.",
+      "Em **Razão social**, escreva o nome registrado da empresa. Use a grafia do registo da instituição, pois essa informação será usada nos documentos.",
+      "Em **CNPJ**, informe o número fiscal da instituição. Os zeros que aparecem no exemplo da figura apenas mostram o formato do campo; não devem substituir o número verdadeiro.",
+      "Em **Telefone**, clique primeiro no país, ao lado da bandeira. Escolha o país do número e depois escreva o telefone institucional no espaço ao lado. Confira o código do país e os números digitados.",
+      "Em **E-mail**, escreva o endereço usado pela instituição para contato. Confira se não faltou nenhuma letra e se o endereço está completo.",
+      "Em **CEP**, escreva o código postal da sede. Confira o endereço da instituição e preencha os campos seguintes; não presuma que o endereço está correto apenas porque informou o CEP.",
+      "Procure **País da instituição**. Clique na caixa que mostra o país e escolha o país onde a instituição está localizada. Essa escolha participa da configuração de feriados nacionais e recursos internacionais.",
+      "Em **Fuso horário**, escolha o horário local da instituição. **Usar fuso deste dispositivo** utiliza o horário configurado neste computador; só escolha esse botão quando ele corresponder à localização da instituição.",
+      "Em **Estado**, escreva a sigla do estado da instituição, como SC em um exemplo brasileiro. Use o estado real da sede.",
+      "Em **Endereço**, escreva o nome da rua ou avenida. Confira a informação antes de seguir.",
+      "Em **Número**, escreva o número do imóvel. Este espaço é separado do campo Endereço.",
+      "Em **Cidade**, escreva o nome da cidade da sede. Confira cidade, estado, rua e número juntos para evitar um endereço incompleto.",
+      "Em **Responsável legal**, escreva o nome da pessoa autorizada a representar a instituição. Esse nome pode ser usado nos documentos.",
+      "Em **Cargo do responsável**, escreva o cargo dessa pessoa, por exemplo, Diretor(a), quando for o caso.",
+      "Em **Cidade de assinatura**, escreva a cidade que deve acompanhar as assinaturas nos documentos.",
+      "Em **Observações contratuais**, registre as informações institucionais que precisam acompanhar os contratos. Não coloque palavras-passe, credenciais ou chaves de integração neste espaço.",
+      "Confira os dados preenchidos. Depois clique uma vez em **Salvar configurações** e aguarde a resposta. Se aparecer um aviso de campo inválido, leia o aviso e corrija o campo indicado antes de tentar novamente.",
+      "Depois da confirmação, abra novamente **Configurações → Instituição** e confira os dados gravados. Isso permite verificar se a informação ficou salva como você pretendia.",
+      "Procure a seção **Logo** na página. Quando não houver uma imagem, use **Selecionar logo**. Para substituir uma logo já cadastrada, clique no lápis **Editar logo** e depois em **Trocar logo**. Na janela de ficheiros do computador, escolha a imagem da instituição. Aguarde o envio e confira a prévia. São aceitos PNG, JPG, JPEG e WEBP.",
+      "Se precisar retirar o fundo da imagem, clique em **Abrir removedor PHANYX**, na orientação abaixo da logo. Prepare e baixe a imagem com fundo transparente; depois volte a esta página e selecione o ficheiro preparado. O link do removedor abre em outro separador.",
+      "Na seção **Assinatura do diretor**, use **Selecionar assinatura** quando ainda não houver uma imagem. Se já houver, clique no lápis **Editar assinatura do diretor** e depois em **Trocar assinatura**. Escolha o ficheiro autorizado, aguarde o envio e confira a imagem. PNG com fundo transparente é recomendado; JPG e JPEG também são aceitos. A figura deste manual deixa a assinatura vazia para preservar a privacidade.",
+      "Em **Papel Timbrado e Layout**, escolha uma das três opções: **Sem papel**, para um layout simples; **Modelo PHANYX**, para os modelos prontos; ou **Papel próprio**, para a arte da instituição. Depois siga os controles que aparecerem no modo escolhido. O guia de Papel Timbrado e Layout aprofunda cada modo.",
+      "Em **Cor dos relatórios (PDF e Excel)**, clique na caixa de seleção e escolha uma cor. Ela será usada nos cabeçalhos desses relatórios.",
+      "Na área **Pré-visualização**, clique em **Ampliar** para ver o layout maior. Confira a leitura dos nomes e a proporção da logo. Guarde quando a página solicitar e confira um novo documento gerado com esses dados.",
+      "Para alterar o texto reutilizado em contratos e outros documentos, use **Gerenciar templates de documentos**. Esse link abre outro editor. Mudar os dados da instituição não altera sozinho o texto escrito dentro de cada modelo de documento."
+    ]
+  },
+  "figures": {
+    "0": {
+      "file": "demo-institution-identity-pt-br.jpg",
+      "demo": true,
+      "step": 0,
+      "width": 1363,
+      "height": 936,
+      "crop": {
+        "x": 154,
+        "y": 270,
+        "width": 452,
+        "height": 120
+      },
+      "highlights": [
+        {
+          "x": 190,
+          "y": 306,
+          "width": 380,
+          "height": 48
+        }
+      ],
+      "labels": {
+        "pt-br": "Nome fantasia",
+        "en": "Trade name",
+        "es": "Nombre comercial",
+        "fr": "Nom commercial",
+        "pt-pt": "Nome fantasia"
+      },
+      "sha256": "1e5b3a661452a27ac2f45853c5e38da24e1b35b69937bcf3bdbbf1c779b9f7ad"
+    },
+    "1": {
+      "file": "demo-institution-identity-pt-br.jpg",
+      "demo": true,
+      "step": 1,
+      "width": 1363,
+      "height": 936,
+      "crop": {
+        "x": 154,
+        "y": 364,
+        "width": 452,
+        "height": 120
+      },
+      "highlights": [
+        {
+          "x": 190,
+          "y": 400,
+          "width": 380,
+          "height": 48
+        }
+      ],
+      "labels": {
+        "pt-br": "Nome da unidade principal",
+        "en": "Main unit name",
+        "es": "Nombre de la unidad principal",
+        "fr": "Nom de l’unité principale",
+        "pt-pt": "Nome da unidade principal"
+      },
+      "sha256": "1e5b3a661452a27ac2f45853c5e38da24e1b35b69937bcf3bdbbf1c779b9f7ad"
+    },
+    "2": {
+      "file": "demo-institution-identity-pt-br.jpg",
+      "demo": true,
+      "step": 2,
+      "width": 1363,
+      "height": 936,
+      "crop": {
+        "x": 154,
+        "y": 482,
+        "width": 452,
+        "height": 120
+      },
+      "highlights": [
+        {
+          "x": 190,
+          "y": 518,
+          "width": 380,
+          "height": 48
+        }
+      ],
+      "labels": {
+        "pt-br": "Razão social",
+        "en": "Legal name",
+        "es": "Razón social",
+        "fr": "Raison sociale",
+        "pt-pt": "Razão social"
+      },
+      "sha256": "1e5b3a661452a27ac2f45853c5e38da24e1b35b69937bcf3bdbbf1c779b9f7ad"
+    },
+    "3": {
+      "file": "demo-institution-identity-pt-br.jpg",
+      "demo": true,
+      "step": 3,
+      "width": 1363,
+      "height": 936,
+      "crop": {
+        "x": 154,
+        "y": 576,
+        "width": 452,
+        "height": 120
+      },
+      "highlights": [
+        {
+          "x": 190,
+          "y": 612,
+          "width": 380,
+          "height": 48
+        }
+      ],
+      "labels": {
+        "pt-br": "CNPJ",
+        "en": "CNPJ",
+        "es": "CNPJ",
+        "fr": "CNPJ",
+        "pt-pt": "CNPJ"
+      },
+      "sha256": "1e5b3a661452a27ac2f45853c5e38da24e1b35b69937bcf3bdbbf1c779b9f7ad"
+    },
+    "4": {
+      "file": "demo-institution-identity-pt-br.jpg",
+      "demo": true,
+      "step": 4,
+      "width": 1363,
+      "height": 936,
+      "crop": {
+        "x": 655,
+        "y": 576,
+        "width": 452,
+        "height": 132
+      },
+      "highlights": [
+        {
+          "x": 691,
+          "y": 612,
+          "width": 380,
+          "height": 60
+        }
+      ],
+      "labels": {
+        "pt-br": "Telefone",
+        "en": "Phone",
+        "es": "Teléfono",
+        "fr": "Téléphone",
+        "pt-pt": "Telefone"
+      },
+      "sha256": "1e5b3a661452a27ac2f45853c5e38da24e1b35b69937bcf3bdbbf1c779b9f7ad"
+    },
+    "5": {
+      "file": "demo-institution-identity-pt-br.jpg",
+      "demo": true,
+      "step": 5,
+      "width": 1363,
+      "height": 936,
+      "crop": {
+        "x": 154,
+        "y": 734,
+        "width": 452,
+        "height": 120
+      },
+      "highlights": [
+        {
+          "x": 190,
+          "y": 770,
+          "width": 380,
+          "height": 48
+        }
+      ],
+      "labels": {
+        "pt-br": "E-mail",
+        "en": "Email",
+        "es": "Correo electrónico",
+        "fr": "E-mail",
+        "pt-pt": "E-mail"
+      },
+      "sha256": "1e5b3a661452a27ac2f45853c5e38da24e1b35b69937bcf3bdbbf1c779b9f7ad"
+    },
+    "6": {
+      "file": "demo-institution-identity-pt-br.jpg",
+      "demo": true,
+      "step": 6,
+      "width": 1363,
+      "height": 936,
+      "crop": {
+        "x": 655,
+        "y": 734,
+        "width": 452,
+        "height": 120
+      },
+      "highlights": [
+        {
+          "x": 691,
+          "y": 770,
+          "width": 380,
+          "height": 48
+        }
+      ],
+      "labels": {
+        "pt-br": "CEP",
+        "en": "CEP",
+        "es": "CEP",
+        "fr": "CEP",
+        "pt-pt": "CEP"
+      },
+      "sha256": "1e5b3a661452a27ac2f45853c5e38da24e1b35b69937bcf3bdbbf1c779b9f7ad"
+    },
+    "7": {
+      "file": "demo-institution-address-pt-br.jpg",
+      "demo": true,
+      "step": 7,
+      "width": 1363,
+      "height": 936,
+      "crop": {
+        "x": 154,
+        "y": 271,
+        "width": 452,
+        "height": 116
+      },
+      "highlights": [
+        {
+          "x": 190,
+          "y": 307,
+          "width": 380,
+          "height": 44
+        }
+      ],
+      "labels": {
+        "pt-br": "País da instituição",
+        "en": "Institution country",
+        "es": "País de la institución",
+        "fr": "Pays de l’établissement",
+        "pt-pt": "País da instituição"
+      },
+      "sha256": "bc0db3c2f3fe6284699bffeaedd07c4e47985ed0df8dd0cea5093b71696dbdaf"
+    },
+    "8": {
+      "file": "demo-institution-address-pt-br.jpg",
+      "demo": true,
+      "step": 8,
+      "width": 1363,
+      "height": 936,
+      "crop": {
+        "x": 655,
+        "y": 271,
+        "width": 452,
+        "height": 116
+      },
+      "highlights": [
+        {
+          "x": 691,
+          "y": 307,
+          "width": 380,
+          "height": 44
+        }
+      ],
+      "labels": {
+        "pt-br": "Fuso horário",
+        "en": "Time zone",
+        "es": "Zona horaria",
+        "fr": "Fuseau horaire",
+        "pt-pt": "Fuso horário"
+      },
+      "sha256": "bc0db3c2f3fe6284699bffeaedd07c4e47985ed0df8dd0cea5093b71696dbdaf"
+    },
+    "9": {
+      "file": "demo-institution-address-pt-br.jpg",
+      "demo": true,
+      "step": 9,
+      "width": 1363,
+      "height": 936,
+      "crop": {
+        "x": 154,
+        "y": 430,
+        "width": 452,
+        "height": 120
+      },
+      "highlights": [
+        {
+          "x": 190,
+          "y": 466,
+          "width": 380,
+          "height": 48
+        }
+      ],
+      "labels": {
+        "pt-br": "Estado",
+        "en": "State",
+        "es": "Estado",
+        "fr": "État",
+        "pt-pt": "Estado"
+      },
+      "sha256": "bc0db3c2f3fe6284699bffeaedd07c4e47985ed0df8dd0cea5093b71696dbdaf"
+    },
+    "10": {
+      "file": "demo-institution-address-pt-br.jpg",
+      "demo": true,
+      "step": 10,
+      "width": 1363,
+      "height": 936,
+      "crop": {
+        "x": 154,
+        "y": 524,
+        "width": 452,
+        "height": 120
+      },
+      "highlights": [
+        {
+          "x": 190,
+          "y": 560,
+          "width": 380,
+          "height": 48
+        }
+      ],
+      "labels": {
+        "pt-br": "Endereço",
+        "en": "Address",
+        "es": "Dirección",
+        "fr": "Adresse",
+        "pt-pt": "Endereço"
+      },
+      "sha256": "bc0db3c2f3fe6284699bffeaedd07c4e47985ed0df8dd0cea5093b71696dbdaf"
+    },
+    "11": {
+      "file": "demo-institution-address-pt-br.jpg",
+      "demo": true,
+      "step": 11,
+      "width": 1363,
+      "height": 936,
+      "crop": {
+        "x": 154,
+        "y": 618,
+        "width": 452,
+        "height": 120
+      },
+      "highlights": [
+        {
+          "x": 190,
+          "y": 654,
+          "width": 380,
+          "height": 48
+        }
+      ],
+      "labels": {
+        "pt-br": "Número",
+        "en": "Number",
+        "es": "Número",
+        "fr": "Numéro",
+        "pt-pt": "Número"
+      },
+      "sha256": "bc0db3c2f3fe6284699bffeaedd07c4e47985ed0df8dd0cea5093b71696dbdaf"
+    },
+    "12": {
+      "file": "demo-institution-address-pt-br.jpg",
+      "demo": true,
+      "step": 12,
+      "width": 1363,
+      "height": 936,
+      "crop": {
+        "x": 655,
+        "y": 618,
+        "width": 452,
+        "height": 120
+      },
+      "highlights": [
+        {
+          "x": 691,
+          "y": 654,
+          "width": 380,
+          "height": 48
+        }
+      ],
+      "labels": {
+        "pt-br": "Cidade",
+        "en": "City",
+        "es": "Ciudad",
+        "fr": "Ville",
+        "pt-pt": "Cidade"
+      },
+      "sha256": "bc0db3c2f3fe6284699bffeaedd07c4e47985ed0df8dd0cea5093b71696dbdaf"
+    },
+    "13": {
+      "file": "demo-institution-responsible-pt-br.jpg",
+      "demo": true,
+      "step": 13,
+      "width": 1348,
+      "height": 926,
+      "crop": {
+        "x": 145,
+        "y": 267,
+        "width": 452,
+        "height": 119
+      },
+      "highlights": [
+        {
+          "x": 181,
+          "y": 303,
+          "width": 380,
+          "height": 47
+        }
+      ],
+      "labels": {
+        "pt-br": "Responsável legal",
+        "en": "Legal representative",
+        "es": "Representante legal",
+        "fr": "Représentant légal",
+        "pt-pt": "Responsável legal"
+      },
+      "sha256": "d39741826c5f40a735688bfd3fb24cc3af0a3c26bf8b3dc6ff79a7b7f5c36474"
+    },
+    "14": {
+      "file": "demo-institution-responsible-pt-br.jpg",
+      "demo": true,
+      "step": 14,
+      "width": 1348,
+      "height": 926,
+      "crop": {
+        "x": 640,
+        "y": 267,
+        "width": 452,
+        "height": 119
+      },
+      "highlights": [
+        {
+          "x": 676,
+          "y": 303,
+          "width": 380,
+          "height": 47
+        }
+      ],
+      "labels": {
+        "pt-br": "Cargo do responsável",
+        "en": "Representative role",
+        "es": "Cargo del representante",
+        "fr": "Fonction du représentant",
+        "pt-pt": "Cargo do responsável"
+      },
+      "sha256": "d39741826c5f40a735688bfd3fb24cc3af0a3c26bf8b3dc6ff79a7b7f5c36474"
+    },
+    "15": {
+      "file": "demo-institution-responsible-pt-br.jpg",
+      "demo": true,
+      "step": 15,
+      "width": 1348,
+      "height": 926,
+      "crop": {
+        "x": 145,
+        "y": 361,
+        "width": 452,
+        "height": 119
+      },
+      "highlights": [
+        {
+          "x": 181,
+          "y": 397,
+          "width": 380,
+          "height": 47
+        }
+      ],
+      "labels": {
+        "pt-br": "Cidade de assinatura",
+        "en": "Signing city",
+        "es": "Ciudad de firma",
+        "fr": "Ville de signature",
+        "pt-pt": "Cidade de assinatura"
+      },
+      "sha256": "d39741826c5f40a735688bfd3fb24cc3af0a3c26bf8b3dc6ff79a7b7f5c36474"
+    },
+    "16": {
+      "file": "demo-institution-responsible-pt-br.jpg",
+      "demo": true,
+      "step": 16,
+      "width": 1348,
+      "height": 926,
+      "crop": {
+        "x": 145,
+        "y": 453,
+        "width": 452,
+        "height": 175
+      },
+      "highlights": [
+        {
+          "x": 181,
+          "y": 489,
+          "width": 380,
+          "height": 103
+        }
+      ],
+      "labels": {
+        "pt-br": "Observações contratuais",
+        "en": "Contract notes",
+        "es": "Observaciones contractuales",
+        "fr": "Observations contractuelles",
+        "pt-pt": "Observações contratuais"
+      },
+      "sha256": "d39741826c5f40a735688bfd3fb24cc3af0a3c26bf8b3dc6ff79a7b7f5c36474"
+    },
+    "17": {
+      "file": "demo-institution-responsible-pt-br.jpg",
+      "demo": true,
+      "step": 17,
+      "width": 1348,
+      "height": 926,
+      "crop": {
+        "x": 145,
+        "y": 773,
+        "width": 280,
+        "height": 122
+      },
+      "highlights": [
+        {
+          "x": 181,
+          "y": 809,
+          "width": 208,
+          "height": 50
+        }
+      ],
+      "labels": {
+        "pt-br": "Salvar configurações",
+        "en": "Save settings",
+        "es": "Guardar configuración",
+        "fr": "Enregistrer les paramètres",
+        "pt-pt": "Salvar configurações"
+      },
+      "sha256": "d39741826c5f40a735688bfd3fb24cc3af0a3c26bf8b3dc6ff79a7b7f5c36474"
+    },
+    "19": {
+      "file": "demo-institution-logo-pt-br.jpg",
+      "demo": true,
+      "step": 19,
+      "width": 1363,
+      "height": 936,
+      "crop": {
+        "x": 1109,
+        "y": 187,
+        "width": 105,
+        "height": 105
+      },
+      "highlights": [
+        {
+          "x": 1145,
+          "y": 223,
+          "width": 33,
+          "height": 33
+        }
+      ],
+      "labels": {
+        "pt-br": "Logo",
+        "en": "Logo",
+        "es": "Logo",
+        "fr": "Logo",
+        "pt-pt": "Logo"
+      },
+      "sha256": "c65da600dde2643ace1d6e367d1c2ddc38b340716d7b06806d1880841cca8db6"
+    },
+    "20": {
+      "file": "demo-institution-logo-pt-br.jpg",
+      "demo": true,
+      "step": 20,
+      "width": 1363,
+      "height": 936,
+      "crop": {
+        "x": 628,
+        "y": 455,
+        "width": 248,
+        "height": 97
+      },
+      "highlights": [
+        {
+          "x": 664,
+          "y": 491,
+          "width": 176,
+          "height": 25
+        }
+      ],
+      "labels": {
+        "pt-br": "Abrir removedor PHANYX",
+        "en": "Open PHANYX remover",
+        "es": "Abrir removedor PHANYX",
+        "fr": "Ouvrir le détoureur PHANYX",
+        "pt-pt": "Abrir removedor PHANYX"
+      },
+      "sha256": "c65da600dde2643ace1d6e367d1c2ddc38b340716d7b06806d1880841cca8db6"
+    },
+    "21": {
+      "file": "demo-institution-signature-pt-br.jpg",
+      "demo": true,
+      "step": 21,
+      "width": 1363,
+      "height": 936,
+      "crop": {
+        "x": 150,
+        "y": 376,
+        "width": 452,
+        "height": 120
+      },
+      "highlights": [
+        {
+          "x": 186,
+          "y": 412,
+          "width": 380,
+          "height": 48
+        }
+      ],
+      "labels": {
+        "pt-br": "Assinatura do diretor",
+        "en": "Director signature",
+        "es": "Firma del director",
+        "fr": "Signature du directeur",
+        "pt-pt": "Assinatura do diretor"
+      },
+      "sha256": "fde6dc5d4742c3824a6a3b7d28ffc8bd38f2a4bea554299777bdc23c923173cd"
+    },
+    "22-simple": {
+      "file": "demo-institution-letterhead-simple-pt-br.jpg",
+      "demo": true,
+      "step": 22,
+      "width": 1348,
+      "height": 926,
+      "crop": {
+        "x": 156,
+        "y": 246,
+        "width": 361,
+        "height": 115
+      },
+      "highlights": [
+        {
+          "x": 176,
+          "y": 266,
+          "width": 321,
+          "height": 75
+        }
+      ],
+      "labels": {
+        "pt-br": "Sem papel",
+        "pt-pt": "Sem papel",
+        "en": "No letterhead",
+        "es": "Sin membrete",
+        "fr": "Sans en-tête"
+      },
+      "sha256": "7a0728620f7c7d3055aaeb1febac2a908dc888daa52222d63cc619c6cd55292d"
+    },
+    "22-model": {
+      "file": "demo-institution-letterhead-simple-pt-br.jpg",
+      "demo": true,
+      "step": 22,
+      "width": 1348,
+      "height": 926,
+      "crop": {
+        "x": 486,
+        "y": 246,
+        "width": 361,
+        "height": 115
+      },
+      "highlights": [
+        {
+          "x": 506,
+          "y": 266,
+          "width": 321,
+          "height": 75
+        }
+      ],
+      "labels": {
+        "pt-br": "Modelo PHANYX",
+        "pt-pt": "Modelo PHANYX",
+        "en": "PHANYX model",
+        "es": "Modelo PHANYX",
+        "fr": "Modèle PHANYX"
+      },
+      "sha256": "7a0728620f7c7d3055aaeb1febac2a908dc888daa52222d63cc619c6cd55292d"
+    },
+    "22-own": {
+      "file": "demo-institution-letterhead-simple-pt-br.jpg",
+      "demo": true,
+      "step": 22,
+      "width": 1348,
+      "height": 926,
+      "crop": {
+        "x": 816,
+        "y": 246,
+        "width": 361,
+        "height": 115
+      },
+      "highlights": [
+        {
+          "x": 836,
+          "y": 266,
+          "width": 321,
+          "height": 75
+        }
+      ],
+      "labels": {
+        "pt-br": "Papel próprio",
+        "pt-pt": "Papel próprio",
+        "en": "Own letterhead",
+        "es": "Membrete propio",
+        "fr": "En-tête personnel"
+      },
+      "sha256": "7a0728620f7c7d3055aaeb1febac2a908dc888daa52222d63cc619c6cd55292d"
+    },
+    "23": {
+      "file": "demo-institution-letterhead-simple-pt-br.jpg",
+      "demo": true,
+      "step": 23,
+      "width": 1348,
+      "height": 926,
+      "crop": {
+        "x": 140,
+        "y": 431,
+        "width": 452,
+        "height": 114
+      },
+      "highlights": [
+        {
+          "x": 176,
+          "y": 467,
+          "width": 380,
+          "height": 42
+        }
+      ],
+      "labels": {
+        "pt-br": "Cor dos relatórios (PDF e Excel)",
+        "en": "Report colour (PDF and Excel)",
+        "es": "Color de informes (PDF y Excel)",
+        "fr": "Couleur des rapports (PDF et Excel)",
+        "pt-pt": "Cor dos relatórios (PDF e Excel)"
+      },
+      "sha256": "7a0728620f7c7d3055aaeb1febac2a908dc888daa52222d63cc619c6cd55292d"
+    },
+    "24": {
+      "file": "demo-institution-letterhead-simple-pt-br.jpg",
+      "demo": true,
+      "step": 24,
+      "width": 1348,
+      "height": 926,
+      "crop": {
+        "x": 1041,
+        "y": 523,
+        "width": 152,
+        "height": 107
+      },
+      "highlights": [
+        {
+          "x": 1077,
+          "y": 559,
+          "width": 80,
+          "height": 35
+        }
+      ],
+      "labels": {
+        "pt-br": "Pré-visualização",
+        "en": "Preview",
+        "es": "Vista previa",
+        "fr": "Aperçu",
+        "pt-pt": "Pré-visualização"
+      },
+      "sha256": "7a0728620f7c7d3055aaeb1febac2a908dc888daa52222d63cc619c6cd55292d"
+    },
+    "25": {
+      "file": "demo-institution-responsible-pt-br.jpg",
+      "demo": true,
+      "step": 25,
+      "width": 1348,
+      "height": 926,
+      "crop": {
+        "x": 164,
+        "y": 686,
+        "width": 383,
+        "height": 113
+      },
+      "highlights": [
+        {
+          "x": 200,
+          "y": 722,
+          "width": 311,
+          "height": 41
+        }
+      ],
+      "labels": {
+        "pt-br": "Gerenciar templates de documentos",
+        "en": "Manage document templates",
+        "es": "Administrar plantillas de documentos",
+        "fr": "Gérer les modèles de documents",
+        "pt-pt": "Gerenciar templates de documentos"
+      },
+      "sha256": "d39741826c5f40a735688bfd3fb24cc3af0a3c26bf8b3dc6ff79a7b7f5c36474"
+    }
+  }
+}
