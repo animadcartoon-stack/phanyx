@@ -28,8 +28,9 @@ test("mostra turmas por curso e exige prévia validada pelo servidor", () => {
 test("bolsa aplica-se após a regra de combo sem cobrar mensalidades isentas", () => {
   assert.match(backend, /const mensalidadeLiquida = Math\.round\(mensalidade/);
   assert.match(backend, /bolsaPercentual,/);
-  assert.match(backend, /if \(mensalidadeLiquida > 0\)/);
-  assert.match(backend, /valorFinal: mensalidadeLiquida \/ 100/);
+  assert.match(backend, /if \(mensalidadeLiquida > 0\)\s*await db\.lancamentoFinanceiro\.createMany\(\{\s*data: Array\.from\(\{ length: parcelas \}, \(_, i\) => \(\{\s*\.\.\.base,\s*tipo: "MENSALIDADE"/);
+  assert.match(backend, /valorFinal: \(planoAntecipacao\?\.parcelasExigiveisCentavos\[i\] \?\? mensalidadeLiquida\) \/ 100/);
+  assert.match(backend, /parcelasExigiveisCentavos: Array\.from\(\{ length: parcelas \}, \(_, indice\) =>\s*mensalidadeLiquida - \(indice === 0 \? antecipacao : 0\)\)/);
   assert.match(endpoint, /bolsaPercentual: body\.bolsaPercentual/);
 });
 test("exige correspondência entre disciplinas selecionadas e oferta gravada", () => {

@@ -118,7 +118,16 @@ test('conflito serializável retorna mensagem de atualização, sem erro genéri
 test('mensagens de integridade têm as mesmas chaves nos cinco idiomas',()=>{let expected;for(const lang of ['pt-BR','pt-PT','en-US','es-ES','fr-FR']){const data=JSON.parse(fs.readFileSync(path.resolve(__dirname,`../messages/${lang}.json`),'utf8')).AcademicIntegrity;const keys=Object.keys(data).sort();if(expected)assert.deepEqual(keys,expected);expected=keys;assert.ok(data.OFERTA_COM_HISTORICO);}});
 
 test('mudança de etapa de turma com aulas é bloqueada e preserva o cadastro',async()=>{reset();tables.history=[{model:'aula',instituicaoId:10,turmaId:31,disciplinaId:11}];const before=structuredClone(tables);await expectCode(classDetail.PUT(req({semestre:'2',disciplinaIds:[11]}),ctx(31)),'ETAPA_COM_HISTORICO',409);assert.deepEqual(tables,before);});
-test('mudança de curso de disciplina com matrículas não altera seu histórico',async()=>{reset();tables.history=[{model:'itemMatricula',instituicaoId:10,turmaId:31,disciplinaId:11}];const before=structuredClone(tables);await expectCode(subjectApi.PUT(req({cursoId:1}),ctx(11)),'ETAPA_COM_HISTORICO',409);assert.deepEqual(tables,before);});
+test('mudança de curso de disciplina com matrículas não altera seu histórico', async () => {
+  reset();
+  const cursoDestino = tables.courses.find(curso => curso.id === 1);
+  Object.assign(cursoDestino, { ativo: true, excluidoEm: null });
+  tables.history = [{ model: 'itemMatricula', instituicaoId: 10, turmaId: 31, disciplinaId: 11 }];
+  const before = structuredClone(tables);
+
+  await expectCode(subjectApi.PUT(req({ cursoId: 1 }), ctx(11)), 'ETAPA_COM_HISTORICO', 409);
+  assert.deepEqual(tables, before);
+});
 
 const organization = require('../lib/academico/organizacao.ts');
 function annualFixture() {
