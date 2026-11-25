@@ -1,4 +1,4 @@
-const { readFileSync } = require('node:fs');
+const { existsSync, readFileSync } = require('node:fs');
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
@@ -10,6 +10,56 @@ test('admin usa uma só árvore de navegação em todas as larguras', () => {
   assert.doesNotMatch(admin, /menuMobileAberto/);
   for (const href of ['/admin/perfil', '/admin/professores/acessos', '/admin/acompanhamento-aulas', '/admin/documentos-docentes', '/admin/rh/documentos']) {
     assert.equal(admin.split(`href="${href}"`).length - 1, 1, href);
+  }
+});
+
+test('título PHANYX da barra lateral tem contraste nos três temas do admin', async (t) => {
+  const caminhosChrome = [
+    process.env.CHROME_EXECUTABLE_PATH,
+    'C:/Program Files/Google/Chrome/Application/chrome.exe',
+    'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
+    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  ];
+  const chromeLocal = caminhosChrome.find(caminho => caminho && existsSync(caminho));
+  if (!chromeLocal && process.platform !== 'linux') {
+    return t.skip('Configure CHROME_EXECUTABLE_PATH para verificar o contraste no navegador.');
+  }
+
+  const admin = read('app/admin/AdminShell.tsx');
+  const classesBarraLateral = admin.match(/<aside\s+ref=\{sidebarDesktopRef\}\s+className="([^"]+)"/)[1];
+  const classesTitulo = admin.match(/<h2 className="([^"]+)">\s*PHANYX\b/)[1];
+  const navegacao = read('components/layout/PortalNavigation.tsx');
+  const classesDialogo = navegacao.match(/<dialog\b[\s\S]*?className="([^"]+)"/)[1];
+  const postcss = require('postcss');
+  const tailwind = require('@tailwindcss/postcss');
+  const { css } = await postcss([tailwind({ optimize: false })])
+    .process(read('app/globals.css'), { from: 'app/globals.css' });
+
+  const chromium = (await import('@sparticuz/chromium')).default;
+  const puppeteer = require('puppeteer-core');
+  const browser = await puppeteer.launch({
+    executablePath: chromeLocal || await chromium.executablePath(),
+    args: chromeLocal ? ['--no-sandbox'] : chromium.args,
+    headless: chromeLocal ? true : 'shell',
+  });
+  t.after(() => browser.close());
+  const pagina = await browser.newPage();
+  await pagina.setViewport({ width: 1440, height: 900 });
+  await pagina.setContent(`<style>${css}</style><dialog class="${classesDialogo}">
+    <aside class="${classesBarraLateral}"><h2 class="${classesTitulo}">PHANYX</h2></aside>
+  </dialog>`);
+
+  for (const [tema, cor] of [
+    ['light', 'rgb(0, 0, 0)'],
+    ['dark', 'rgb(248, 250, 252)'],
+    ['system', 'rgb(255, 255, 255)'],
+  ]) {
+    const resultado = await pagina.$eval('aside h2', (titulo, tema) => {
+      document.documentElement.dataset.theme = tema;
+      document.documentElement.classList.toggle('dark', tema !== 'light');
+      return { visivel: titulo.getBoundingClientRect().height > 0, cor: getComputedStyle(titulo).webkitTextFillColor };
+    }, tema);
+    assert.deepEqual(resultado, { visivel: true, cor }, tema);
   }
 });
 
