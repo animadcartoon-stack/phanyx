@@ -391,6 +391,8 @@ async function aguardarRecursosDaPagina(
   );
 }
 
+import { montarHtmlNavegador } from "@/lib/documentos/visualizacao-navegador";
+
 export async function GET(
   req: Request,
   {
@@ -477,6 +479,11 @@ export async function GET(
           status: 404,
         }
       );
+    }
+
+    const local = new URL(req.url).searchParams.get("visualizacao") === "navegador";
+    if (local && (doc.assinadoEm || !["RASCUNHO", "GERADO"].includes(String(doc.status)) || String(doc.tipo) === "CONTRATO")) {
+      return NextResponse.json({error:"LOCAL_PREVIEW_NOT_ALLOWED"},{status:409});
     }
 
     const config =
@@ -905,6 +912,10 @@ export async function GET(
           qrCodeDataUri,
         },
       });
+
+    if (local) {
+      return NextResponse.json({html:montarHtmlNavegador(renderizacao,new URL(req.url).searchParams.get("locale") || "pt-BR")},{headers:{"Cache-Control":"private, no-store"}});
+    }
 
     browser =
       await abrirNavegador();

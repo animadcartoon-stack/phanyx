@@ -1,6 +1,7 @@
 import {
   substituirVariaveisPreviewDocumento,
 } from "@/lib/documentos/variaveis-preview-documento";
+import { montarHtmlNavegador } from "@/lib/documentos/visualizacao-navegador";
 import { NextRequest, NextResponse } from "next/server";
 import fs from "node:fs";
 import { lerImagemPdfLimitada, prepararImagemPdf } from "@/lib/pdf/preparar-imagem-pdf";
@@ -568,6 +569,10 @@ export async function POST(
           qrCodeDataUri,
         },
       });
+
+    if (body?.visualizacao === "navegador") {
+      return NextResponse.json({html: montarHtmlNavegador(renderizacao, localeDocumento, logoIndisponivel)}, {headers:{"Cache-Control":"private, no-store"}});
+    }
 
     let pdfBuffer: Uint8Array | undefined;
     const inicioTentativas = Date.now();

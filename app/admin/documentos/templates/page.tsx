@@ -1,5 +1,7 @@
 "use client";
 
+import { abrirVisualizacaoNavegador } from "@/lib/documentos/abrir-visualizacao-navegador";
+import { rotulosNavegador } from "@/lib/documentos/visualizacao-navegador";
 import {
   getInternationalDocumentTag,
 } from "@/lib/documentos/tags-documentos";
@@ -1984,6 +1986,12 @@ function AdminDocumentosTemplatesPage() {
             }
           : campo
     );
+  }
+
+  async function visualizarNoNavegador() {
+    try {
+      await abrirVisualizacaoNavegador("/api/admin/documentos/templates/preview-pdf-fiel", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({locale,tipo,conteudo,formatoImpressao,camposVisuais:obterCamposVisuaisParaPreviewTempoReal(),visualizacao:"navegador"})});
+    } catch {setErroPreviaPdf(t("messages.previewError"));}
   }
 
   async function visualizarPdfTemplate(automatica = false) {
@@ -4925,6 +4933,9 @@ function AdminDocumentosTemplatesPage() {
           {visualizandoPdf ? t("variables.generatingPdf") : t("variables.viewPdf")}
         </button>, document.body
       )}
+      {pdfFlutuante && !erroPreviaPdf && (!urlPreviaPdf || previaAutomatica) && typeof document !== "undefined" && createPortal(
+        <button type="button" onClick={() => void visualizarNoNavegador()} disabled={visualizandoPdf} className={`fixed bottom-[156px] right-4 z-[45] rounded-full bg-white border border-blue-700 px-4 py-3 text-sm font-semibold text-blue-800 shadow-xl sm:right-6 ${previaAutomatica ? "xl:right-[35vw]" : ""}`}>{rotulosNavegador(locale)[0]}</button>, document.body
+      )}
       {erroPreviaPdf && !previaAutomatica && (
         <ModalPreviaPdf titulo={t("variables.viewPdf")} fecharLabel={fecharPdfLabel} onFechar={() => setErroPreviaPdf("")} compacto>
           <div className="p-5">
@@ -5194,6 +5205,7 @@ function AdminDocumentosTemplatesPage() {
                   </button>
                 </div>
 
+                <button type="button" onClick={() => void visualizarNoNavegador()} disabled={visualizandoPdf} className="pdoc-card mt-3 rounded-xl border px-3 py-2 text-sm hover:border-blue-400">{rotulosNavegador(locale)[0]}</button>
                 <button
                   type="button"
                   onClick={() => setMostrarTodasVariaveis((v) => !v)}
