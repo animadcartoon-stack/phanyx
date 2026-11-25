@@ -6,6 +6,7 @@
 - [ ] Teste de navegação, permissões, isolamento institucional e fluxos diretamente relacionados.
 - [ ] Interface em desktop e celular, temas e cinco idiomas, quando afetados.
 - [ ] Site público: verificar os botões comerciais e de suporte em um navegador sem aplicativo de e-mail padrão, incluindo as opções de webmail e cópia.
+- [ ] Rodapé: abrir Política de Privacidade e Termos de Uso, verificar o conteúdo exibido e conferir o destinatário de cada página.
 - [ ] Editor: botão flutuante, prévia automática, rascunho, seleção e formatação, tabelas e assinatura.
 - [ ] PDF: comparar editor, prévia e documento final; conferir fonte efetiva (CDP ou fontes incorporadas), tamanho, cor, peso, estilo, paginação e timbrado. Usar dados fictícios em ambiente isolado.
 - [ ] Registrar falhas conhecidas, evidências, riscos e procedimento de reversão. Não mascarar regressão preexistente como sucesso.

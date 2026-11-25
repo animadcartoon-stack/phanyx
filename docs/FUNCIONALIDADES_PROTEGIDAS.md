@@ -12,6 +12,7 @@ Estado: inventário inicial, não certificado como homologado. Expandir por mód
 | Financeiro | Planos, descontos, boletos, baixa, contratos e histórico | Inventário inicial; ampliar testes ponta a ponta |
 | Transversal | Cinco idiomas, temas, responsividade, autenticação, permissões e isolamento institucional | Inventário inicial; ampliar testes ponta a ponta |
 | Site público | Contato comercial e suporte abrem opções de e-mail no site, com acesso ao Gmail, Outlook, aplicativo de e-mail e cópia do endereço | Teste de regressão dos destinatários e botões |
+| Documentos institucionais | Links de Política de Privacidade e Termos de Uso abrem páginas públicas com o canal pertinente. Enquanto provisórias, as páginas indicam o estado do documento e ficam fora do índice dos buscadores. | Testes de rotas e destinatários |
 
 ## Defeito aberto
 A Segoe Script solicitada no editor é substituída por Open Sans no Chromium do Preview atual. Não tratar como resolvido até verificar a fonte efetiva e o PDF. Não copiar fontes proprietárias nem alterar o catálogo silenciosamente.
