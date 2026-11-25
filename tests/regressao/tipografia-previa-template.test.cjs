@@ -50,6 +50,7 @@ test("títulos e formatação do editor correspondem às duas prévias", async (
     ].join("");
     const { montarRenderizacaoDocumento } = carregar("lib/documentos/renderizador-template-documento.ts");
     const { montarHtmlNavegador } = carregar("lib/documentos/visualizacao-navegador.ts");
+    const { fontesSubstituidasNaPrevia } = carregar("lib/documentos/fontes-previa-pdf.ts");
     const render = montarRenderizacaoDocumento({
       conteudo,
       instituicao: { nome: "Instituição Exemplo" },
@@ -98,11 +99,48 @@ test("títulos e formatação do editor correspondem às duas prévias", async (
     };
     const margensDesktop = await frame.evaluate(margens);
     for (const margem of margensDesktop) assert.ok(Math.abs(margem - 68) < 1, margem);
+    const topoConteudo = await frame.evaluate(() => {
+      const toolbar = document.querySelector(".phanyx-local-tools").getBoundingClientRect();
+      const conteudo = document.querySelector("main.phanyx-conteudo").getBoundingClientRect();
+      return conteudo.top - toolbar.bottom;
+    });
+    const topoEsperado = parseFloat(render.pdfOptions.margin.top) * 96 / 25.4;
+    assert.ok(Math.abs(topoConteudo - topoEsperado) < 1, `Margem superior: ${topoConteudo}px`);
 
     await page.setViewport({ width: 390, height: 844 });
     const margensCelular = await frame.evaluate(margens);
     for (const margem of margensCelular) assert.ok(margem > 8 && margem < 48, margem);
     assert.equal(await frame.evaluate(() => document.documentElement.scrollWidth), 390);
+
+    await page.setContent(`
+      <main class="phanyx-conteudo">
+        <p><span style="font-family: 'PHANYX Fonte Ausente', sans-serif; color: #F4930B">Instituição exemplo</span></p>
+        <p><span style="font-family: 'PHANYX Fonte Ausente'">Professor exemplo</span></p>
+        <p><span style="font-family: 'Oculta'; display: none">Texto oculto</span></p>
+        <p><span style="font-family: sans-serif">Família genérica</span></p>
+      </main>
+    `);
+    assert.deepEqual(Array.from(await fontesSubstituidasNaPrevia(page)), ["PHANYX Fonte Ausente"]);
+
+    const sessao = await page.createCDPSession();
+    await sessao.send("DOM.enable");
+    await sessao.send("CSS.enable");
+    const { root } = await sessao.send("DOM.getDocument");
+    const { nodeId } = await sessao.send("DOM.querySelector", {
+      nodeId: root.nodeId, selector: ".phanyx-conteudo p:last-child span",
+    });
+    const { fonts } = await sessao.send("CSS.getPlatformFontsForNode", { nodeId });
+    await sessao.detach();
+    assert.ok(fonts[0]?.familyName, "Chromium should use a font for the generic family");
+    await page.evaluate(familia => {
+      const paragrafo = document.createElement("p");
+      const span = document.createElement("span");
+      span.style.fontFamily = JSON.stringify(familia);
+      span.textContent = "Texto de exemplo";
+      paragrafo.append(span);
+      document.querySelector(".phanyx-conteudo").append(paragrafo);
+    }, fonts[0].familyName);
+    assert.deepEqual(Array.from(await fontesSubstituidasNaPrevia(page)), ["PHANYX Fonte Ausente"]);
   } finally {
     await browser.close();
   }

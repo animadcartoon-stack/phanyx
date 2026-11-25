@@ -9,6 +9,17 @@ export function rotulosNavegador(locale: string) {
   };
   return textos[locale] || textos['pt-BR'];
 }
+
+export function mensagemFontesSubstituidas(locale: string, fontes: string) {
+  const textos: Record<string, string> = {
+    "pt-BR": "O servidor usou uma fonte substituta para {fontes}. Abra a prévia no navegador para usar as fontes instaladas neste dispositivo.",
+    "pt-PT": "O servidor usou um tipo de letra de substituição para {fontes}. Abra a pré-visualização no navegador para usar os tipos de letra instalados neste dispositivo.",
+    "en-US": "The server substituted {fontes}. Open the browser preview to use fonts installed on this device.",
+    "es-ES": "El servidor sustituyó {fontes}. Abre la vista previa en el navegador para usar las fuentes instaladas en este dispositivo.",
+    "fr-FR": "Le serveur a remplacé {fontes}. Ouvrez l’aperçu dans le navigateur pour utiliser les polices installées sur cet appareil.",
+  };
+  return (textos[locale] || textos["pt-BR"]).replace("{fontes}", () => fontes);
+}
 const escapar = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 type Render = {html:string;pdfOptions:{displayHeaderFooter:boolean;headerTemplate:string;footerTemplate:string;margin:{top:string;right:string;bottom:string;left:string}}};
 export function montarHtmlNavegador(r: Render, locale: string, avisoLogo = false) {
@@ -23,6 +34,12 @@ export function montarHtmlNavegador(r: Render, locale: string, avisoLogo = false
     @media screen {
       body { max-width: 210mm; margin: 0 auto !important; padding: 12px !important; }
       body:has(> main.phanyx-conteudo) { padding-inline: 0 !important; }
+      body:has(> main.phanyx-conteudo) > .phanyx-local-header {
+        min-height: ${medida(m.top)};
+      }
+      body:not(:has(> .phanyx-local-header)) > main.phanyx-conteudo {
+        margin-top: ${medida(m.top)};
+      }
       body > main.phanyx-conteudo {
         width: auto;
         margin-left: min(${medida(m.left)}, 9%);
@@ -37,8 +54,10 @@ export function montarHtmlNavegador(r: Render, locale: string, avisoLogo = false
   const csp = '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'sha256-7COemBQXj2QaobdeK1nwM/7QsyuuHf/7kO8cjXPwZKE=\'; style-src \'unsafe-inline\'; img-src data: blob:; font-src data:; base-uri \'none\'; form-action \'none\'; connect-src \'none\'">';
   const tools = '<div class="phanyx-local-tools"><button type="button" id="phanyx-local-print">'+escapar(imprimir)+'</button><p>'+escapar(aviso)+'</p>'+(avisoLogo?'<p>LOGO UNAVAILABLE / LOGOTIPO INDISPONÍVEL</p>':'')+'</div>';
   // Puppeteer header/footer templates are separate documents; include them once in this experimental browser view.
-  const band = (s:string) => '<div class="phanyx-local-band">'+s.replace(/<span\s+class="(?:pageNumber|totalPages)"\s*><\/span>/g,'<span>–</span>')+'</div>';
-  const header = r.pdfOptions.displayHeaderFooter ? band(r.pdfOptions.headerTemplate) : '';
+  const band = (s: string, cabecalho = false) =>
+    '<div class="phanyx-local-band' + (cabecalho ? ' phanyx-local-header' : '') + '">' +
+    s.replace(/<span\s+class="(?:pageNumber|totalPages)"\s*><\/span>/g, '<span>–</span>') + '</div>';
+  const header = r.pdfOptions.displayHeaderFooter ? band(r.pdfOptions.headerTemplate, true) : '';
   const footer = r.pdfOptions.displayHeaderFooter ? band(r.pdfOptions.footerTemplate) : '';
   const inner = r.html.replace(/<head(?:\s[^>]*)?>/i, tag=>tag+csp+css).replace(/<body(?:\s[^>]*)?>/i,tag=>tag+tools+header).replace(/<\/body>/i,()=>footer+'<script>document.getElementById("phanyx-local-print").addEventListener("click",()=>window.print());</script></body>');
   // Untrusted document markup lives in an opaque-origin sandbox, never in the application origin.
