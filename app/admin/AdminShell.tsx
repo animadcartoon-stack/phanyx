@@ -1045,7 +1045,7 @@ export default function AdminShell({
           >
             <div>
               <div data-portal-preferences className="mb-4 lg:mb-8">
-                <h2 className="hidden text-xl font-semibold lg:block">
+                <h2 className="hidden text-xl font-semibold text-black lg:block">
                   PHANYX
                   <span className="block text-sm text-gray-500 font-normal">
                     {tNav("adminPanel")}
