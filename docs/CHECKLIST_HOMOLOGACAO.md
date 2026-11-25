@@ -55,7 +55,8 @@ Não considerar concluído o pedido de manual completo apenas porque 166 artigos
 - [x] 18 testes específicos e suíte geral: 856 aprovados, zero falhas e um ignorado.
 - [x] Lint aprovado com avisos existentes.
 - [x] Prévia `1c415d31` aprovada pela responsável, com autorização explícita para publicação desta etapa.
-- [ ] Typecheck e CI/Preview da integração conferidos.
+- [x] Typecheck local aprovado após gerar o cliente Prisma, sem conexão ou alteração no banco.
+- [ ] CI/Preview da integração: pendente do envio da branch ao GitHub; o acesso conectado recusou escrita (403), o Git local não tem autenticação para push e o navegador não tem sessão iniciada.
 - [ ] Merge e publicação em produção confirmados.
 
 Esta publicação não conclui a cobertura de todos os procedimentos e não inclui a proposta posterior de representação interativa da interface. Não executa migrações de banco.
