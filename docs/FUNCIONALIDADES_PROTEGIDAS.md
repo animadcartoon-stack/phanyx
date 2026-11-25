@@ -12,5 +12,7 @@ Estado: inventário inicial, não certificado como homologado. Expandir por mód
 | Financeiro | Planos, descontos, boletos, baixa, contratos e histórico | Inventário inicial; ampliar testes ponta a ponta |
 | Transversal | Cinco idiomas, temas, responsividade, autenticação, permissões e isolamento institucional | Inventário inicial; ampliar testes ponta a ponta |
 
+O editor administrativo remove linhas vazias no fim do modelo em uma única ação reversível. A limpeza preserva os elementos do documento e o espaçamento entre seções.
+
 ## Defeito aberto
 A Segoe Script solicitada no editor é substituída por Open Sans no Chromium do Preview atual. Não tratar como resolvido até verificar a fonte efetiva e o PDF. Não copiar fontes proprietárias nem alterar o catálogo silenciosamente.
