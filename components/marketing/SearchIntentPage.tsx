@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { linkContatoPhanyx } from "@/lib/contatos-phanyx";
+import ContatoEmailLink from "@/components/marketing/ContatoEmailLink";
 import LocalizedHeader from "@/components/marketing/LocalizedHeader";
 import type { ForeignLocale } from "@/lib/localized-plans";
 import { localizedHome } from "@/lib/localized-home";
@@ -37,7 +37,7 @@ export default function SearchIntentPage({ locale, section }: { locale: ForeignL
                 <p className="mt-4 max-w-xl text-sm leading-7 text-blue-100 md:text-base">{home.intro}</p>
                 <div className="mt-8 flex flex-wrap gap-4">
                   <Link href={marketingPath(locale, "plans")} className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-4 text-sm font-semibold !text-white shadow-lg hover:bg-blue-500">{marketing.navPlans}</Link>
-                  <a href={linkContatoPhanyx(`PHANYX — ${copy.heading} (${locale})`)} className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-6 py-4 text-sm font-semibold text-white hover:bg-white/15">{marketing.contact}</a>
+                  <ContatoEmailLink canal="comercial" assunto={`PHANYX — ${copy.heading} (${locale})`} locale={locale} className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-6 py-4 text-sm font-semibold text-white hover:bg-white/15">{marketing.contact}</ContatoEmailLink>
                 </div>
                 <div className="mt-5 rounded-2xl border border-white/10 bg-white/10 p-3 sm:inline-flex">
                   <div className="flex flex-wrap gap-2">{home.portals.map((portal, index) => <Link key={portal} href={`/login?portal=${["aluno", "professor", "admin"][index]}&lang=${locale}`} className="rounded-xl border border-blue-200/40 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700">{["👨‍🎓", "👨‍🏫", "🛡️"][index]} {portal}</Link>)}</div>
@@ -93,7 +93,7 @@ export default function SearchIntentPage({ locale, section }: { locale: ForeignL
             <p className="text-sm font-semibold tracking-[0.2em] text-blue-200">{home.ctaKicker}</p>
             <h2 className="mt-3 text-3xl font-bold md:text-4xl">{copy.nextStep}</h2>
             <p className="mt-4 max-w-3xl text-blue-100">{home.ctaDescription}</p>
-            <div className="mt-7 flex flex-wrap gap-3"><Link href={marketingPath(locale, "plans")} className="rounded-xl bg-blue-600 px-6 py-3 font-bold !text-white">{marketing.navPlans}</Link><a href={linkContatoPhanyx(`PHANYX — ${copy.heading} (${locale})`)} className="rounded-xl border border-white/20 px-6 py-3 font-bold text-white">{marketing.contact}</a></div>
+            <div className="mt-7 flex flex-wrap gap-3"><Link href={marketingPath(locale, "plans")} className="rounded-xl bg-blue-600 px-6 py-3 font-bold !text-white">{marketing.navPlans}</Link><ContatoEmailLink canal="comercial" assunto={`PHANYX — ${copy.heading} (${locale})`} locale={locale} className="rounded-xl border border-white/20 px-6 py-3 font-bold text-white">{marketing.contact}</ContatoEmailLink></div>
           </div>
           <nav aria-label={marketing.navAcademic} className="mt-10 grid gap-4 md:grid-cols-3">
             {["academic", ...related].map((item) => <Link key={item} href={marketingPath(locale, item as "academic" | SearchIntent)} className="rounded-xl border border-white/15 bg-white/5 p-5 font-semibold text-blue-100 hover:bg-white/10">{item === "academic" ? marketing.navAcademic : searchIntentCopy[locale][item as SearchIntent].heading} →</Link>)}
