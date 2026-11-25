@@ -2,7 +2,7 @@
 
 import { obterCorTextoSelecionado } from "@/lib/documentos/cor-selecao-editor";
 import { limparFimModelo } from "@/lib/documentos/limpar-fim-modelo";
-import { cssTitulosTemplate, FONTE_PADRAO_TEMPLATE } from "@/lib/documentos/tipografia-template";
+import { cssTitulosTemplate, FONTE_PADRAO_TEMPLATE, tamanhoTemplateEmPontos } from "@/lib/documentos/tipografia-template";
 
 import {
   expandDocumentTagValues,
@@ -1292,7 +1292,7 @@ const FontSize = Extension.create({
   addGlobalAttributes() {
     return [
       {
-        types: ["textStyle"],
+        types: ["textStyle", "paragraph", "heading"],
         attributes: {
           fontSize: {
             default: null,
@@ -4398,24 +4398,12 @@ export default function EditorTemplatePHANYX({
         .trim();
     }
 
-    function limparTamanho(valor: any) {
-      const texto = String(valor || "").trim();
-      if (!texto) return "";
-
-      if (texto.includes("px")) {
-        const numero = Number(texto.replace("px", ""));
-        return Number.isFinite(numero) ? String(Math.round(numero * 0.75)) : "";
-      }
-
-      return texto.replace("pt", "").trim();
-    }
-
     function atualizarSelecao() {
       setCorTextoSelecionado(obterCorTextoSelecionado(editor));
       const attrs = editor.getAttributes("textStyle");
 
       let fonte = limparFonte(attrs.fontFamily);
-      let tamanho = limparTamanho(attrs.fontSize);
+      let tamanho = tamanhoTemplateEmPontos(attrs.fontSize);
 
       const selection = window.getSelection();
       const ancora = selection?.anchorNode;
@@ -4444,10 +4432,7 @@ export default function EditorTemplatePHANYX({
         }
 
         if (!tamanho) {
-          tamanho =
-            limparTamanho(
-              computed.fontSize
-            );
+          tamanho = tamanhoTemplateEmPontos(computed.fontSize);
         }
       }
 
@@ -5970,6 +5955,7 @@ export default function EditorTemplatePHANYX({
 
               <select
                 value={tamanhoAtual}
+                aria-label={tToolbar("main.fontSize")}
                 onChange={(e) => {
                   const tamanho = e.target.value;
                   if (!tamanho) return;
@@ -5990,6 +5976,9 @@ export default function EditorTemplatePHANYX({
                 <option value="">
                   {tToolbar("main.fontSize")}
                 </option>
+                {tamanhoAtual && !TAMANHOS_FONTE.includes(tamanhoAtual) && (
+                  <option value={tamanhoAtual}>{Number(tamanhoAtual).toLocaleString(localeFerramentas)} pt</option>
+                )}
                 {TAMANHOS_FONTE.map((tamanho) => (
                   <option key={tamanho} value={tamanho}>
                     {tamanho} pt

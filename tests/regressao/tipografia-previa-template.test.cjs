@@ -21,6 +21,18 @@ function carregar(arquivo) {
   return exports;
 }
 
+test("o seletor exibe tamanhos salvos mesmo quando não pertencem à lista padrão", () => {
+  const { tamanhoTemplateEmPontos } = carregar("lib/documentos/tipografia-template.ts");
+  assert.equal(tamanhoTemplateEmPontos("13pt"), "13");
+  assert.equal(tamanhoTemplateEmPontos("18px"), "13.5");
+  assert.equal(tamanhoTemplateEmPontos("22px"), "16.5");
+  assert.equal(tamanhoTemplateEmPontos("14.6667px"), "11");
+  assert.equal(tamanhoTemplateEmPontos("1.5em"), "");
+  assert.equal(tamanhoTemplateEmPontos(undefined), "");
+  const editor = ler("components/documentos/EditorTemplatePHANYX.tsx");
+  assert.match(editor, /!TAMANHOS_FONTE\.includes\(tamanhoAtual\)[\s\S]{0,100}<option value=\{tamanhoAtual\}/);
+});
+
 test("títulos e formatação do editor correspondem às duas prévias", async (t) => {
   const caminhosChrome = [
     process.env.CHROME_EXECUTABLE_PATH,
@@ -43,10 +55,12 @@ test("títulos e formatação do editor correspondem às duas prévias", async (
     const page = await browser.newPage();
     await page.setViewport({ width: 1152, height: 720 });
     const conteudo = [
-      '<h1 style="text-align: center"><span style="color: #0055ff">Plano de Aula</span></h1>',
+      '<h1 style="text-align: center"><span style="color: #0055ff; font-size: 22pt">Plano de Aula</span></h1>',
       '<p style="text-align: left"><span style="font-size: 11pt; font-family: Arial">Nome</span></p>',
-      '<h2><span>Metodologia</span></h2>',
+      '<h2><span><strong>Cláusula quarta</strong></span></h2>',
       '<h2><span style="font-size: 13pt; font-weight: 400">Observações</span></h2>',
+      '<h1><span>Termo de autorização</span></h1>',
+      '<h2 style="font-size: 13.5pt"><span>Identificação</span></h2>',
     ].join("");
     const { montarRenderizacaoDocumento } = carregar("lib/documentos/renderizador-template-documento.ts");
     const { montarHtmlNavegador } = carregar("lib/documentos/visualizacao-navegador.ts");
@@ -59,7 +73,7 @@ test("títulos e formatação do editor correspondem às duas prévias", async (
       mostrarValidacao: false,
     });
     const medir = () => Array.from(
-      document.querySelectorAll(":is(.phanyx-conteudo, .editor-template-phanyx) > :is(h1, h2, p) > span"),
+      document.querySelectorAll(":is(.phanyx-conteudo, .editor-template-phanyx) > :is(h1, h2, p) > span, h2 > span > strong"),
       elemento => {
         const estilo = getComputedStyle(elemento);
         return [estilo.fontSize, estilo.fontWeight, estilo.fontFamily, estilo.color, estilo.textAlign];
@@ -82,10 +96,14 @@ test("títulos e formatação do editor correspondem às duas prévias", async (
     await page.setContent(render.html);
     const pdf = await page.evaluate(medir);
     assert.deepEqual(editor.map(estilo => estilo.slice(0, 2)), pdf.map(estilo => estilo.slice(0, 2)));
+    assert.equal(pdf[0][0], "29.3333px");
     assert.deepEqual(pdf[0].slice(3), ["rgb(0, 85, 255)", "center"]);
     assert.equal(pdf[1][4], "left");
-    assert.equal(pdf[2][0], "22px");
-    assert.deepEqual(pdf[3].slice(0, 2), ["17.3333px", "400"]);
+    assert.deepEqual(pdf[2].slice(0, 2), ["14.6667px", "400"]);
+    assert.deepEqual(pdf[3].slice(0, 2), ["14.6667px", "700"]);
+    assert.deepEqual(pdf[4].slice(0, 2), ["17.3333px", "400"]);
+    assert.deepEqual(pdf[5].slice(0, 2), ["14.6667px", "400"]);
+    assert.equal(pdf[6][0], "18px");
 
     await page.emulateMediaType("screen");
     await page.setContent(montarHtmlNavegador(render, "pt-BR"));
