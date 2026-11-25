@@ -22,3 +22,17 @@
 - [ ] Revisão do responsável e aprovação antes de merge/publicação.
 
 As cinco falhas preexistentes ficam em `academico-grade-ofertas`, `avulsos-sem-grade-rotas-legadas`, `certificados-logo-qr-validacao`, `desconto-pontualidade` e `matricula-mesma-tela-fonte`. Esta alteração não modifica esses fluxos nem enfraquece seus testes. Usar `docs/central-ajuda-navegacao-previa.html` como prévia local, sem tratá-la como evidência de homologação visual.
+
+## Manual para iniciantes — etapa ilustrada (25/11/2026)
+
+- [x] Capturas novas revistas sem identificação pessoal, separadas por perfil e com hash registrado.
+- [x] 17 testes específicos aprovados; 1.045 versões dos artigos conferidas.
+- [x] Instituição com 26 passos e 27 recortes de exemplos fictícios.
+- [x] Prévia local conferida em português no computador, incluindo zoom por teclado e roda, Escape e retorno de foco.
+- [x] Lint aprovado com avisos já presentes.
+- [ ] Suíte geral verde: 821 aprovações, cinco falhas preexistentes e um ignorado.
+- [ ] Typecheck: processo encerrado pelo ambiente, código 137.
+- [ ] Todos os procedimentos ilustrados e explicados: 173 artigos ainda sem imagens do procedimento; a revisão de completude de todos os fluxos está pendente.
+- [ ] Conferência em celular e demais idiomas; build/Preview externo; autorização para merge/publicação.
+
+Não considerar concluído o pedido de manual completo apenas porque 166 artigos receberam prints do caminho pelo menu.

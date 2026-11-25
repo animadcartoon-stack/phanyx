@@ -20,3 +20,7 @@ A Segoe Script solicitada no editor é substituída por Open Sans no Chromium do
 Preservar os guias dos três perfis, os cinco idiomas, as imagens já existentes e o visualizador com zoom. A seção inicial de cada artigo informa o menu e seus rótulos, os botões dentro das páginas e o acesso por celular quando disponível. Os mapas são representações visuais, sem dados de clientes. Acesso direto é indicado quando não há caminho completo identificado no menu. A cobertura por artigo está em `central-ajuda-caminhos-auditoria.md`.
 
 Cobertura: 10 testes de navegação, incluindo 1.045 versões dos artigos e checagem das rotas nos arquivos de origem. Verificação visual no navegador e novas capturas reais dos menus permanecem pendentes; os mapas não substituem a homologação de cada tela protegida.
+
+## Central de Ajuda — apresentação para iniciantes (25/11/2026)
+
+Preservar imagens de procedimentos existentes, os cinco idiomas, acesso em outra guia, zoom por roda/botões/teclado, retorno de foco e os textos de navegação. O catálogo de capturas revisadas separa os perfis e guarda hash e coordenadas; a imagem só é associada quando contém o destino correspondente. Configurações da Instituição usa passos por campo e exemplos fictícios. Figuras do menu não certificam a cobertura das funções. Conferências e pendências estão em `central-ajuda-ilustrada.md` e no relatório por guia.

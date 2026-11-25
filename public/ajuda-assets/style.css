@@ -138,6 +138,17 @@ h1.page-title{font-size:clamp(32px,4.2vw,51px);line-height:1.09;letter-spacing:-
 .image-viewport.dragging{cursor:grabbing;user-select:none}
 .image-stage{min-width:100%;min-height:100%;display:grid;place-items:center;width:max-content}
 .dialog .image-stage img{display:block;max-width:none;max-height:none;object-fit:initial;flex:none;user-select:none}
+.image-canvas{position:relative;line-height:0}
+.screenshot-highlights{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.screenshot-highlights rect{fill:none;stroke:#b91c1c;stroke-width:3;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 1px white)}
+.beginner-basics{padding:12px 16px;border:1px solid var(--line);border-radius:10px;background:var(--paper);margin:18px 0}
+.beginner-basics summary{font-weight:650;cursor:pointer}.beginner-basics li{margin:10px 0;line-height:1.7}
+.menu-photo-steps{padding-left:24px}.menu-photo-steps>li{margin:18px 0 26px}.menu-photo-steps>li::marker{font-weight:750;color:#233aa5}
+.annotated-figure{max-width:400px}.annotated-figure button{padding:12px}.screenshot-crop{position:relative;display:block;width:100%;overflow:hidden;background:white;border-radius:5px}
+.annotated-figure .screenshot-crop img{position:absolute;left:0;display:block;width:100%;height:auto;max-height:none;max-width:none;margin:0;object-fit:initial}
+.annotated-figure figcaption{font-size:14px;line-height:1.6}
+.dialog .image-toolbar button{min-height:44px}
+@media print{.annotated-figure{break-inside:avoid}.beginner-basics:not([open]){display:none}}
 @media(max-width:600px){.dialog{width:calc(100vw - 12px);height:calc(100dvh - 12px);padding:8px}.image-toolbar{gap:5px}.dialog .image-toolbar button{font-size:13px;padding:5px 8px}.dialog #image-help{font-size:12px}}
 /* Every guide starts with the real route through the portal navigation. */
 .navigation-guide{padding:20px;border:1px solid #ccd6f4;border-radius:14px;background:#fff;margin:22px 0 28px}
