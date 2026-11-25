@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { linkContatoPhanyx } from "@/lib/contatos-phanyx";
+import ContatoEmailLink from "@/components/marketing/ContatoEmailLink";
 import type { LocalePhanyx } from "@/i18n/config";
 import HelpCenterLink from "@/components/layout/HelpCenterLink";
 import {
@@ -115,14 +115,14 @@ export default function LocalizedHeader({
             </nav>
           </details>
 
-          <a
-            href={linkContatoPhanyx(`${copy.contact} — PHANYX (${locale})`)}
+          <ContatoEmailLink
+            canal="comercial" assunto={`${copy.contact} — PHANYX (${locale})`} locale={locale}
             className={`hidden rounded-xl border px-4 py-2 md:inline-flex ${
               dark ? "border-white/20 bg-white/10" : "border-slate-300"
             }`}
           >
             {copy.contact}
-          </a>
+          </ContatoEmailLink>
 
           <Link
             href={`/login?lang=${locale}`}

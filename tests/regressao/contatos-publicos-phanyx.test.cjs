@@ -53,12 +53,47 @@ test("links de e-mail separam atendimento técnico de contato comercial", () => 
   vm.runInNewContext(outputText, { exports });
 
   const assunto = "Proposta de demonstração — PHANYX & instituição";
-  const comercial = new URL(exports.linkContatoPhanyx(assunto));
-  assert.equal(comercial.protocol, "mailto:");
-  assert.equal(comercial.pathname, "contato@phanyx.com.br");
-  assert.equal(comercial.searchParams.get("subject"), assunto);
+  for (const [canal, email] of [
+    ["comercial", "contato@phanyx.com.br"],
+    ["suporte", "suporte@phanyx.com.br"],
+  ]) {
+    const { aplicativo, gmail, outlook } = exports.linksEmailPhanyx(canal, assunto);
+    const cliente = new URL(aplicativo);
+    assert.equal(cliente.protocol, "mailto:");
+    assert.equal(cliente.pathname, email);
+    assert.equal(cliente.searchParams.get("subject"), assunto);
+    for (const [link, host, parametro] of [
+      [gmail, "mail.google.com", "su"],
+      [outlook, "outlook.live.com", "subject"],
+    ]) {
+      const webmail = new URL(link);
+      assert.equal(webmail.origin, `https://${host}`);
+      assert.equal(webmail.searchParams.get("to"), email);
+      assert.equal(webmail.searchParams.get(parametro), assunto);
+    }
+  }
+});
 
-  const suporte = new URL(exports.linkSuportePhanyx);
-  assert.equal(suporte.protocol, "mailto:");
-  assert.equal(suporte.pathname, "suporte@phanyx.com.br");
+test("os botões de atendimento abrem opções no site antes de chamar um aplicativo externo", () => {
+  const arquivos = [
+    "app/page.tsx",
+    "app/planos/page.tsx",
+    "components/layout/Header.tsx",
+    "components/layout/Footer.tsx",
+    "components/marketing/SuporteEmailButton.tsx",
+    "components/marketing/LocalizedHeader.tsx",
+    "components/marketing/LocalizedMarketingPage.tsx",
+    "components/marketing/LocalizedPlansPage.tsx",
+    "components/marketing/SearchIntentPage.tsx",
+    "components/marketing/EnrollmentPage.tsx",
+    "components/marketing/RegistrarPage.tsx",
+  ];
+  for (const arquivo of arquivos) {
+    const source = read(arquivo);
+    assert.ok(source.includes("<ContatoEmailLink"), arquivo);
+    assert.ok(!/href=\{link(?:Contato|Suporte)Phanyx/.test(source), arquivo);
+  }
+  for (const arquivo of ["app/contato/page.tsx", "app/suporte/page.tsx"]) {
+    assert.ok(read(arquivo).includes("<OpcoesEmailPhanyx"), arquivo);
+  }
 });

@@ -1,7 +1,7 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import HelpCenterLink from "@/components/layout/HelpCenterLink";
-import { emailSuportePhanyx, linkSuportePhanyx } from "@/lib/contatos-phanyx";
+import OpcoesEmailPhanyx from "@/components/marketing/OpcoesEmailPhanyx";
 
 export default function SuportePage() {
   return (
@@ -40,20 +40,18 @@ export default function SuportePage() {
         <section className="mx-auto max-w-5xl px-6 py-16 md:px-10 lg:px-12">
           <div className="grid gap-6 md:grid-cols-2">
 
-            <a
-              href={linkSuportePhanyx}
-              className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+            <article
+              id="email-suporte"
+              className="scroll-mt-36 space-y-3 rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950"
             >
-              <h2 className="text-xl font-bold text-slate-900">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
                 Suporte por e-mail
               </h2>
-              <p className="mt-2 text-slate-600">
+              <p className="mt-2 text-slate-600 dark:text-slate-300">
                 Envie sua dúvida ou solicitação de suporte técnico à equipe do PHANYX.
               </p>
-              <p className="mt-4 font-semibold text-blue-600">
-                {emailSuportePhanyx}
-              </p>
-            </a>
+              <OpcoesEmailPhanyx canal="suporte" />
+            </article>
 
             <div className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm">
               <h2 className="text-xl font-bold text-slate-900">
@@ -78,7 +76,7 @@ export default function SuportePage() {
             </p>
 
             <a
-              href={linkSuportePhanyx}
+              href="#email-suporte"
               className="mt-8 inline-block rounded-2xl bg-blue-700 px-6 py-3 font-semibold text-white hover:bg-blue-600"
             >
               Enviar e-mail ao suporte

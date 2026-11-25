@@ -3,7 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import HelpCenterLink from "./HelpCenterLink";
-import { emailContatoPhanyx, emailSuportePhanyx, linkContatoPhanyx, linkSuportePhanyx } from "@/lib/contatos-phanyx";
+import ContatoEmailLink from "@/components/marketing/ContatoEmailLink";
+import { emailContatoPhanyx, emailSuportePhanyx } from "@/lib/contatos-phanyx";
 
 export default function Footer() {
   return (
@@ -69,12 +70,12 @@ export default function Footer() {
               </Link>
               <HelpCenterLink locale="pt-BR" className="transition hover:text-white" />
 
-              <a
-                href={linkContatoPhanyx()}
+              <ContatoEmailLink
+                canal="comercial"
                 className="transition hover:text-white"
               >
                 Falar com comercial
-              </a>
+              </ContatoEmailLink>
 
               <Link href="/politica-de-privacidade" className="transition hover:text-white">
                 Política de privacidade
@@ -92,19 +93,19 @@ export default function Footer() {
             </h3>
 
             <div className="mt-4 flex flex-col gap-3 text-sm text-slate-400">
-              <a
-                href={linkContatoPhanyx()}
+              <ContatoEmailLink
+                canal="comercial"
                 className="transition hover:text-white"
               >
                 {emailContatoPhanyx}
-              </a>
+              </ContatoEmailLink>
 
-              <a
-                href={linkSuportePhanyx}
+              <ContatoEmailLink
+                canal="suporte"
                 className="transition hover:text-white"
               >
                 {emailSuportePhanyx}
-              </a>
+              </ContatoEmailLink>
 
               <span>São José / SC • Brasil</span>
             </div>

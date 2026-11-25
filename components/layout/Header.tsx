@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { marketingCopy, marketingLocales, marketingPath, type MarketingSection } from "@/lib/public-marketing";
-import { linkContatoPhanyx, linkSuportePhanyx } from "@/lib/contatos-phanyx";
+import ContatoEmailLink from "@/components/marketing/ContatoEmailLink";
 import HelpCenterLink from "./HelpCenterLink";
 
 const navItems = [
@@ -120,19 +120,19 @@ export default function Header() {
         {!isPortalAlunoOuProfessor && (
           <div className={`flex items-center gap-2 md:gap-3 ${isHome ? "flex-wrap" : ""}`}>
             {!isAdmin && (
-              <a
-                href={linkContatoPhanyx()}
+              <ContatoEmailLink
+                canal="comercial"
                 className={`hidden rounded-xl px-4 py-2 text-sm font-medium shadow-sm transition md:inline-flex ${isHome
                   ? "border border-white/15 bg-white/10 text-white hover:bg-white/15"
                   : "border border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50"
                   }`}
               >
                 Falar com comercial
-              </a>
+              </ContatoEmailLink>
             )}
 
-            <a
-              href={linkSuportePhanyx}
+            <ContatoEmailLink
+              canal="suporte"
               aria-label="Suporte por e-mail"
               className={`rounded-xl px-4 py-2 text-sm font-medium transition ${isHome
                 ? "border border-blue-300/20 bg-blue-400/10 text-blue-100 hover:bg-blue-400/20"
@@ -140,7 +140,7 @@ export default function Header() {
                 }`}
             >
               Suporte
-            </a>
+            </ContatoEmailLink>
 
             {!isAdmin && (
               <Link
