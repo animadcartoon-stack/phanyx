@@ -19,6 +19,7 @@ import {
 
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
   } from "react";
@@ -1482,6 +1483,7 @@ type DadosAssinaturaPreview = {
   nomeInstituicao?: string | null;
   cnpjInstituicao?: string | null;
   campoVisual?: CampoVisualAssinaturaPreview | null;
+  chaveVisual?: string;
 
   aoMoverBloco?: (
     x: number,
@@ -2455,7 +2457,7 @@ function criarBotaoRemoverAssinatura(
 }
 
 const AssinaturaPreviewPHANYX =
-  Extension.create<DadosAssinaturaPreview>({
+  Extension.create<DadosAssinaturaPreview, DadosAssinaturaPreview>({
     name:
       "assinaturaPreviewPHANYX",
 
@@ -2470,9 +2472,12 @@ const AssinaturaPreviewPHANYX =
       };
     },
 
+    addStorage() {
+      return { ...this.options };
+    },
+
     addProseMirrorPlugins() {
-      const dados =
-        this.options;
+      const dados = this.storage;
 
       return [
         new Plugin({
@@ -2663,7 +2668,7 @@ const AssinaturaPreviewPHANYX =
                             side: -1,
 
                             key:
-                              `${padrao.tipo}-${inicio}`,
+                              `${padrao.tipo}-${inicio}-${dados.chaveVisual ?? ""}`,
                           }
                         )
                       );
@@ -3496,27 +3501,13 @@ export default function EditorTemplatePHANYX({
     );
 
 
-  const valoresPreviewVariaveis =
-    montarValoresPreviewDocumento({
-      ...(configPreview || {}),
-
-      nomeFantasia:
-        nomeInstituicao ||
-        configPreview?.nomeFantasia,
-
-      cnpj:
-        cnpjInstituicao ||
-        configPreview?.cnpj,
-
-      responsavelNome:
-        responsavelNome ||
-        configPreview?.responsavelNome,
-    });
-
-  const chaveValoresPreviewVariaveis =
-    JSON.stringify(
-      valoresPreviewVariaveis
-    );
+  const valoresPreviewVariaveis = useMemo(() =>
+    expandDocumentTagValues(montarValoresPreviewDocumento({
+      ...configPreview,
+      nomeFantasia: nomeInstituicao || configPreview?.nomeFantasia,
+      cnpj: cnpjInstituicao || configPreview?.cnpj,
+      responsavelNome: responsavelNome || configPreview?.responsavelNome,
+    })), [configPreview, nomeInstituicao, cnpjInstituicao, responsavelNome]);
 
   const duasVias =
     formatoImpressao ===
@@ -3574,6 +3565,15 @@ export default function EditorTemplatePHANYX({
           "sem-y-papel",
       ].join("|")
       : "sem-campo-visual";
+
+  const chaveAssinaturaPreview = JSON.stringify([
+    assinaturaDiretorUrl,
+    responsavelNome,
+    responsavelCargo,
+    nomeInstituicao,
+    cnpjInstituicao,
+    chaveCampoVisualAssinatura,
+  ]);
 
   const localeFerramentas = useLocale();
   const ferramentas = ROTULOS_FERRAMENTAS[localeFerramentas as keyof typeof ROTULOS_FERRAMENTAS] ?? ROTULOS_FERRAMENTAS["en-US"];
@@ -3712,10 +3712,7 @@ export default function EditorTemplatePHANYX({
 
 
       PreviewVariaveisPHANYX.configure({
-        valores:
-          expandDocumentTagValues(
-            valoresPreviewVariaveis
-          ),
+        valores: valoresPreviewVariaveis,
       }),
 
       LinhaDigitadaPHANYX,
@@ -3734,6 +3731,8 @@ export default function EditorTemplatePHANYX({
 
         campoVisual:
           campoVisualAssinatura,
+
+        chaveVisual: chaveAssinaturaPreview,
 
         aoMoverBloco:
           onMoverBlocoAssinatura,
@@ -4123,13 +4122,7 @@ export default function EditorTemplatePHANYX({
       ultimoHtmlEmitidoRef.current = html;
       onChange(html);
     },
-  }, [
-    assinaturaDiretorUrl,
-    responsavelNome,
-    responsavelCargo,
-    nomeInstituicao,
-    cnpjInstituicao,
-  ]);
+  });
 
   /*
    * Atualiza os textos visuais dos PageBreaks quando o locale muda
@@ -4259,92 +4252,48 @@ export default function EditorTemplatePHANYX({
    * no HTML salvo pelo TipTap.
    */
   useEffect(() => {
-    if (!editor) {
-      return;
-    }
+    if (!editor || editor.isDestroyed) return;
+    const dados = editor.storage[PreviewVariaveisPHANYX.name] as DadosPreviewVariaveisPHANYX;
+    dados.valores = valoresPreviewVariaveis;
 
-    const extensao =
-      editor.extensionManager
-        .extensions.find(
-          (item) =>
-            item.name ===
-            "previewVariaveisPHANYX"
-        );
-
-    if (!extensao) {
-      return;
-    }
-
-    (
-      extensao.options as
-        DadosPreviewVariaveisPHANYX
-    ).valores =
-      expandDocumentTagValues(
-        valoresPreviewVariaveis
-      );
-
-    const transacao =
-      editor.state.tr.setMeta(
-        "phanyxAtualizarPreviewVariaveis",
-        chaveValoresPreviewVariaveis
-      );
-
-    transacao.setMeta(
-      "addToHistory",
-      false
-    );
-
-    editor.view.dispatch(
-      transacao
-    );
-  }, [
-    editor,
-    chaveValoresPreviewVariaveis,
-  ]);
+    editor.view.dispatch(editor.state.tr
+      .setMeta("phanyxAtualizarPreviewVariaveis", true)
+      .setMeta("addToHistory", false));
+  }, [editor, valoresPreviewVariaveis]);
 
   useEffect(() => {
-    if (!editor) return;
+    if (!editor || editor.isDestroyed) return;
 
-    const extensao =
-      editor.extensionManager.extensions.find(
-        (item) =>
-          item.name ===
-          "assinaturaPreviewPHANYX"
-      );
+    const dados = editor.storage[AssinaturaPreviewPHANYX.name] as DadosAssinaturaPreview;
 
-    if (!extensao) return;
-
-    (
-      extensao.options as
-      DadosAssinaturaPreview
-    ).campoVisual =
-      campoVisualAssinatura;
-
-    (
-      extensao.options as
-      DadosAssinaturaPreview
-    ).aoMoverBloco =
-      onMoverBlocoAssinatura;
-
-    
+    // A configuração da instituição pode chegar depois que o usuário começou a editar.
+    Object.assign(dados, {
+      assinaturaUrl: assinaturaDiretorUrl,
+      responsavelNome,
+      responsavelCargo,
+      nomeInstituicao,
+      cnpjInstituicao,
+      campoVisual: campoVisualAssinatura,
+      chaveVisual: chaveAssinaturaPreview,
+      aoMoverBloco: onMoverBlocoAssinatura,
+    } satisfies DadosAssinaturaPreview);
 
     const tr =
-      editor.state.tr.setMeta(
-        "phanyxAtualizarAssinaturaPreview",
-        chaveCampoVisualAssinatura
-      );
-
-    tr.setMeta(
-      "addToHistory",
-      false
-    );
+      editor.state.tr
+        .setMeta("phanyxAtualizarAssinaturaPreview", true)
+        .setMeta("addToHistory", false);
 
     editor.view.dispatch(tr);
   }, [
     editor,
-    chaveCampoVisualAssinatura,
+    assinaturaDiretorUrl,
+    responsavelNome,
+    responsavelCargo,
+    nomeInstituicao,
+    cnpjInstituicao,
+    campoVisualAssinatura,
+    chaveAssinaturaPreview,
     onMoverBlocoAssinatura,
-  
   ]);
 
   useEffect(() => {
@@ -4857,16 +4806,11 @@ export default function EditorTemplatePHANYX({
     }: {
       transaction: any;
     }) {
-      if (
-        !transaction.docChanged ||
-        transaction.getMeta(
-          "phanyxPagination"
-        )
-      ) {
-        return;
+      if (transaction.getMeta("phanyxPagination")) return;
+      if (transaction.docChanged || transaction.getMeta("phanyxAtualizarAssinaturaPreview") ||
+          transaction.getMeta("phanyxAtualizarPreviewVariaveis")) {
+        agendarPaginacao();
       }
-
-      agendarPaginacao();
     }
 
     editor.on(

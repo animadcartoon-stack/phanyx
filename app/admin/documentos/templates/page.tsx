@@ -5382,9 +5382,6 @@ function AdminDocumentosTemplatesPage() {
                       key={[
                         editingId ?? "novo",
                         formatoImpressao,
-                        configInstituicao
-                          ?.certificadoAssinaturaUrl ||
-                        "sem-assinatura",
                       ].join("-")}
                       value={conteudo}
                       contratoAcademico={tipo === "CONTRATO"}
