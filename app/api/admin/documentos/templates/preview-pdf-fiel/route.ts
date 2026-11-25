@@ -1,6 +1,7 @@
 import {
   substituirVariaveisPreviewDocumento,
 } from "@/lib/documentos/variaveis-preview-documento";
+import { montarHtmlNavegador } from "@/lib/documentos/visualizacao-navegador";
 import { NextRequest, NextResponse } from "next/server";
 import fs from "node:fs";
 import { lerImagemPdfLimitada, prepararImagemPdf } from "@/lib/pdf/preparar-imagem-pdf";
@@ -184,17 +185,7 @@ export async function POST(
 ) {
   let browser: any = null;
 
-  if (geracaoPdfEmAndamento) {
-    return NextResponse.json(
-      { error: "PDF_PREVIEW_BUSY" },
-      {
-        status: 429,
-        headers: { "Retry-After": "3" },
-      }
-    );
-  }
-
-  geracaoPdfEmAndamento = true;
+  let possuiBloqueioPdf = false;
 
   try {
     const user =
@@ -217,6 +208,21 @@ export async function POST(
 
     const body =
       await req.json();
+
+    if (body?.visualizacao !== "navegador") {
+      if (geracaoPdfEmAndamento) {
+        return NextResponse.json(
+          { error: "PDF_PREVIEW_BUSY" },
+          {
+            status: 429,
+            headers: { "Retry-After": "3" },
+          }
+        );
+      }
+
+      geracaoPdfEmAndamento = true;
+      possuiBloqueioPdf = true;
+    }
 
     const localesDocumento =
       new Set([
@@ -569,6 +575,10 @@ export async function POST(
         },
       });
 
+    if (body?.visualizacao === "navegador") {
+      return NextResponse.json({html: montarHtmlNavegador(renderizacao, localeDocumento, logoIndisponivel)}, {headers:{"Cache-Control":"private, no-store"}});
+    }
+
     let pdfBuffer: Uint8Array | undefined;
     const inicioTentativas = Date.now();
     for (let tentativa = 1; tentativa <= 2; tentativa++) {
@@ -659,6 +669,47 @@ export async function POST(
       }
     });
 
+    // Temporary diagnostics: preview deployments only; never log document text.
+    if (process.env.VERCEL_ENV === "preview") {
+      try {
+        const sessaoFontes = await page.createCDPSession();
+        try {
+          await sessaoFontes.send("DOM.enable");
+          await sessaoFontes.send("CSS.enable");
+          const { root } = await sessaoFontes.send("DOM.getDocument");
+          const seletores = [
+            '.phanyx-conteudo [style*="Segoe Script" i]',
+            '.phanyx-conteudo [style*="font-family" i]',
+            '.phanyx-conteudo [style*="font-size" i]',
+            '.phanyx-conteudo h1, .phanyx-conteudo h2, .phanyx-conteudo p'
+          ];
+          const ids = new Set<number>();
+          for (const selector of seletores) {
+            const { nodeIds } = await sessaoFontes.send("DOM.querySelectorAll", { nodeId: root.nodeId, selector });
+            for (const id of nodeIds.slice(0, 8)) {
+              if (ids.size >= 18) break;
+              ids.add(id);
+            }
+          }
+          const propriedades = new Set(["font-family", "font-size", "font-weight", "font-style", "color", "text-align"]);
+          const resultado = [];
+          for (const nodeId of ids) {
+            const { computedStyle } = await sessaoFontes.send("CSS.getComputedStyleForNode", { nodeId });
+            const { fonts } = await sessaoFontes.send("CSS.getPlatformFontsForNode", { nodeId });
+            resultado.push({
+              css: Object.fromEntries(computedStyle.filter((p: {name:string;value:string}) => propriedades.has(p.name)).map((p: {name:string;value:string}) => [p.name, p.value.slice(0,200)])),
+              fontesReais: fonts.map((f: {familyName:string;postScriptName:string;isCustomFont:boolean;glyphCount:number}) => ({familia:f.familyName, postScript:f.postScriptName, personalizada:f.isCustomFont, glifos:f.glyphCount}))
+            });
+          }
+          console.info("[PDF-FONT-DIAG]", JSON.stringify(resultado));
+        } finally {
+          await sessaoFontes.detach().catch(() => {});
+        }
+      } catch (erroFontes) {
+        console.warn("[PDF-FONT-DIAG] unavailable", erroFontes instanceof Error ? erroFontes.name : "unknown");
+      }
+    }
+
     registrarMemoriaPdf("antes-pdf");
 
     pdfBuffer =
@@ -720,6 +771,6 @@ export async function POST(
         .catch(() => null);
     }
 
-    geracaoPdfEmAndamento = false;
+    if (possuiBloqueioPdf) geracaoPdfEmAndamento = false;
   }
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { abrirVisualizacaoNavegador } from "@/lib/documentos/abrir-visualizacao-navegador";
+import { rotulosNavegador } from "@/lib/documentos/visualizacao-navegador";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -1786,7 +1788,8 @@ export default function GerarDocumentoPage() {
           {(resultado.id ||
             resultado.documento
               ?.id) && (
-              <div className="flex justify-end">
+              <div className="flex flex-wrap justify-end gap-2">
+                {String(resultado.status || resultado.documento?.status) === "GERADO" && <button type="button" className="phanyx-doc-secondary-action" onClick={() => void abrirVisualizacaoNavegador(`/api/admin/documentos/pdf/${resultado.id || resultado.documento?.id}?visualizacao=navegador&locale=${encodeURIComponent(locale)}`).catch(()=>setErro(t("generate.result.noPreview")))}>{rotulosNavegador(locale)[0]}</button>}
                 <button
                   type="button"
                   className="phanyx-doc-primary-action"

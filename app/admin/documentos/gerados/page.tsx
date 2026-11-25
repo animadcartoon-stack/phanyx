@@ -1,5 +1,7 @@
 "use client";
 
+import { abrirVisualizacaoNavegador } from "@/lib/documentos/abrir-visualizacao-navegador";
+import { rotulosNavegador } from "@/lib/documentos/visualizacao-navegador";
 import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import withAuth from "@/lib/withAuth";
@@ -941,6 +943,7 @@ function AdminDocumentosGeradosPage() {
                           PDF
                         </button>
 
+                        {podeExcluirDocumento(doc) && ["GERADO","RASCUNHO"].includes(String(doc.status)) && doc.tipo !== "CONTRATO" && <button type="button" className="phanyx-doc-secondary-action" onClick={() => void abrirVisualizacaoNavegador(`/api/admin/documentos/pdf/${doc.id}?visualizacao=navegador&locale=${encodeURIComponent(locale)}`).catch(()=>setErro(t("generated.errors.printWindow")))}>{rotulosNavegador(locale)[0]}</button>}
                         <button
                           onClick={() => imprimirDocumento(doc)}
                           className="phanyx-doc-secondary-action"
@@ -1025,6 +1028,7 @@ function AdminDocumentosGeradosPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
+                  {podeExcluirDocumento(documentoSelecionado) && ["GERADO","RASCUNHO"].includes(String(documentoSelecionado.status)) && documentoSelecionado.tipo !== "CONTRATO" && <button type="button" className="phanyx-doc-secondary-action" onClick={() => void abrirVisualizacaoNavegador(`/api/admin/documentos/pdf/${documentoSelecionado.id}?visualizacao=navegador&locale=${encodeURIComponent(locale)}`).catch(()=>setErro(t("generated.errors.printWindow")))}>{rotulosNavegador(locale)[0]}</button>}
                   <button
                     onClick={() => imprimirDocumento(documentoSelecionado)}
                     className="phanyx-doc-secondary-action"
