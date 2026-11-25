@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { linkContatoPhanyx } from "@/lib/contatos-phanyx";
 import LocalizedHeader from "@/components/marketing/LocalizedHeader";
 import { registrarCopy } from "@/lib/registrar-marketing";
 import { marketingPath } from "@/lib/public-marketing";
@@ -6,7 +7,7 @@ import type { LocalePhanyx } from "@/i18n/config";
 
 export default function RegistrarPage({ locale }: { locale: LocalePhanyx }) {
   const copy = registrarCopy[locale];
-  const contactUrl = `https://wa.me/5548988101240?text=${encodeURIComponent(`PHANYX — ${copy.eyebrow} (${locale})`)}`;
+  const contactUrl = linkContatoPhanyx(`${copy.contact} — PHANYX (${locale})`);
   return (
     <div lang={locale} className="min-h-screen bg-white text-slate-900">
       <LocalizedHeader locale={locale} section="registrar" />
@@ -18,7 +19,7 @@ export default function RegistrarPage({ locale }: { locale: LocalePhanyx }) {
             <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-200">{copy.intro}</p>
             <div className="mt-9 flex flex-wrap gap-4">
               <Link href={marketingPath(locale, "plans")} className="rounded-xl bg-blue-600 px-6 py-3 font-semibold !text-white hover:bg-blue-500">{copy.plans}</Link>
-              <a href={contactUrl} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-white/30 px-6 py-3 font-semibold text-white hover:bg-white/10">{copy.contact}</a>
+              <a href={contactUrl} className="rounded-xl border border-white/30 px-6 py-3 font-semibold text-white hover:bg-white/10">{copy.contact}</a>
             </div>
           </div>
         </section>
@@ -53,7 +54,7 @@ export default function RegistrarPage({ locale }: { locale: LocalePhanyx }) {
           <p className="mt-4 max-w-3xl leading-8 text-slate-200">{copy.closing}</p>
           <div className="mt-7 flex flex-wrap gap-4">
             <Link href={marketingPath(locale, "plans")} className="rounded-xl bg-blue-600 px-6 py-3 font-semibold !text-white hover:bg-blue-500">{copy.plans}</Link>
-            <a href={contactUrl} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-white/30 px-6 py-3 font-semibold text-white hover:bg-white/10">{copy.contact}</a>
+            <a href={contactUrl} className="rounded-xl border border-white/30 px-6 py-3 font-semibold text-white hover:bg-white/10">{copy.contact}</a>
           </div>
         </div></section>
       </main>

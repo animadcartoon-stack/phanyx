@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { marketingCopy, marketingLocales, marketingPath, type MarketingSection } from "@/lib/public-marketing";
+import { linkContatoPhanyx, linkSuportePhanyx } from "@/lib/contatos-phanyx";
 import HelpCenterLink from "./HelpCenterLink";
 
 const navItems = [
@@ -120,9 +121,7 @@ export default function Header() {
           <div className={`flex items-center gap-2 md:gap-3 ${isHome ? "flex-wrap" : ""}`}>
             {!isAdmin && (
               <a
-                href="https://wa.me/5548988101240?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20PHANYX."
-                target="_blank"
-                rel="noreferrer"
+                href={linkContatoPhanyx()}
                 className={`hidden rounded-xl px-4 py-2 text-sm font-medium shadow-sm transition md:inline-flex ${isHome
                   ? "border border-white/15 bg-white/10 text-white hover:bg-white/15"
                   : "border border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50"
@@ -132,17 +131,16 @@ export default function Header() {
               </a>
             )}
 
-            <Link
-              href="/suporte"
-              target="_blank"
-              rel="noopener noreferrer"
+            <a
+              href={linkSuportePhanyx}
+              aria-label="Suporte por e-mail"
               className={`rounded-xl px-4 py-2 text-sm font-medium transition ${isHome
                 ? "border border-blue-300/20 bg-blue-400/10 text-blue-100 hover:bg-blue-400/20"
                 : "border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
                 }`}
             >
               Suporte
-            </Link>
+            </a>
 
             {!isAdmin && (
               <Link
