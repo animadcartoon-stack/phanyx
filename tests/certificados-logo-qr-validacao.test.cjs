@@ -3,6 +3,8 @@ const {test} = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const vm = require('node:vm');
+const ts = require('typescript');
 const root = path.resolve(__dirname, '..');
 const read = p => fs.readFileSync(path.join(root,p), 'utf8');
 const editor = read('app/admin/configuracoes/certificado/page.tsx');
@@ -11,8 +13,38 @@ const page = read('app/certificados/render/[certificadoId]/page.tsx');
 const api = read('app/api/admin/configuracoes/instituicao/route.ts');
 const legacy = read('lib/certificados/gerarCertificado.ts');
 
-test('o editor carrega a logomarca do cadastro institucional', () => {
-  assert.match(api, /logoUrl:\s*config\?\.logoUrl\s*\|\|\s*instituicao\?\.logoUrl\s*\|\|\s*null/);
+test('o editor carrega a logomarca do cadastro institucional', async () => {
+  const logoUrl = 'https://example.test/logo-certificado.png';
+  const consultas = [];
+  const rota = {};
+  const modulos = {
+    'next/server': { NextResponse: Response },
+    '@/lib/server-auth': { getUserFromToken: async () => ({ instituicaoId: 17 }) },
+    '@/lib/prisma': {
+      prisma: {
+        configuracaoInstituicao: {
+          findUnique: async ({ where }) => {
+            consultas.push(where.instituicaoId);
+            return where.instituicaoId === 17 ? { logoUrl } : null;
+          },
+        },
+      },
+    },
+  };
+  const { outputText } = ts.transpileModule(api, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+  });
+  vm.runInNewContext(outputText, {
+    exports: rota,
+    console,
+    require: nome => modulos[nome] ?? require(nome),
+  });
+
+  const resposta = await rota.GET();
+  assert.equal(resposta.status, 200);
+  assert.equal((await resposta.json()).logoUrl, logoUrl);
+  assert.deepEqual(consultas, [17]);
+  assert.match(editor, /fetch\("\/api\/admin\/configuracoes\/instituicao"/);
   assert.match(editor, /setCertificadoLogoUrl\(String\(dataInstituicao\?\.logoUrl\s*\|\|\s*""\)\)/);
   assert.match(editor, /logoUrl:\s*certificadoLogoUrl\s*\|\|\s*null/);
 });

@@ -22,7 +22,8 @@ test('POST legado verifica modo do curso apos trava e antes de gravar matricula'
  const check=post.indexOf('exigirCursoComGradeNaRotaLegada(cursoRotaLegada)',lock);
  const create=post.indexOf('await tx.matricula.create(');
  assert.ok(lock>=0&&check>lock&&create>check);
- assert.match(post,/select: { matriculaDiretaTurma: true }/);
+ const consultaCurso = post.slice(lock, check);
+ assert.match(consultaCurso, /const cursoRotaLegada = await tx\.curso\.findFirst\(\{\s*where: \{ id: cursoIdFinal!, instituicaoId: user\.instituicaoId \},\s*select: \{[^}]*\bmatriculaDiretaTurma:\s*true\b[^}]*\}/);
 });
 test('PUT legado verifica modo do curso antes de atualizar e preserva bloqueio de combo',()=>{
  const s=ler('app/api/matricula/route.ts');const put=s.slice(s.indexOf('export async function PUT('));
