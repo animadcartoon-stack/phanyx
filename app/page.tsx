@@ -1,12 +1,13 @@
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import FreeToolsPromo from "@/components/marketing/FreeToolsPromo";
-import SuporteWhatsAppButton from "@/components/marketing/SuporteWhatsAppButton";
+import SuporteEmailButton from "@/components/marketing/SuporteEmailButton";
 import Image from "next/image";
 import Footer from "@/components/layout/Footer";
 import { marketingAlternates } from "@/lib/public-marketing";
 import { marketingCopy } from "@/lib/public-marketing";
 import { marketingPath } from "@/lib/public-marketing";
+import { linkContatoPhanyx } from "@/lib/contatos-phanyx";
 
 export const metadata = {
   alternates: marketingAlternates("home"),
@@ -267,14 +268,6 @@ export default function HomePage() {
                   em um só ambiente.
                 </p>
 
-                <p className="mt-6 text-slate-300">
-                  Quer iniciar sua formação teológica? Conheça nosso{" "}
-                  <a href="/ibe/matricula" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">
-                    curso de teologia EAD
-                  </a>{" "}
-                  e faça sua matrícula online.
-                </p>
-
                 <div className="mt-8">
                   <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
                     <Link
@@ -287,9 +280,7 @@ export default function HomePage() {
                     </Link>
 
                     <a
-                      href="https://wa.me/5548988101240?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20PHANYX."
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href={linkContatoPhanyx()}
                       className="inline-flex w-full items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-6 py-4 text-sm font-semibold text-white backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:bg-white/15 sm:w-auto sm:py-3.5"
                     >
                       Falar com comercial
@@ -391,7 +382,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <SuporteWhatsAppButton />
+          <SuporteEmailButton />
         </section>
 
         <FreeToolsPromo locale="pt-BR" />
@@ -609,16 +600,6 @@ export default function HomePage() {
                   >
                     Entrar em contato
                   </Link>
-
-                  <a
-                    href="/ibe/matricula"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-2xl bg-green-500 px-6 py-3 text-white font-semibold hover:bg-green-600 transition"
-                  >
-                    Fazer matrícula em Teologia
-                  </a>
-
                 </div>
               </div>
             </div>

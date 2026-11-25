@@ -1,7 +1,8 @@
 "use client";
 import { iniciarAtualizacaoVisivel } from "@/lib/atualizacao-visivel";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useTranslations } from "next-intl";
 
 type UsuarioChat = {
   id: number;
@@ -80,7 +81,8 @@ const GIFS_RAPIDOS = [
   "https://media.giphy.com/media/26gsjCZpPolPr3sBy/giphy.gif",
 ];
 
-export default function ChatGlobalWidget() {
+export default function ChatGlobalWidget({ mobileInline = false }: { mobileInline?: boolean } = {}) {
+  const t = useTranslations("Common");
   const [aberto, setAberto] = useState(false);
   const [modoNovaConversa, setModoNovaConversa] = useState(false);
   const [usuarios, setUsuarios] = useState<UsuarioChat[]>([]);
@@ -563,30 +565,27 @@ export default function ChatGlobalWidget() {
       ref={chatContainerRef}
       style={
         aberto && chatPosicao && !chatMaximizado
-          ? {
-            left: chatPosicao.x,
-            top: chatPosicao.y,
-          }
+          ? { "--chat-left": `${chatPosicao.x}px`, "--chat-top": `${chatPosicao.y}px` } as CSSProperties
           : undefined
       }
-      className={`fixed z-[9999] ${chatMaximizado
-        ? "left-10 top-10"
+      className={`z-[9999] ${mobileInline ? "lg:fixed" : "fixed bottom-3 right-3"} ${chatMaximizado
+        ? "lg:bottom-auto lg:left-10 lg:right-auto lg:top-10"
         : aberto && chatPosicao
-          ? ""
-          : "bottom-6 right-6"
+          ? "lg:bottom-auto lg:left-[var(--chat-left)] lg:right-auto lg:top-[var(--chat-top)]"
+          : "lg:bottom-6 lg:right-6"
         }`}
     >
       {aberto && (
         <div
           style={{
-            width: chatTamanho.largura,
-            height: chatTamanho.altura,
-          }}
-          className="relative mb-3 flex flex-col overflow-hidden rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl"
+            "--chat-width": `${chatTamanho.largura}px`,
+            "--chat-height": `${chatTamanho.altura}px`,
+          } as CSSProperties}
+          className={`fixed inset-x-2 bottom-[max(0.5rem,env(safe-area-inset-bottom))] flex flex-col overflow-hidden rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl lg:relative lg:inset-auto lg:mb-3 lg:h-[var(--chat-height)] lg:w-[var(--chat-width)] ${chatMaximizado ? "h-[calc(100dvh-1rem)]" : "h-[min(35rem,78dvh)]"}`}
         >
           <div
-            onMouseDown={iniciarArrasteChat}
-            className="phanyx-chat-cabecalho flex cursor-move select-none items-start justify-between bg-blue-600 px-4 py-3 text-white"
+            onMouseDown={(event) => { if (window.matchMedia("(min-width: 64rem)").matches) iniciarArrasteChat(event); }}
+            className="phanyx-chat-cabecalho flex select-none items-start justify-between bg-blue-600 px-4 py-3 text-white lg:cursor-move"
             title={
               chatMaximizado
                 ? "Restaure o chat para poder arrastar"
@@ -605,7 +604,7 @@ export default function ChatGlobalWidget() {
               <button
                 type="button"
                 onClick={reposicionarChatNoPadrao}
-                className="phanyx-chat-controle rounded-md px-2 text-sm hover:bg-white/20"
+                className="phanyx-chat-controle min-h-11 min-w-11 rounded-md px-2 text-sm hover:bg-white/20 lg:min-h-0 lg:min-w-0"
                 title="Voltar ao canto inferior direito"
                 aria-label="Voltar o chat à posição padrão"
               >
@@ -630,7 +629,7 @@ export default function ChatGlobalWidget() {
 
                   setChatMaximizado(true);
                 }}
-                className="phanyx-chat-controle rounded-md px-2 text-sm hover:bg-white/20"
+                className="phanyx-chat-controle min-h-11 min-w-11 rounded-md px-2 text-sm hover:bg-white/20 lg:min-h-0 lg:min-w-0"
                 title={chatMaximizado ? "Restaurar tamanho" : "Maximizar"}
                 aria-label={chatMaximizado ? "Restaurar tamanho do chat" : "Maximizar chat"}
               >
@@ -649,7 +648,7 @@ export default function ChatGlobalWidget() {
                   setAberto(false);
                   setChatMaximizado(false);
                 }}
-                className="phanyx-chat-controle rounded-md px-2 text-sm hover:bg-white/20"
+                className="phanyx-chat-controle min-h-11 min-w-11 rounded-md px-2 text-sm hover:bg-white/20 lg:min-h-0 lg:min-w-0"
                 title="Fechar"
                 aria-label="Fechar chat"
               >
@@ -1088,19 +1087,19 @@ export default function ChatGlobalWidget() {
             <>
               <div
                 onMouseDown={iniciarRedimensionamento}
-                className="phanyx-chat-resize-handle absolute left-0 top-0 z-30 h-4 w-4 cursor-nwse-resize"
+                className="phanyx-chat-resize-handle absolute left-0 top-0 z-30 hidden h-4 w-4 cursor-nwse-resize lg:block"
                 title="Arrastar para redimensionar"
               />
 
               <div
                 onMouseDown={iniciarRedimensionamento}
-                className="phanyx-chat-resize-handle absolute bottom-0 left-0 top-4 z-20 w-2 cursor-ew-resize"
+                className="phanyx-chat-resize-handle absolute bottom-0 left-0 top-4 z-20 hidden w-2 cursor-ew-resize lg:block"
                 title="Arrastar lateral"
               />
 
               <div
                 onMouseDown={iniciarRedimensionamentoAltura}
-                className="phanyx-chat-resize-handle absolute left-4 right-4 top-0 z-20 h-2 cursor-ns-resize"
+                className="phanyx-chat-resize-handle absolute left-4 right-4 top-0 z-20 hidden h-2 cursor-ns-resize lg:block"
                 title="Arrastar para cima"
               />
             </>
@@ -1112,7 +1111,9 @@ export default function ChatGlobalWidget() {
       <button
         type="button"
         onClick={() => setAberto((prev) => !prev)}
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-2xl text-white shadow-2xl hover:bg-blue-700"
+        aria-label={t("portalChat")}
+        aria-expanded={aberto}
+        className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-600 text-xl text-white shadow-lg hover:bg-blue-700 lg:h-14 lg:w-14 lg:text-2xl lg:shadow-2xl"
       >
         💬
       </button>

@@ -1,22 +1,19 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import PhanyxToast from "@/components/ui/PhanyxToast";
+import { emailContatoPhanyx, emailSuportePhanyx, linkContatoPhanyx, linkSuportePhanyx } from "@/lib/contatos-phanyx";
 
 const canais = [
   {
-    titulo: "WhatsApp comercial",
-    valor: "+55 48 98810-1240",
-    href: "https://wa.me/5548988101240",
+    titulo: "Contato institucional e comercial",
+    valor: emailContatoPhanyx,
+    descricao: "Propostas, parcerias e solicitações de demonstração.",
+    href: linkContatoPhanyx(),
   },
   {
-    titulo: "Telefone comercial",
-    valor: "+55 48 3208-1353",
-    href: "tel:+554832081353",
-  },
-  {
-    titulo: "Email",
-    valor: "atendimento@institutobatista.com",
-    href: "mailto:atendimento@institutobatista.com",
+    titulo: "Suporte e atendimento",
+    valor: emailSuportePhanyx,
+    descricao: "Atendimento aos clientes, suporte técnico e Central de Ajuda.",
+    href: linkSuportePhanyx,
   },
 ];
 
@@ -47,19 +44,18 @@ export default function ContatoPage() {
         </section>
 
         <section className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-12">
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {canais.map((canal) => (
               <a
                 key={canal.titulo}
                 href={canal.href}
-                target={canal.href.startsWith("http") ? "_blank" : undefined}
-                rel={canal.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+                className="min-w-0 rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg motion-reduce:transition-none"
               >
                 <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
                   {canal.titulo}
                 </p>
-                <p className="mt-3 text-lg font-bold text-slate-900">{canal.valor}</p>
+                <p className="mt-3 text-lg font-bold wrap-anywhere text-slate-900">{canal.valor}</p>
+                <p className="mt-2 text-slate-600">{canal.descricao}</p>
               </a>
             ))}
           </div>

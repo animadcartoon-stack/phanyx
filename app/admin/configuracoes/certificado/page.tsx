@@ -36,10 +36,35 @@ import { campoTemTextoCertificado, atualizarEstiloIntegralTexto, corInicialTexto
 import { useLocale, useTranslations } from "next-intl";
 import QRCode from "qrcode";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent, type PointerEvent } from "react";
 
 
 const PONTOS_SEM_SELECAO: string[] = [];
+
+function acompanharPonteiro(
+  evento: PointerEvent,
+  mover: (evento: globalThis.PointerEvent) => void,
+  finalizar?: () => void,
+) {
+  const alvo = evento.currentTarget;
+  const id = evento.pointerId;
+  const controle = new AbortController();
+  const opcoes = { signal: controle.signal };
+  const parar = () => {
+    controle.abort();
+    if (alvo.hasPointerCapture(id)) alvo.releasePointerCapture(id);
+  };
+  const terminar = () => { parar(); finalizar?.(); };
+  const terminarPonteiro = (ev: globalThis.PointerEvent) => { if (ev.pointerId === id) terminar(); };
+
+  alvo.setPointerCapture(id);
+  window.addEventListener("pointermove", (ev) => { if (ev.pointerId === id) mover(ev); }, opcoes);
+  window.addEventListener("pointerup", terminarPonteiro, opcoes);
+  window.addEventListener("pointercancel", terminarPonteiro, opcoes);
+  alvo.addEventListener("lostpointercapture", terminarPonteiro, opcoes);
+  window.addEventListener("blur", terminar, opcoes);
+  return parar;
+}
 
 type CampoCertificado = {
   id: number;
@@ -4842,8 +4867,8 @@ export default function ConfiguracaoCertificadoPage() {
     iniciarDrag(event as any, campo);
   }
 
-  function iniciarRedimensionamentoGrupo(e: React.MouseEvent<HTMLDivElement>) {
-    if (!caixaDoGrupoSelecionado) return;
+  function iniciarRedimensionamentoGrupo(e: PointerEvent<HTMLDivElement>) {
+    if (!e.isPrimary || e.button !== 0 || !caixaDoGrupoSelecionado) return;
 
     e.stopPropagation();
     e.preventDefault();
@@ -4991,17 +5016,11 @@ export default function ConfiguracaoCertificadoPage() {
       );
     };
 
-    const up = () => {
-      window.removeEventListener("mousemove", move);
-      window.removeEventListener("mouseup", up);
-    };
-
-    window.addEventListener("mousemove", move);
-    window.addEventListener("mouseup", up);
+    acompanharPonteiro(e, move);
   }
 
-  function iniciarRotacaoGrupo(e: React.MouseEvent<HTMLDivElement>) {
-    if (!caixaDoGrupoSelecionado || !canvasRef.current) return;
+  function iniciarRotacaoGrupo(e: PointerEvent<HTMLDivElement>) {
+    if (!e.isPrimary || e.button !== 0 || !caixaDoGrupoSelecionado || !canvasRef.current) return;
 
     e.stopPropagation();
     e.preventDefault();
@@ -5099,13 +5118,7 @@ export default function ConfiguracaoCertificadoPage() {
       );
     };
 
-    const soltar = () => {
-      window.removeEventListener("mousemove", mover);
-      window.removeEventListener("mouseup", soltar);
-    };
-
-    window.addEventListener("mousemove", mover);
-    window.addEventListener("mouseup", soltar);
+    acompanharPonteiro(e, mover);
   }
 
   function camposSelecionadosParaAlinhamento() {
@@ -6155,7 +6168,8 @@ export default function ConfiguracaoCertificadoPage() {
   }
   const cancelarRedimVariavelRef = useRef<(() => void) | null>(null);
   useEffect(() => () => { cancelarRedimVariavelRef.current?.(); }, []);
-  function iniciarRedimensionamentoVariavel(evento: React.MouseEvent, campo: CampoCertificado, eixo: "largura" | "altura" | "ambos") {
+  function iniciarRedimensionamentoVariavel(evento: PointerEvent, campo: CampoCertificado, eixo: "largura" | "altura" | "ambos") {
+    if (!evento.isPrimary || evento.button !== 0) return;
     evento.preventDefault(); evento.stopPropagation();
     if (campo.bloqueado || !ehVariavelTextoCertificado(campo)) return;
     edicaoTextoFluida.confirmar(); gestoCenaFluido.confirmar(); cancelarRedimVariavelRef.current?.();
@@ -6166,11 +6180,12 @@ export default function ConfiguracaoCertificadoPage() {
     const w = Number(campo.largura || 220), h = Number(campo.altura || 40), escalaAtual = escala;
     const angulo = Number(campo.rotate || 0) * Math.PI / 180;
     let largura = w, altura = h, frame: number | null = null;
+    let pararPonteiro: (() => void) | undefined;
     const desenhar = () => { frame = null; elemento.style.width = largura + "px"; elemento.style.height = altura + "px"; };
     const limpar = () => {
       if (frame !== null) cancelAnimationFrame(frame);
-      window.removeEventListener("mousemove", mover); window.removeEventListener("mouseup", terminar);
-      window.removeEventListener("keydown", teclado, true); window.removeEventListener("blur", terminar);
+      pararPonteiro?.();
+      window.removeEventListener("keydown", teclado, true);
       cancelarRedimVariavelRef.current = null;
     };
     const cancelar = () => { limpar(); elemento.style.cssText = original; };
@@ -6186,8 +6201,8 @@ export default function ConfiguracaoCertificadoPage() {
     };
     const teclado = (ev: KeyboardEvent) => { if (ev.key === "Escape") { ev.preventDefault(); ev.stopPropagation(); cancelar(); } };
     cancelarRedimVariavelRef.current = cancelar;
-    window.addEventListener("mousemove", mover); window.addEventListener("mouseup", terminar);
-    window.addEventListener("keydown", teclado, true); window.addEventListener("blur", terminar);
+    pararPonteiro = acompanharPonteiro(evento, mover, terminar);
+    window.addEventListener("keydown", teclado, true);
   }
 
   function temSelecaoTextoLivreAtiva() {
@@ -6360,7 +6375,7 @@ export default function ConfiguracaoCertificadoPage() {
   }
 
   function moverCamadaPara(campoId: number, destino: "cima" | "baixo") {
-    const lista = camadasOrdenadas();
+    const lista = [...camadasOrdenadas()];
     const index = lista.findIndex((campo) => campo.id === campoId);
 
     if (index < 0) return;
@@ -6390,7 +6405,7 @@ export default function ConfiguracaoCertificadoPage() {
   function reordenarCamada(arrastadoId: number, alvoId: number) {
     if (arrastadoId === alvoId) return;
 
-    const lista = camadasOrdenadas();
+    const lista = [...camadasOrdenadas()];
     const origem = lista.findIndex((campo) => campo.id === arrastadoId);
     const destino = lista.findIndex((campo) => campo.id === alvoId);
 
@@ -6413,7 +6428,7 @@ export default function ConfiguracaoCertificadoPage() {
   }
 
   function iniciarDrag(
-    event: MouseEvent<HTMLDivElement>,
+    event: Pick<MouseEvent<HTMLDivElement>, "currentTarget" | "clientX" | "clientY">,
     campo: CampoCertificado,
   ) {
     if (campo.bloqueado) {
@@ -6451,11 +6466,24 @@ export default function ConfiguracaoCertificadoPage() {
     setCamposSelecionadosIds(idsDoGrupo);
   }
 
+  function arrastarElementoComToque(evento: PointerEvent<HTMLDivElement>, campo: CampoCertificado) {
+    if (evento.pointerType === "mouse" || !evento.isPrimary || evento.button !== 0 || campo.bloqueado || modoMao || modoFormaLivre) return;
+    if (evento.target instanceof Element && evento.target.closest("button, input, [contenteditable], [data-alca-variavel]")) return;
+    evento.stopPropagation();
+    evento.preventDefault();
+    iniciarDrag(evento, campo);
+    acompanharPonteiro(evento, onMouseMoveCanvas, () => {
+      gestoCenaFluido.confirmar();
+      finalizarDrag();
+    });
+  }
+
   function iniciarCrop(
-    e: React.MouseEvent,
+    e: PointerEvent,
     campo: CampoCertificado,
     direcao: "top" | "bottom" | "left" | "right",
   ) {
+    if (!e.isPrimary || e.button !== 0) return;
     e.stopPropagation();
     e.preventDefault();
 
@@ -6553,16 +6581,11 @@ export default function ConfiguracaoCertificadoPage() {
       );
     };
 
-    const up = () => {
-      window.removeEventListener("mousemove", move);
-      window.removeEventListener("mouseup", up);
-    };
-
-    window.addEventListener("mousemove", move);
-    window.addEventListener("mouseup", up);
+    acompanharPonteiro(e, move);
   }
 
-  function iniciarCropPro(e: React.MouseEvent, campo: CampoCertificado) {
+  function iniciarCropPro(e: PointerEvent, campo: CampoCertificado) {
+    if (!e.isPrimary || e.button !== 0) return;
     e.stopPropagation();
     e.preventDefault();
 
@@ -6604,16 +6627,11 @@ export default function ConfiguracaoCertificadoPage() {
       );
     };
 
-    const up = () => {
-      window.removeEventListener("mousemove", move);
-      window.removeEventListener("mouseup", up);
-    };
-
-    window.addEventListener("mousemove", move);
-    window.addEventListener("mouseup", up);
+    acompanharPonteiro(e, move);
   }
 
-  function iniciarCropTodos(e: React.MouseEvent, campo: CampoCertificado) {
+  function iniciarCropTodos(e: PointerEvent, campo: CampoCertificado) {
+    if (!e.isPrimary || e.button !== 0) return;
     e.stopPropagation();
     e.preventDefault();
 
@@ -6670,16 +6688,11 @@ export default function ConfiguracaoCertificadoPage() {
       );
     };
 
-    const up = () => {
-      window.removeEventListener("mousemove", move);
-      window.removeEventListener("mouseup", up);
-    };
-
-    window.addEventListener("mousemove", move);
-    window.addEventListener("mouseup", up);
+    acompanharPonteiro(e, move);
   }
 
-  function iniciarRotacao(e: React.MouseEvent, campo: CampoCertificado) {
+  function iniciarRotacao(e: PointerEvent, campo: CampoCertificado) {
+    if (!e.isPrimary || e.button !== 0) return;
     e.stopPropagation();
     e.preventDefault();
 
@@ -6709,26 +6722,21 @@ export default function ConfiguracaoCertificadoPage() {
       );
     };
 
-    const soltar = () => {
-      window.removeEventListener("mousemove", mover);
-      window.removeEventListener("mouseup", soltar);
-    };
-
-    window.addEventListener("mousemove", mover);
-    window.addEventListener("mouseup", soltar);
+    acompanharPonteiro(e, mover);
   }
 
   const cancelarRedimensionamentoFormaRef = useRef<(() => void) | null>(null);
   useEffect(() => () => { cancelarRedimensionamentoFormaRef.current?.(); }, []);
 
   function iniciarRedimensionamentoForma(
-    e: React.MouseEvent,
+    e: PointerEvent,
     campo: CampoCertificado,
     eixo: "ambos" | "largura" | "altura" = "ambos",
   ) {
+    if (!e.isPrimary || e.button !== 0) return;
     e.stopPropagation();
     e.preventDefault();
-    if (e.button !== 0 || campo.bloqueado || campo.grupoId) return;
+    if (campo.bloqueado || campo.grupoId) return;
     cancelarRedimensionamentoFormaRef.current?.();
     registrarHistoricoAntesDaAcao();
     const inicio = { x: e.clientX, y: e.clientY };
@@ -6747,23 +6755,17 @@ export default function ConfiguracaoCertificadoPage() {
         ...item, ...caixa, dadosJson: { ...(item.dadosJson || {}), ...caixa },
       } : item));
     };
-    const finalizar = () => {
-      window.removeEventListener("mousemove", mover);
-      window.removeEventListener("mouseup", finalizar);
-      window.removeEventListener("blur", finalizar);
+    cancelarRedimensionamentoFormaRef.current = acompanharPonteiro(e, mover, () => {
       cancelarRedimensionamentoFormaRef.current = null;
-    };
-    cancelarRedimensionamentoFormaRef.current = finalizar;
-    window.addEventListener("mousemove", mover);
-    window.addEventListener("mouseup", finalizar);
-    window.addEventListener("blur", finalizar);
+    });
   }
 
   function iniciarRedimensionamentoImagemRotacionada(
-    e: React.MouseEvent,
+    e: PointerEvent,
     campo: CampoCertificado,
     ancora: "nw" | "ne" | "sw" | "se",
   ) {
+    if (!e.isPrimary || e.button !== 0) return;
     e.stopPropagation();
     e.preventDefault();
 
@@ -6877,20 +6879,14 @@ export default function ConfiguracaoCertificadoPage() {
       );
     };
 
-    const up = () => {
-      window.removeEventListener("mousemove", move);
-      window.removeEventListener("mouseup", up);
-    };
-
-    window.addEventListener("mousemove", move);
-    window.addEventListener("mouseup", up);
+    acompanharPonteiro(e, move);
   }
 
-  function onMouseMoveCanvas(event: MouseEvent<HTMLDivElement>) {
+  function onMouseMoveCanvas(event: Pick<MouseEvent, "clientX" | "clientY" | "shiftKey">) {
     if (!dragRef.current || !canvasRef.current) return;
 
     const canvasRect = canvasRef.current.getBoundingClientRect();
-    const campo = campos.find((c) => c.id === dragRef.current?.campoId);
+    const campo = camposParaInteracaoRef.current.find((c) => c.id === dragRef.current?.campoId);
     if (!campo) return;
 
     const largura = campo.largura || 220;
@@ -6951,7 +6947,7 @@ export default function ConfiguracaoCertificadoPage() {
   function finalizarDrag() {
     if (!dragRef.current) return;
 
-    const campo = campos.find((c) => c.id === dragRef.current?.campoId);
+    const campo = camposParaInteracaoRef.current.find((c) => c.id === dragRef.current?.campoId);
 
     if (campo && campo.tipo !== "IMAGEM" && campo.tipo !== "FORMA") {
       void atualizarCampo(campo.id, {
@@ -7340,6 +7336,7 @@ export default function ConfiguracaoCertificadoPage() {
     iniciarCropPro: typeof iniciarCropPro;
     iniciarCropTodos: typeof iniciarCropTodos;
     iniciarDrag: typeof iniciarDrag;
+    arrastarElementoComToque: typeof arrastarElementoComToque;
     iniciarRedimensionamentoForma: typeof iniciarRedimensionamentoForma;
     iniciarRedimensionamentoImagemRotacionada: typeof iniciarRedimensionamentoImagemRotacionada;
     iniciarRotacao: typeof iniciarRotacao;
@@ -7549,7 +7546,7 @@ export default function ConfiguracaoCertificadoPage() {
   }
 
   // Elementos inalterados conservam a arvore; eventos consultam o contexto atual.
-  contextoEventosCenaRef.current = { selecaoArraste, previaEstiloTextoRef, previaPropriedadeRef, aplicandoEstiloTextoRef, edicaoTextoFluida, registrarSelecaoTextoLivre, limparSelecaoTextoLivre, iniciarRedimensionamentoVariavel, definirVisibilidadeDaCena, atualizarCampo, atualizarCampoLocal, atualizarFormaNoCanvas, atualizarTextoLivreNoEstado, camadaArrastandoId, camadasOrdenadas, campoSelecionadoId, camposSelecionadosIds, cssColorToHex, desfazerTextoLivre, ehTextoPlaceholderPadrao, escala, excluirCampo, hexToRgb, idsDoCampoOuGrupo, iniciarCrop, iniciarCropPro, iniciarCropTodos, iniciarDrag, iniciarRedimensionamentoForma, iniciarRedimensionamentoImagemRotacionada, iniciarRotacao, inserirTextoNoCursor, nomeCamadaEditando, nomeDaCamada, obterTextoAntesDoCursor, refazerTextoLivre, reordenarCamada, salvarHistoricoTextoLivre, selecaoTextoRef, selecionarCampoNoCanvas, selecionarPontosNoCanvas, setCamadaArrastandoId, setCamadaRenomeandoId, setCampoSelecionadoId, setCampos, setCamposSelecionadosIds, setCorAtual, setCorTextoSelecionado, setEditorCorGradiente, setMenuCamada, setMenuContexto, setMenuPontoGradiente, setNomeCamadaEditando, setPontoFormaSelecionado, setShapeInspectorAberto, tr };
+  contextoEventosCenaRef.current = { selecaoArraste, previaEstiloTextoRef, previaPropriedadeRef, aplicandoEstiloTextoRef, edicaoTextoFluida, registrarSelecaoTextoLivre, limparSelecaoTextoLivre, iniciarRedimensionamentoVariavel, definirVisibilidadeDaCena, atualizarCampo, atualizarCampoLocal, atualizarFormaNoCanvas, atualizarTextoLivreNoEstado, camadaArrastandoId, camadasOrdenadas, campoSelecionadoId, camposSelecionadosIds, cssColorToHex, desfazerTextoLivre, ehTextoPlaceholderPadrao, escala, excluirCampo, hexToRgb, idsDoCampoOuGrupo, iniciarCrop, iniciarCropPro, iniciarCropTodos, iniciarDrag, arrastarElementoComToque, iniciarRedimensionamentoForma, iniciarRedimensionamentoImagemRotacionada, iniciarRotacao, inserirTextoNoCursor, nomeCamadaEditando, nomeDaCamada, obterTextoAntesDoCursor, refazerTextoLivre, reordenarCamada, salvarHistoricoTextoLivre, selecaoTextoRef, selecionarCampoNoCanvas, selecionarPontosNoCanvas, setCamadaArrastandoId, setCamadaRenomeandoId, setCampoSelecionadoId, setCampos, setCamposSelecionadosIds, setCorAtual, setCorTextoSelecionado, setEditorCorGradiente, setMenuCamada, setMenuContexto, setMenuPontoGradiente, setNomeCamadaEditando, setPontoFormaSelecionado, setShapeInspectorAberto, tr };
   renderizarElementoCenaRef.current = (c) => {
                       if (elementoOculto(c)) return null;
                       if (c.tipo === "IMAGEM") {
@@ -7560,6 +7557,8 @@ export default function ConfiguracaoCertificadoPage() {
                           <div
                             key={c.id}
                             data-campo-certificado-id={c.id}
+                            data-arrasto-toque="true"
+                            onPointerDown={(event) => contextoEventosCenaRef.current.arrastarElementoComToque(event, c)}
                             onMouseDown={(event) => {
                               event.stopPropagation();
 
@@ -7653,8 +7652,8 @@ export default function ConfiguracaoCertificadoPage() {
                               <>
                                 <button
                                   type="button"
-                                  onMouseDown={(e) => contextoEventosCenaRef.current.iniciarRotacao(e, c)}
-                                  className="absolute left-1/2 top-[-36px] flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full bg-blue-600 text-xs text-white shadow"
+                                  onPointerDown={(e) => contextoEventosCenaRef.current.iniciarRotacao(e, c)}
+                                  className="touch-none absolute left-1/2 top-[-36px] flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full bg-blue-600 text-xs text-white shadow"
                                   title={tr("common.rotateFreely")}
                                 >
                                   ↻
@@ -7662,8 +7661,8 @@ export default function ConfiguracaoCertificadoPage() {
 
                                 {/* CORTAR 4 LADOS JUNTOS */}
                                 <div
-                                  onMouseDown={(e) => contextoEventosCenaRef.current.iniciarCropTodos(e, c)}
-                                  className="absolute left-2 top-2 z-[9999] flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-md bg-blue-600 hover:bg-blue-700 active:scale-95 text-sm font-bold text-white shadow-lg transition"
+                                  onPointerDown={(e) => contextoEventosCenaRef.current.iniciarCropTodos(e, c)}
+                                  className="touch-none absolute left-2 top-2 z-[9999] flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-md bg-blue-600 hover:bg-blue-700 active:scale-95 text-sm font-bold text-white shadow-lg transition"
                                   title={tr("image.cropAllTogether")}
                                 >
                                   ┍
@@ -7682,87 +7681,87 @@ export default function ConfiguracaoCertificadoPage() {
                                 </button>
 
                                 <div
-                                  onMouseDown={(e) => {
+                                  onPointerDown={(e) => {
                                     e.stopPropagation();
                                     e.preventDefault();
                                     contextoEventosCenaRef.current.iniciarCrop(e, c, "top");
                                   }}
-                                  className="absolute left-1/2 top-[-6px] z-[9999] h-3 w-12 -translate-x-1/2 cursor-ns-resize rounded bg-blue-500/60"
+                                  className="touch-none absolute left-1/2 top-[-6px] z-[9999] h-3 w-12 -translate-x-1/2 cursor-ns-resize rounded bg-blue-500/60"
                                 />
 
                                 <div
-                                  onMouseDown={(e) => {
+                                  onPointerDown={(e) => {
                                     e.stopPropagation();
                                     e.preventDefault();
                                     contextoEventosCenaRef.current.iniciarCrop(e, c, "bottom");
                                   }}
-                                  className="absolute bottom-[-6px] left-1/2 z-[9999] h-3 w-12 -translate-x-1/2 cursor-ns-resize rounded bg-blue-500/60"
+                                  className="touch-none absolute bottom-[-6px] left-1/2 z-[9999] h-3 w-12 -translate-x-1/2 cursor-ns-resize rounded bg-blue-500/60"
                                 />
 
                                 <div
-                                  onMouseDown={(e) => {
+                                  onPointerDown={(e) => {
                                     e.stopPropagation();
                                     e.preventDefault();
                                     contextoEventosCenaRef.current.iniciarCrop(e, c, "left");
                                   }}
-                                  className="absolute left-[-6px] top-1/2 z-[9999] h-12 w-3 -translate-y-1/2 cursor-ew-resize rounded bg-blue-500/60"
+                                  className="touch-none absolute left-[-6px] top-1/2 z-[9999] h-12 w-3 -translate-y-1/2 cursor-ew-resize rounded bg-blue-500/60"
                                 />
 
                                 <div
-                                  onMouseDown={(e) => {
+                                  onPointerDown={(e) => {
                                     e.stopPropagation();
                                     e.preventDefault();
                                     contextoEventosCenaRef.current.iniciarCrop(e, c, "right");
                                   }}
-                                  className="absolute right-[-6px] top-1/2 z-[9999] h-12 w-3 -translate-y-1/2 cursor-ew-resize rounded bg-blue-500/60"
+                                  className="touch-none absolute right-[-6px] top-1/2 z-[9999] h-12 w-3 -translate-y-1/2 cursor-ew-resize rounded bg-blue-500/60"
                                 />
 
                                 {/* REDIMENSIONAR PELOS 4 CANTOS */}
                                 <div
-                                  onMouseDown={(e) =>
+                                  onPointerDown={(e) =>
                                     contextoEventosCenaRef.current.iniciarRedimensionamentoImagemRotacionada(
                                       e,
                                       c,
                                       "nw",
                                     )
                                   }
-                                  className="absolute left-[-10px] top-[-10px] z-[999999] h-5 w-5 cursor-nwse-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+                                  className="touch-none absolute left-[-10px] top-[-10px] z-[999999] h-5 w-5 cursor-nwse-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
                                   title={tr("common.resizeTogether")}
                                 />
 
                                 <div
-                                  onMouseDown={(e) =>
+                                  onPointerDown={(e) =>
                                     contextoEventosCenaRef.current.iniciarRedimensionamentoImagemRotacionada(
                                       e,
                                       c,
                                       "ne",
                                     )
                                   }
-                                  className="absolute right-[-10px] top-[-10px] z-[999999] h-5 w-5 cursor-nesw-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+                                  className="touch-none absolute right-[-10px] top-[-10px] z-[999999] h-5 w-5 cursor-nesw-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
                                   title={tr("common.resizeTogether")}
                                 />
 
                                 <div
-                                  onMouseDown={(e) =>
+                                  onPointerDown={(e) =>
                                     contextoEventosCenaRef.current.iniciarRedimensionamentoImagemRotacionada(
                                       e,
                                       c,
                                       "sw",
                                     )
                                   }
-                                  className="absolute bottom-[-10px] left-[-10px] z-[999999] h-5 w-5 cursor-nesw-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+                                  className="touch-none absolute bottom-[-10px] left-[-10px] z-[999999] h-5 w-5 cursor-nesw-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
                                   title={tr("common.resizeTogether")}
                                 />
 
                                 <div
-                                  onMouseDown={(e) =>
+                                  onPointerDown={(e) =>
                                     contextoEventosCenaRef.current.iniciarRedimensionamentoImagemRotacionada(
                                       e,
                                       c,
                                       "se",
                                     )
                                   }
-                                  className="absolute bottom-[-10px] right-[-10px] z-[999999] h-5 w-5 cursor-nwse-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+                                  className="touch-none absolute bottom-[-10px] right-[-10px] z-[999999] h-5 w-5 cursor-nwse-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
                                   title={tr("common.resizeTogether")}
                                 />
                               </>
@@ -7785,6 +7784,8 @@ export default function ConfiguracaoCertificadoPage() {
                             key={c.id}
                             data-campo-certificado-id={c.id}
                             data-campo-selecao-id={(c as any).idOriginalArray || c.id}
+                            data-arrasto-toque="true"
+                            onPointerDown={(event) => contextoEventosCenaRef.current.arrastarElementoComToque(event, c)}
                             onMouseDown={(event) =>
                               contextoEventosCenaRef.current.selecionarCampoNoCanvas(event, c)
                             }
@@ -8148,8 +8149,8 @@ export default function ConfiguracaoCertificadoPage() {
                                   {/* girar */}
                                   <button
                                     type="button"
-                                    onMouseDown={(e) => contextoEventosCenaRef.current.iniciarRotacao(e, c)}
-                                    className="absolute left-1/2 top-[-34px] h-7 w-7 -translate-x-1/2 rounded-full bg-blue-600 text-xs text-white shadow"
+                                    onPointerDown={(e) => contextoEventosCenaRef.current.iniciarRotacao(e, c)}
+                                    className="touch-none absolute left-1/2 top-[-34px] h-7 w-7 -translate-x-1/2 rounded-full bg-blue-600 text-xs text-white shadow"
                                     title={tr("common.dragToRotate")}
                                   >
                                     ↻
@@ -8157,8 +8158,8 @@ export default function ConfiguracaoCertificadoPage() {
 
                                   {/* CENTRAL (CROP PRO) */}
                                   <div
-                                    onMouseDown={(e) => contextoEventosCenaRef.current.iniciarCropPro(e, c)}
-                                    className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                                    onPointerDown={(e) => contextoEventosCenaRef.current.iniciarCropPro(e, c)}
+                                    className="touch-none absolute inset-0 flex items-center justify-center pointer-events-none"
                                   >
                                     <div className="w-6 h-6 bg-purple-500 rounded-full cursor-move pointer-events-auto shadow-lg" />
                                   </div>
@@ -8169,21 +8170,21 @@ export default function ConfiguracaoCertificadoPage() {
                                   {/* direita */}
                                   <div
                                     data-redimensionar-forma="largura"
-                                    onMouseDown={(e) => contextoEventosCenaRef.current.iniciarRedimensionamentoForma(e, c, "largura")}
-                                    className="absolute right-[-6px] top-1/2 h-4 w-4 -translate-y-1/2 cursor-ew-resize rounded-full border-2 border-white bg-blue-600 shadow"
+                                    onPointerDown={(e) => contextoEventosCenaRef.current.iniciarRedimensionamentoForma(e, c, "largura")}
+                                    className="touch-none absolute right-[-6px] top-1/2 h-4 w-4 -translate-y-1/2 cursor-ew-resize rounded-full border-2 border-white bg-blue-600 shadow"
                                     title={tr("shapeTools.resizeWidthHint")}
                                   />
 
                                   {/* baixo */}
                                   <div
                                     data-redimensionar-forma="altura"
-                                    onMouseDown={(e) => contextoEventosCenaRef.current.iniciarRedimensionamentoForma(e, c, "altura")}
-                                    className="absolute bottom-[-6px] left-1/2 h-4 w-4 -translate-x-1/2 cursor-ns-resize rounded-full border-2 border-white bg-blue-600 shadow"
+                                    onPointerDown={(e) => contextoEventosCenaRef.current.iniciarRedimensionamentoForma(e, c, "altura")}
+                                    className="touch-none absolute bottom-[-6px] left-1/2 h-4 w-4 -translate-x-1/2 cursor-ns-resize rounded-full border-2 border-white bg-blue-600 shadow"
                                     title={tr("shapeTools.resizeHeightHint")}
                                   />
                                   <div
-                                    onMouseDown={(e) => contextoEventosCenaRef.current.iniciarCropTodos(e, c)}
-                                    className="absolute left-[-10px] top-[-10px] z-[9999] flex h-6 w-6 cursor-nwse-resize items-center justify-center rounded-md bg-purple-600 text-xs font-bold text-white shadow"
+                                    onPointerDown={(e) => contextoEventosCenaRef.current.iniciarCropTodos(e, c)}
+                                    className="touch-none absolute left-[-10px] top-[-10px] z-[9999] flex h-6 w-6 cursor-nwse-resize items-center justify-center rounded-md bg-purple-600 text-xs font-bold text-white shadow"
                                     title={tr("image.cropAllSides")}
                                   >
                                     ┍
@@ -8207,8 +8208,8 @@ export default function ConfiguracaoCertificadoPage() {
                                       <button
                                         type="button"
                                         data-redimensionar-forma="ambos"
-                                    onMouseDown={(e) => contextoEventosCenaRef.current.iniciarRedimensionamentoForma(e, c, "ambos")}
-                                        className="absolute -bottom-3 -right-3 z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+                                    onPointerDown={(e) => contextoEventosCenaRef.current.iniciarRedimensionamentoForma(e, c, "ambos")}
+                                        className="touch-none absolute -bottom-3 -right-3 z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
                                         title={tr("shapeTools.resizeCenterHint")}
                                       />
                                     )}
@@ -8229,6 +8230,8 @@ export default function ConfiguracaoCertificadoPage() {
                           <div
                             key={c.id}
                             data-campo-certificado-id={c.id}
+                            data-arrasto-toque={modoTextoCertificado(c) !== "NORMAL" ? "true" : undefined}
+                            onPointerDown={(event) => contextoEventosCenaRef.current.arrastarElementoComToque(event, c)}
                             onMouseDown={(event) => {
                               event.stopPropagation();
 
@@ -8641,6 +8644,8 @@ export default function ConfiguracaoCertificadoPage() {
                         <div
                           key={c.id}
                           data-campo-certificado-id={c.id}
+                          data-arrasto-toque="true"
+                          onPointerDown={(event) => contextoEventosCenaRef.current.arrastarElementoComToque(event, c)}
                           onMouseDown={(event) => {
                             event.stopPropagation();
 
@@ -8877,12 +8882,12 @@ export default function ConfiguracaoCertificadoPage() {
                           ))}
 
                           {ehVariavelTextoCertificado(c) && camposSelecionadosIds.includes(c.id) && camposSelecionadosIds.length === 1 && !c.bloqueado && <>
-                            <div data-alca-variavel="largura" onMouseDown={e => contextoEventosCenaRef.current.iniciarRedimensionamentoVariavel(e, c, "largura")}
-                              className="absolute -right-2 top-1/2 z-[999999] h-5 w-5 -translate-y-1/2 cursor-ew-resize rounded-full border-2 border-white bg-blue-600 shadow" title={tr("common.adjustWidth")} />
-                            <div data-alca-variavel="altura" onMouseDown={e => contextoEventosCenaRef.current.iniciarRedimensionamentoVariavel(e, c, "altura")}
-                              className="absolute -bottom-2 left-1/2 z-[999999] h-5 w-5 -translate-x-1/2 cursor-ns-resize rounded-full border-2 border-white bg-blue-600 shadow" title={tr("common.adjustHeight")} />
-                            <div data-alca-variavel="ambos" onMouseDown={e => contextoEventosCenaRef.current.iniciarRedimensionamentoVariavel(e, c, "ambos")}
-                              className="absolute -bottom-3 -right-3 z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow" title={tr("text.resizeTextBox")} />
+                            <div data-alca-variavel="largura" onPointerDown={e => contextoEventosCenaRef.current.iniciarRedimensionamentoVariavel(e, c, "largura")}
+                              className="touch-none absolute -right-2 top-1/2 z-[999999] h-5 w-5 -translate-y-1/2 cursor-ew-resize rounded-full border-2 border-white bg-blue-600 shadow" title={tr("common.adjustWidth")} />
+                            <div data-alca-variavel="altura" onPointerDown={e => contextoEventosCenaRef.current.iniciarRedimensionamentoVariavel(e, c, "altura")}
+                              className="touch-none absolute -bottom-2 left-1/2 z-[999999] h-5 w-5 -translate-x-1/2 cursor-ns-resize rounded-full border-2 border-white bg-blue-600 shadow" title={tr("common.adjustHeight")} />
+                            <div data-alca-variavel="ambos" onPointerDown={e => contextoEventosCenaRef.current.iniciarRedimensionamentoVariavel(e, c, "ambos")}
+                              className="touch-none absolute -bottom-3 -right-3 z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow" title={tr("text.resizeTextBox")} />
                           </>}
 
                           {camposSelecionadosIds.includes(c.id) &&
@@ -9131,14 +9136,31 @@ export default function ConfiguracaoCertificadoPage() {
                             campoId: campo.id,
                           });
                         }}
-                        className={`flex h-7 cursor-pointer items-center gap-2 border-b border-slate-200 px-2 text-xs ${camposSelecionadosIds.includes(campo.id)
+                        className={`flex h-11 cursor-pointer items-center border-b border-slate-200 px-1 text-xs lg:h-7 lg:gap-2 lg:px-2 ${camposSelecionadosIds.includes(campo.id)
                           ? "bg-blue-100 text-blue-700"
                           : "bg-white text-slate-700 hover:bg-slate-100"
                           }`}
                       >
-                        <span className="cursor-grab text-[10px] text-slate-400">
+                        <span className="hidden cursor-grab text-[10px] text-slate-400 lg:inline">
                           ☰
                         </span>
+
+                        <button
+                          type="button"
+                          aria-label={tr("layers.selectElement", { name: nomeDaCamada(campo, index) })}
+                          aria-pressed={camposSelecionadosIds.includes(campo.id)}
+                          className="grid h-11 w-9 shrink-0 place-items-center rounded text-base lg:hidden"
+                          onClick={(evento) => {
+                            evento.stopPropagation();
+                            const contexto = contextoEventosCenaRef.current;
+                            const ids = contexto.camposSelecionadosIds;
+                            const selecionados = ids.includes(campo.id) ? ids.filter((id) => id !== campo.id) : [...ids, campo.id];
+                            contexto.setCamposSelecionadosIds(selecionados);
+                            contexto.setCampoSelecionadoId(selecionados.at(-1) ?? null);
+                          }}
+                        >
+                          {camposSelecionadosIds.includes(campo.id) ? "✓" : "+"}
+                        </button>
 
                         {camadaRenomeandoId === campo.id ? (
                           <input
@@ -9166,10 +9188,30 @@ export default function ConfiguracaoCertificadoPage() {
                             className="w-full border-none bg-transparent text-xs outline-none"
                           />
                         ) : (
-                          <span className={`flex-1 truncate ${elementoOculto(campo) ? "opacity-50 line-through" : ""}`}>
+                          <span className={`min-w-0 flex-1 truncate ${elementoOculto(campo) ? "opacity-50 line-through" : ""}`}>
                             {nomeDaCamada(campo, index)}
                           </span>
                         )}
+
+                        {([-1, 1] as const).map((direcao) => (
+                          <button
+                            key={direcao}
+                            type="button"
+                            aria-label={tr(direcao < 0 ? "layers.sendUp" : "layers.sendDown")}
+                            disabled={index + direcao < 0 || index + direcao >= camadasOrdenadasMemo.length}
+                            className="grid h-11 w-9 shrink-0 place-items-center rounded text-base disabled:opacity-30 lg:hidden"
+                            onClick={(evento) => {
+                              evento.stopPropagation();
+                              const contexto = contextoEventosCenaRef.current;
+                              const lista = contexto.camadasOrdenadas();
+                              const indice = lista.findIndex((item) => item.id === campo.id);
+                              const alvo = lista[indice + direcao];
+                              if (indice >= 0 && alvo) contexto.reordenarCamada(campo.id, alvo.id);
+                            }}
+                          >
+                            {direcao < 0 ? "↑" : "↓"}
+                          </button>
+                        ))}
 
                         <button type="button" data-visibilidade-camada={campo.id}
                           aria-label={tr(elementoOculto(campo) ? "layers.showElement" : "layers.hideElement")}
@@ -9177,7 +9219,7 @@ export default function ConfiguracaoCertificadoPage() {
                           aria-pressed={!elementoOculto(campo)}
                           onMouseDown={e => e.stopPropagation()} onDoubleClick={e => e.stopPropagation()}
                           onClick={e => { e.stopPropagation();contextoEventosCenaRef.current.definirVisibilidadeDaCena([campo.id], !elementoOculto(campo), false); }}
-                          className="shrink-0 rounded p-1 text-slate-700 hover:bg-slate-200">
+                          className="grid h-11 w-9 shrink-0 place-items-center rounded text-slate-700 hover:bg-slate-200 lg:h-auto lg:w-auto lg:p-1">
                           <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>{elementoOculto(campo) && <path d="m3 3 18 18"/>}</svg>
                         </button>
                         {campo.bloqueado && (
@@ -10409,7 +10451,7 @@ export default function ConfiguracaoCertificadoPage() {
         >
           {mostrarPainelCampos && !modoAmplo && (
             <aside className="min-h-0 max-h-[50vh] overflow-y-auto overscroll-contain border-b border-slate-200 bg-slate-50 p-3 lg:h-full lg:max-h-none lg:border-b-0 lg:border-r">
-              <div className="mb-4 flex flex-col gap-3 pr-20">
+              <div className="mb-4 flex flex-col gap-3 lg:pr-20">
                 <div className="w-full">
                   <button
                     type="button"
@@ -10446,7 +10488,7 @@ export default function ConfiguracaoCertificadoPage() {
 
                   <ListaCamadasCertificado elementos={camadasOrdenadasMemo} renderizar={renderizarCamadaCena}
                     dependencias={(campo) => [selecaoCena.has(campo.id), camadaRenomeandoId === campo.id,
-                      camadaRenomeandoId === campo.id ? nomeCamadaEditando : null, locale]} />
+                      camadaRenomeandoId === campo.id ? nomeCamadaEditando : null, camadasOrdenadasMemo.length, locale]} />
                 </div>
               </div>
 
@@ -11573,6 +11615,7 @@ export default function ConfiguracaoCertificadoPage() {
                   ref={canvasRef}
                   data-certificado-papel="true"
                   data-cert-canvas="true"
+                  data-arrastar-campos={!modoMao && !modoFormaLivre}
                   tabIndex={-1}
                   onMouseDownCapture={(e) => {
                     if (modoFormaLivre) { clicarFormaLivreNoCanvas(e); return; }
@@ -11597,7 +11640,7 @@ export default function ConfiguracaoCertificadoPage() {
                     if (!(e.target as Element).closest("[data-texto-livre-id]")) e.preventDefault();
                   }}
 
-                  className="absolute left-0 top-0 overflow-visible outline outline-1 outline-dashed outline-slate-700 shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
+                  className="absolute left-0 top-0 overflow-visible outline outline-1 outline-dashed outline-slate-700 shadow-[0_20px_60px_rgba(15,23,42,0.18)] [&[data-arrastar-campos=true]_[data-arrasto-toque]]:touch-none"
                   style={{
                     width: `${baseCanvas.largura}px`,
                     height: `${baseCanvas.altura}px`,
@@ -11650,16 +11693,16 @@ export default function ConfiguracaoCertificadoPage() {
                       </div>
 
                       <div
-                        onMouseDown={iniciarRotacaoGrupo}
-                        className="pointer-events-auto absolute left-1/2 -top-10 flex h-8 w-8 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border-2 border-white bg-emerald-500 text-sm font-bold text-white shadow-lg active:cursor-grabbing"
+                        onPointerDown={iniciarRotacaoGrupo}
+                        className="pointer-events-auto touch-none absolute left-1/2 -top-10 flex h-8 w-8 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border-2 border-white bg-emerald-500 text-sm font-bold text-white shadow-lg active:cursor-grabbing"
                         title={tr("selection.rotateWholeGroup")}
                       >
                         ↻
                       </div>
 
                       <div
-                        onMouseDown={iniciarRedimensionamentoGrupo}
-                        className="pointer-events-auto absolute -bottom-3 -right-3 h-7 w-7 cursor-se-resize rounded-full border-2 border-white bg-emerald-500 shadow-lg"
+                        onPointerDown={iniciarRedimensionamentoGrupo}
+                        className="pointer-events-auto touch-none absolute -bottom-3 -right-3 h-7 w-7 cursor-se-resize rounded-full border-2 border-white bg-emerald-500 shadow-lg"
                         title={tr("selection.resizeWholeGroup")}
                       />
                     </div>

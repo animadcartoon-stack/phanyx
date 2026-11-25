@@ -1,5 +1,7 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import HelpCenterLink from "@/components/layout/HelpCenterLink";
+import { emailSuportePhanyx, linkSuportePhanyx } from "@/lib/contatos-phanyx";
 
 export default function SuportePage() {
   return (
@@ -36,53 +38,30 @@ export default function SuportePage() {
 </section>
         {/* CARDS */}
         <section className="mx-auto max-w-5xl px-6 py-16 md:px-10 lg:px-12">
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 
-            {/* WhatsApp */}
             <a
-              href="https://wa.me/5548988101240?text=Ol%C3%A1!%20Vim%20pelo%20site%20PHANYX%20e%20preciso%20de%20suporte%20para%20usar%20a%20plataforma."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+              href={linkSuportePhanyx}
+              className="min-w-0 rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg motion-reduce:transition-none"
             >
               <h2 className="text-xl font-bold text-slate-900">
-                💬 WhatsApp
+                Suporte por e-mail
               </h2>
               <p className="mt-2 text-slate-600">
-                Fale diretamente com nossa equipe de suporte PHANYX.
+                Envie sua dúvida ou solicitação de suporte técnico à equipe do PHANYX.
               </p>
-              <p className="mt-4 font-semibold text-green-600">
-                +55 48 98810-1240
+              <p className="mt-4 font-semibold wrap-anywhere text-blue-600">
+                {emailSuportePhanyx}
               </p>
             </a>
 
-            {/* Email */}
-            <a
-              href="mailto:atendimento@institutobatista.com"
-              className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-            >
+            <div className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm">
               <h2 className="text-xl font-bold text-slate-900">
-                📧 Email
+                <HelpCenterLink locale="pt-BR" className="text-blue-600 hover:underline" />
               </h2>
               <p className="mt-2 text-slate-600">
-                Envie sua dúvida e nossa equipe responderá o mais rápido possível.
+                Consulte os guias dos portais administrativo, docente e discente.
               </p>
-              <p className="mt-4 font-semibold text-blue-600">
-                atendimento@institutobatista.com
-              </p>
-            </a>
-
-          </div>
-
-          {/* Telefones */}
-          <div className="mt-6 rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-900">
-              📞 Telefones
-            </h2>
-
-            <div className="mt-4 space-y-2 text-slate-700">
-              <p>Comercial: (48) 98810-1240</p>
-              <p>Fixo: (48) 3208-1353</p>
             </div>
           </div>
         </section>
@@ -99,12 +78,10 @@ export default function SuportePage() {
             </p>
 
             <a
-              href="https://wa.me/5548988101240?text=Ol%C3%A1!%20Vim%20pelo%20site%20PHANYX%20e%20preciso%20de%20suporte%20para%20usar%20a%20plataforma."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-8 inline-block rounded-2xl bg-green-600 px-6 py-3 font-semibold hover:bg-green-500"
+              href={linkSuportePhanyx}
+              className="mt-8 inline-block rounded-2xl bg-blue-700 px-6 py-3 font-semibold text-white hover:bg-blue-600"
             >
-              Falar no WhatsApp
+              Enviar e-mail ao suporte
             </a>
           </div>
         </section>

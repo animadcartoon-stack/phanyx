@@ -4,6 +4,9 @@ import jwt from "jsonwebtoken";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Header from "@/components/layout/Header";
+import PortalNavigation from "@/components/layout/PortalNavigation";
+import ChatGlobalWidget from "@/components/chat/ChatGlobalWidget";
+import PhanyxNotificationBell from "@/components/notificacoes/PhanyxNotificationBell";
 import AlunoSidebar from "@/components/layout/AlunoSidebar";
 import { AlunoProvider } from "@/app/context/AlunoContext";
 import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
@@ -22,7 +25,6 @@ export default async function AlunoLayout({
     await getTranslations(
       "StudentLayout"
     );
-  const tPlanning = await getTranslations("PlanningTracking");
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
@@ -351,219 +353,34 @@ export default async function AlunoLayout({
     ),
     reunioes: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.reunioes"),
     dados: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.dados"),
+    historico: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.historico"),
+    ouvidoria: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.ouvidoria"),
   };
 
   const caminhoAluno = (await headers()).get("x-phanyx-rota-aluno") || "";
   if ((caminhoAluno === "/aluno/desenvolvimento" || caminhoAluno.startsWith("/aluno/desenvolvimento/")) && !visibilidadeAluno.desenvolvimento) redirect("/aluno/sem-acesso");
+  const preferencias = (
+    <>
+      <SeletorIdioma className="phanyx-aluno-seletor-idioma w-full sm:w-64" />
+      <PhanyxThemeToggle />
+    </>
+  );
+
   return (
     <>
       <ImpersonacaoBanner />
 
       <AlunoProvider>
-        <InstallPromptPHANYX />
         <Header />
-        <div className="flex min-h-[calc(100vh-56px)] bg-slate-100 dark:bg-slate-950">
-          <div className="hidden lg:block">
-            <AlunoSidebar
-              aluno={aluno}
-              visibilidade={{
-                biblioteca: visibilidadeAluno.biblioteca,
-                painel: visibilidadeAluno.painel,
-                rematricula: visibilidadeAluno.rematricula,
-                disciplinas: visibilidadeAluno.disciplinas,
-                progresso: visibilidadeAluno.progresso,
-                desenvolvimento: visibilidadeAluno.desenvolvimento,
-                trabalhos: visibilidadeAluno.trabalhos,
-                presenca: visibilidadeAluno.presenca,
-                boletim: visibilidadeAluno.boletim,
-                historico: await paginaVisivel(
-                  aluno.instituicaoId,
-                  "ALUNO",
-                  "aluno.historico"
-                ),
-                mobilidade: visibilidadeAluno.mobilidade,
-                reunioes: visibilidadeAluno.reunioes,
-                certificados: visibilidadeAluno.certificados,
-                ouvidoria: await paginaVisivel(
-                  aluno.instituicaoId,
-                  "ALUNO",
-                  "aluno.ouvidoria"
-                ),
-              }}
-            />
-          </div>
-
-          <nav className="fixed bottom-0 left-0 right-0 z-[70] overflow-x-auto border-t border-slate-200 bg-white/95 px-1 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur dark:border-slate-700 dark:bg-slate-950/95 lg:hidden">
-            <div className="grid w-max auto-cols-[78px] grid-flow-col gap-1 text-[9px] font-semibold text-slate-700 dark:text-slate-200">
-              {visibilidadeAluno.desenvolvimento && <a href="/aluno/desenvolvimento" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 dark:hover:bg-slate-800"><span className="text-lg">📈</span>{tPlanning("myDevelopment")}</a>}
-              {visibilidadeAluno.biblioteca && <a href="/aluno/biblioteca" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-slate-100 dark:hover:bg-slate-800"><span className="text-lg" aria-hidden="true">📚</span>{tAluno("library")}</a>}
-              {visibilidadeAluno.painel && (
-                <a
-                  href="/aluno"
-                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
-                >
-                  <span
-                    className="text-lg"
-                    aria-hidden="true"
-                  >
-                    📊
-                  </span>
-
-                  {tAluno("dashboard")}
-                </a>
-              )}
-
-              {visibilidadeAluno.rematricula && (
-                <a
-                  href="/aluno/rematricula"
-                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
-                >
-                  <span
-                    className="text-lg"
-                    aria-hidden="true"
-                  >
-                    🔄
-                  </span>
-
-                  {tAluno(
-                    "reenrollmentShort"
-                  )}
-                </a>
-              )}
-
-              {visibilidadeAluno.disciplinas && (
-                <a
-                  href="/aluno/disciplinas"
-                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
-                >
-                  <span
-                    className="text-lg"
-                    aria-hidden="true"
-                  >
-                    📘
-                  </span>
-
-                  {tAluno("subjects")}
-                </a>
-              )}
-
-              {visibilidadeAluno.progresso && (
-                <a
-                  href="/aluno/progresso"
-                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
-                >
-                  <span
-                    className="text-lg"
-                    aria-hidden="true"
-                  >
-                    📈
-                  </span>
-
-                  {tAluno("progress")}
-                </a>
-              )}
-
-              {visibilidadeAluno.trabalhos && (
-                <a
-                  href="/aluno/trabalhos"
-                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
-                >
-                  <span
-                    className="text-lg"
-                    aria-hidden="true"
-                  >
-                    📄
-                  </span>
-
-                  {tAluno("assignments")}
-                </a>
-              )}
-
-              {visibilidadeAluno.presenca && (
-                <a
-                  href="/aluno/presencas"
-                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
-                >
-                  <span
-                    className="text-lg"
-                    aria-hidden="true"
-                  >
-                    🗓️
-                  </span>
-
-                  {tAluno("attendance")}
-                </a>
-              )}
-
-              {visibilidadeAluno.boletim && (
-                <a
-                  href="/aluno/boletim"
-                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
-                >
-                  <span
-                    className="text-lg"
-                    aria-hidden="true"
-                  >
-                    📋
-                  </span>
-
-                  {tAluno("grades")}
-                </a>
-              )}
-
-              {visibilidadeAluno.certificados && (
-                <a
-                  href="/aluno/certificados"
-                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
-                >
-                  <span
-                    className="text-lg"
-                    aria-hidden="true"
-                  >
-                    🏅
-                  </span>
-
-                  {tAluno(
-                    "certificates"
-                  )}
-                </a>
-              )}
-
-              {visibilidadeAluno.mobilidade && (
-                <a
-                  href="/aluno/mobilidade"
-                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
-                >
-                  <span
-                    className="text-lg"
-                    aria-hidden="true"
-                  >
-                    🌍
-                  </span>
-
-                  {tAluno(
-                    "mobilityShort"
-                  )}
-                </a>
-              )}
-
-              {visibilidadeAluno.reunioes && (
-                <a
-                  href="/aluno/reunioes"
-                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
-                >
-                  <span
-                    className="text-lg"
-                    aria-hidden="true"
-                  >
-                    📅
-                  </span>
-
-                  {tAluno("meetings")}
-                </a>
-              )}
+        <div className="min-h-[calc(100dvh-56px)] bg-slate-100 dark:bg-slate-950 lg:flex">
+          <PortalNavigation preferences={preferencias} actions={(
+            <div className="flex items-center gap-2 lg:contents">
+              <PhanyxNotificationBell mostrarLinkTodas={false} />
+              <ChatGlobalWidget mobileInline />
             </div>
-          </nav>
+          )}>
+            <AlunoSidebar aluno={aluno} visibilidade={visibilidadeAluno} />
+          </PortalNavigation>
 
           <form
             action="/api/auth/logout-aluno"
@@ -578,11 +395,9 @@ export default async function AlunoLayout({
             </button>
           </form>
 
-          <main className="phanyx-aluno-conteudo flex-1 w-full px-3 py-4 pb-24 lg:ml-64 lg:p-8">
-            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-end">
-              <SeletorIdioma className="phanyx-aluno-seletor-idioma w-full sm:w-64" />
-
-              <PhanyxThemeToggle />
+          <main className="phanyx-aluno-conteudo w-full min-w-0 flex-1 px-3 py-4 lg:ml-64 lg:p-8">
+            <div className="mb-4 hidden flex-row items-end justify-end gap-3 lg:flex">
+              {preferencias}
             </div>
 
             {visibilidadeAluno.dados && (
@@ -616,6 +431,7 @@ export default async function AlunoLayout({
 
 
             {children}
+            <InstallPromptPHANYX />
           </main>
         </div>
       </AlunoProvider>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import HelpCenterLink from "./HelpCenterLink";
+import { emailContatoPhanyx, emailSuportePhanyx, linkContatoPhanyx, linkSuportePhanyx } from "@/lib/contatos-phanyx";
 
 export default function Footer() {
   return (
@@ -69,17 +70,11 @@ export default function Footer() {
               <HelpCenterLink locale="pt-BR" className="transition hover:text-white" />
 
               <a
-                href="https://wa.me/5548988101240?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20PHANYX."
-                target="_blank"
-                rel="noreferrer"
+                href={linkContatoPhanyx()}
                 className="transition hover:text-white"
               >
                 Falar com comercial
               </a>
-
-              <Link href="/ibe/matricula" target="_blank" rel="noopener noreferrer" className="transition hover:text-white">
-                Matrícula IBE
-              </Link>
 
               <Link href="/politica-de-privacidade" className="transition hover:text-white">
                 Política de privacidade
@@ -98,20 +93,17 @@ export default function Footer() {
 
             <div className="mt-4 flex flex-col gap-3 text-sm text-slate-400">
               <a
-                href="mailto:atendimento@institutobatista.com"
+                href={linkContatoPhanyx()}
                 className="transition hover:text-white"
               >
-                atendimento@institutobatista.com
+                {emailContatoPhanyx}
               </a>
 
               <a
-                href="https://wa.me/5548988101240"
-                target="_blank"
-                rel="noreferrer"
+                href={linkSuportePhanyx}
                 className="transition hover:text-white"
               >
-                +55 48 98810-1240 /
-                +55 48 3208-1353
+                {emailSuportePhanyx}
               </a>
 
               <span>São José / SC • Brasil</span>
