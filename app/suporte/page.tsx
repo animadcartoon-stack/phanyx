@@ -36,7 +36,7 @@ export default function SuportePage() {
 </section>
         {/* CARDS */}
         <section className="mx-auto max-w-5xl px-6 py-16 md:px-10 lg:px-12">
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 
             {/* WhatsApp */}
             <a
@@ -67,7 +67,7 @@ export default function SuportePage() {
               <p className="mt-2 text-slate-600">
                 Envie sua dúvida e nossa equipe responderá o mais rápido possível.
               </p>
-              <p className="mt-4 font-semibold text-blue-600">
+              <p className="mt-4 font-semibold wrap-anywhere text-blue-600">
                 atendimento@institutobatista.com
               </p>
             </a>

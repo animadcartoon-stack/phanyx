@@ -61,11 +61,27 @@
     "ORGANIZACAO_GRADE_NECESSARIA": "Organize as disciplinas diretas em etapas antes de mudar entre semestral e anual. Assim, as associações serão preservadas.",
     "ETAPA_INVALIDA": "Indique uma etapa curricular válida para o curso."
   },
+  "InstallPrompt": {
+    "title": "Instale a aplicação PHANYX",
+    "dismiss": "Agora não",
+    "install": "Instalar",
+    "done": "Entendido",
+    "iosIntro": "No iPhone ou iPad, abra o PHANYX no Safari.",
+    "iosShare": "Toque em Partilhar.",
+    "iosAdd": "Selecione “Adicionar ao ecrã principal” e confirme.",
+    "androidIntro": "No Android, abra o PHANYX no Chrome.",
+    "androidMenu": "Abra o menu do navegador.",
+    "androidAdd": "Toque em “Instalar aplicação” ou “Adicionar ao ecrã principal”.",
+    "openApp": "Abra a aplicação pelo ícone PHANYX no ecrã principal."
+  },
   "Common": {
     "cancel": "Cancelar",
     "save": "Guardar",
     "loading": "A carregar...",
     "language": "Idioma",
+    "portalChat": "Chat",
+    "portalNotificationsEmpty": "Nenhuma notificação.",
+    "portalMenu": "Menu",
     "close": "Fechar",
     "changingLanguage": "A alterar o idioma...",
     "languageChangeError": "Não foi possível alterar o idioma. Tente novamente.",
@@ -10246,6 +10262,7 @@
       "imageUploaded": "Imagem enviada"
     },
     "layers": {
+      "selectElement": "Selecionar {name}",
       "hideElement": "Ocultar",
       "showElement": "Revelar",
       "title": "Camadas",

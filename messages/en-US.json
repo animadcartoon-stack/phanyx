@@ -61,11 +61,27 @@
     "ORGANIZACAO_GRADE_NECESSARIA": "Organize directly assigned subjects into stages before switching between semester based and annual. This preserves their links.",
     "ETAPA_INVALIDA": "Enter a valid curriculum stage for this course."
   },
+  "InstallPrompt": {
+    "title": "Install the PHANYX app",
+    "dismiss": "Not now",
+    "install": "Install",
+    "done": "Got it",
+    "iosIntro": "On iPhone or iPad, open PHANYX in Safari.",
+    "iosShare": "Tap Share.",
+    "iosAdd": "Choose “Add to Home Screen” and confirm.",
+    "androidIntro": "On Android, open PHANYX in Chrome.",
+    "androidMenu": "Open the browser menu.",
+    "androidAdd": "Tap “Install app” or “Add to Home screen.”",
+    "openApp": "Open PHANYX from its Home Screen icon."
+  },
   "Common": {
     "cancel": "Cancel",
     "save": "Save",
     "loading": "Loading...",
     "language": "Language",
+    "portalChat": "Chat",
+    "portalNotificationsEmpty": "No notifications.",
+    "portalMenu": "Menu",
     "close": "Close",
     "changingLanguage": "Changing language...",
     "languageChangeError": "Could not change the language. Please try again.",
@@ -10247,6 +10263,7 @@
       "imageUploaded": "Image uploaded"
     },
     "layers": {
+      "selectElement": "Select {name}",
       "hideElement": "Hide",
       "showElement": "Show",
       "title": "Layers",

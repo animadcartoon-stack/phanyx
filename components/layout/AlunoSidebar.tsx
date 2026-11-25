@@ -4,8 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-import ChatGlobalWidget from "@/components/chat/ChatGlobalWidget";
-import PhanyxNotificationBell from "@/components/notificacoes/PhanyxNotificationBell";
 
 type VisibilidadeAluno = {
   biblioteca?: boolean;
@@ -47,6 +45,7 @@ export default function AlunoSidebar({
     "StudentSidebar"
   );
   const tPlanning = useTranslations("PlanningTracking");
+  const tLayout = useTranslations("StudentLayout");
 
   const nomeAluno =
     aluno?.nome || t("student");
@@ -192,9 +191,8 @@ export default function AlunoSidebar({
   ].filter(Boolean) as ItemMenuAluno[];
 
   return (
-    <>
-      <aside className="fixed min-h-screen w-64 border-r border-blue-800 bg-blue-950 text-white shadow-xl dark:border-slate-800 dark:bg-slate-950">
-        <div className="p-6">
+      <aside className="min-w-0 border-r border-blue-800 bg-blue-950 text-white shadow-xl dark:border-slate-800 dark:bg-slate-950 lg:fixed lg:min-h-screen lg:w-64">
+        <div className="p-4 lg:p-6">
           <div className="text-lg font-bold text-white">
             🎓 {t("areaTitle")}
           </div>
@@ -259,7 +257,7 @@ export default function AlunoSidebar({
                     ? "page"
                     : undefined
                 }
-                className={`phanyx-aluno-menu-item flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${ativo
+                className={`phanyx-aluno-menu-item flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition max-lg:min-h-11 motion-reduce:transition-none ${ativo
                   ? "phanyx-aluno-menu-item-ativo phanyx-aluno-menu-selecionado shadow-sm"
                   : "text-blue-50 hover:bg-blue-800 hover:text-white dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white"
                   }`}
@@ -271,17 +269,19 @@ export default function AlunoSidebar({
                   {item.icon}
                 </span>
 
-                <span className="phanyx-aluno-menu-texto min-w-0 truncate">
+                <span className="phanyx-aluno-menu-texto min-w-0 lg:truncate">
                   {item.label}
                 </span>
               </Link>
             );
           })}
         </nav>
-      </aside>
 
-      <PhanyxNotificationBell />
-      <ChatGlobalWidget />
-    </>
+        <form action="/api/auth/logout-aluno" method="post" className="p-4 lg:hidden">
+          <button type="submit" className="min-h-11 w-full rounded-xl bg-red-700 px-4 py-2 font-semibold text-white hover:bg-red-800">
+            {tLayout("logout")}
+          </button>
+        </form>
+      </aside>
   );
 }

@@ -61,11 +61,27 @@
     "ORGANIZACAO_GRADE_NECESSARIA": "Organisez les matières directement associées en étapes avant de passer d’une organisation semestrielle à annuelle ou inversement. Leurs liens seront ainsi préservés.",
     "ETAPA_INVALIDA": "Indiquez une étape valide du cursus."
   },
+  "InstallPrompt": {
+    "title": "Installez l’application PHANYX",
+    "dismiss": "Pas maintenant",
+    "install": "Installer",
+    "done": "Compris",
+    "iosIntro": "Sur iPhone ou iPad, ouvrez PHANYX dans Safari.",
+    "iosShare": "Touchez Partager.",
+    "iosAdd": "Sélectionnez « Sur l’écran d’accueil » et confirmez.",
+    "androidIntro": "Sur Android, ouvrez PHANYX dans Chrome.",
+    "androidMenu": "Ouvrez le menu du navigateur.",
+    "androidAdd": "Touchez « Installer l’application » ou « Ajouter à l’écran d’accueil ».",
+    "openApp": "Ouvrez PHANYX depuis son icône sur l’écran d’accueil."
+  },
   "Common": {
     "cancel": "Annuler",
     "save": "Enregistrer",
     "loading": "Chargement...",
     "language": "Langue",
+    "portalChat": "Discussion",
+    "portalNotificationsEmpty": "Aucune notification.",
+    "portalMenu": "Menu",
     "close": "Fermer",
     "changingLanguage": "Changement de langue...",
     "languageChangeError": "Impossible de changer la langue. Réessayez.",
@@ -10246,6 +10262,7 @@
       "imageUploaded": "Image importée"
     },
     "layers": {
+      "selectElement": "Sélectionner {name}",
       "hideElement": "Masquer",
       "showElement": "Afficher",
       "title": "Calques",

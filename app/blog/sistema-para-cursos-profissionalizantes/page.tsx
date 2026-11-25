@@ -12,7 +12,7 @@ export default function SistemaCursosPage() {
     <>
       <Header />
 
-      <main className="bg-white text-slate-900">
+      <main className="bg-white wrap-anywhere text-slate-900">
         <section className="mx-auto max-w-5xl px-6 py-20">
           <h1 className="text-4xl font-bold">
             Sistema para cursos profissionalizantes

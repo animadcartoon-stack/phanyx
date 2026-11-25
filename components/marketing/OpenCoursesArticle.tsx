@@ -101,7 +101,7 @@ export default function OpenCoursesArticle({ locale }: { locale: LocalePhanyx })
         <LocalizedHeader locale={locale} section="lms" languagePaths={languagePaths} />
       )}
 
-      <main>
+      <main className="wrap-anywhere">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}

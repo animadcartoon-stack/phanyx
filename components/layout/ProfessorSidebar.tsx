@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import ChatGlobalWidget from "@/components/chat/ChatGlobalWidget";
 import { useTranslations, useLocale } from "next-intl";
 import { traduzirDocumentoDocente } from "@/lib/documentos-docentes/i18n";
 
@@ -118,9 +117,8 @@ export default function ProfessorSidebar({
   ].filter(Boolean) as { label: string; href: string }[];
 
   return (
-    <>
-      <aside className="professor-sidebar flex min-h-screen w-64 flex-col">
-        <div className="border-b border-blue-500 p-6">
+      <aside className="professor-sidebar flex min-w-0 flex-col lg:min-h-screen lg:w-64">
+        <div className="border-b border-blue-500 p-4 lg:p-6">
           <div className="text-xl font-bold">
             👨‍🏫 {t("title")}
           </div>
@@ -151,16 +149,17 @@ export default function ProfessorSidebar({
           </div>
         </div>
 
-        <nav className="flex-1 space-y-2 p-4">
+        <nav aria-label={t("title")} className="flex-1 space-y-2 p-4">
           {menu.map((item) => {
             const ativo =
-              pathname === item.href || pathname.startsWith(item.href + "/");
+              pathname === item.href || (item.href !== "/professor" && pathname.startsWith(item.href + "/"));
 
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`block rounded px-4 py-2 font-semibold transition ${ativo
+                aria-current={ativo ? "page" : undefined}
+                className={`flex items-center rounded px-4 py-2 font-semibold transition max-lg:min-h-11 motion-reduce:transition-none lg:block ${ativo
                   ? "phanyx-professor-menu-ativo bg-blue-700 text-white dark:bg-blue-700 dark:text-white"
                   : "text-slate-900 hover:bg-blue-100 hover:text-blue-700 dark:text-white dark:hover:bg-blue-600 dark:hover:text-white"
                   }`}
@@ -171,18 +170,21 @@ export default function ProfessorSidebar({
           })}
         </nav>
 
+        <form action="/api/auth/logout-professor" method="post" className="p-4 lg:hidden">
+          <button type="submit" className="min-h-11 w-full rounded-xl bg-red-700 px-4 py-2 font-semibold text-white hover:bg-red-800">
+            {t("logout")}
+          </button>
+        </form>
+
         <button
           onClick={() => {
             logout();
             router.push("/login");
           }}
-          className="m-4 rounded bg-red-600 px-4 py-2 hover:bg-red-700"
+          className="m-4 hidden rounded bg-red-600 px-4 py-2 hover:bg-red-700 lg:block"
         >
           {t("logout")}
         </button>
       </aside>
-
-      <ChatGlobalWidget />
-    </>
   );
 }

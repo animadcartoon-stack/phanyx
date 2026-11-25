@@ -5,6 +5,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import PortalNavigation from "@/components/layout/PortalNavigation";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
 import SeletorIdioma from "@/components/internacionalizacao/SeletorIdioma";
@@ -62,15 +63,6 @@ export default function AdminShell({
   const tCommon = useTranslations("Common");
   const tPlanning = useTranslations("PlanningTracking");
   const tituloDocentes = traduzirDocumentoDocente(useLocale(), "menuAdmin");
-  const titulosMenuMobile: Record<string, string> = {
-    Acadêmico: tNav("academic"),
-    Comercial: tNav("commercial"),
-    Financeiro: tNav("financial"),
-    RH: tNav("humanResources"),
-    Documentos: tNav("documents"),
-    Comunicação: tNav("communication"),
-    Configurações: tNav("settings"),
-  };
   const router = useRouter();
   const pathname = usePathname();
   const [diagnosticoAtivo, setDiagnosticoAtivo] = useState(false);
@@ -295,13 +287,11 @@ export default function AdminShell({
 
   const [carregandoUsuario, setCarregandoUsuario] = useState(!usuarioInicial);
   const [sessaoExpirada, setSessaoExpirada] = useState(false);
-  const [menuMobileAberto, setMenuMobileAberto] = useState<string | null>(null);
   const [recursosSecundariosAtivos, setRecursosSecundariosAtivos] =
     useState(false);
 
   useEffect(() => {
     setMenuAberto(descobrirMenuInicial());
-    setMenuMobileAberto(null);
   }, [pathname]);
 
   useEffect(() => {
@@ -1045,13 +1035,13 @@ export default function AdminShell({
   return (
     <>
       {diagnosticoAtivo ? <DiagnosticoDesempenho /> : null}
-      {recursosSecundariosAtivos ? <InstallPromptPHANYX /> : null}
 
-      <div className="flex min-h-screen bg-gray-100">
+      <div className="flex min-h-screen flex-col bg-gray-100 dark:bg-slate-950 lg:flex-row">
         {!esconderSidebar && (
+          <PortalNavigation actions={recursosSecundariosAtivos ? <ChatGlobalWidget mobileInline /> : null}>
           <aside
             ref={sidebarDesktopRef}
-            className="hidden fixed left-0 top-0 z-40 h-screen w-72 overflow-y-auto bg-white p-6 shadow-lg lg:flex lg:flex-col"
+            className="flex min-w-0 flex-col bg-white p-4 shadow-lg dark:bg-slate-950 max-lg:[&_nav_a]:min-h-11 max-lg:[&_nav_button]:min-h-11 lg:fixed lg:left-0 lg:top-0 lg:z-40 lg:h-screen lg:w-72 lg:overflow-y-auto lg:p-6"
           >
             <div>
               <div className="mb-8">
@@ -2251,840 +2241,25 @@ export default function AdminShell({
             </div>
 
             <div className="mt-auto pt-6">
-              <div className="mt-6 sticky bottom-0 bg-white pt-4">
+              <div className="mt-6 bg-white pt-4 dark:bg-slate-950 lg:sticky lg:bottom-0">
                 <button
                   onClick={handleLogout}
-                  className="w-full bg-red-500 text-white py-3 rounded-xl font-semibold hover:bg-red-600 transition"
+                  type="button"
+                  className="min-h-11 w-full rounded-xl bg-red-600 py-3 font-semibold text-white transition hover:bg-red-700 motion-reduce:transition-none lg:bg-red-500 lg:hover:bg-red-600"
                 >
                   {tNav("logout")}
                 </button>
               </div>
             </div>
           </aside>
-        )}
-
-        {!esconderSidebar && (
-          <>
-            {menuMobileAberto && (
-              <div className="fixed bottom-[74px] left-3 right-3 z-[75] rounded-3xl border border-slate-200 bg-white p-3 shadow-2xl lg:hidden">
-                <div className="mb-2 flex items-center justify-between">
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
-                    {titulosMenuMobile[menuMobileAberto] ?? menuMobileAberto}
-                  </p>
-
-                  <button
-                    type="button"
-                    onClick={() => setMenuMobileAberto(null)}
-                    className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600"
-                  >
-                    {tCommon("close")}
-                  </button>
-                </div>
-
-                {menuMobileAberto === "Acadêmico" && (
-                  <div className="grid grid-cols-2 gap-2">
-                    <Link
-                      href="/admin/alunos"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      🎓 {tNav("students")}
-                    </Link>
-                    <Link
-                      href="/admin/student-success"
-                      className="
-    rounded-2xl
-    border
-    p-3
-    text-sm
-    font-semibold
-    text-slate-700
-  "
-                    >
-                      🧠 {tNav("studentSuccess")}
-                    </Link>
-                    <Link
-                      href="/admin/professores"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      👩‍🏫 {tNav("teachers")}
-                    </Link>
-                    <Link
-                      href="/admin/substituicoes-docentes"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      🔄 {tNav("teacherSubstitutions")}
-                    </Link>
-                    <Link
-                      href="/admin/funcionarios"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      🧑‍💼 {tNav("employees")}
-                    </Link>
-                    <Link
-                      href="/admin/visitantes"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      🪪 {tNav("visitors")}
-                    </Link>
-                    <Link
-                      href="/admin/departamentos"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      🏢 {tNav("departments")}
-                    </Link>
-                    <Link
-                      href="/admin/cursos"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      🎓 {tNav("courses")}
-                    </Link>
-                    <Link
-                      href="/admin/disciplinas"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      📚 {tNav("subjects")}
-                    </Link>
-                    <Link
-                      href="/admin/matriculas"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      📝 {tNav("enrollments")}
-                    </Link>
-                    {podeGerenciarRematriculasSemestrais && (
-                      <Link
-                        href="/admin/rematriculas-semestrais"
-                        className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                      >
-                        🔄 {tNav("semesterReenrollments")}
-                      </Link>
-                    )}
-                    <Link
-                      href="/admin/turmas"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      🏫 {tNav("classes")}
-                    </Link>
-                    <Link
-                      href="/admin/agenda-operacional"
-                      className={getLinkClass("/admin/agenda-operacional")}
-                    >
-                      🗓️ {tNav("operationalSchedule")}
-                    </Link>
-                    {podeVerAtividadesExternas && (
-                      <Link
-                        href="/admin/atividades-externas"
-                        className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                      >
-                        🚌 {tNav("externalActivities")}
-                      </Link>
-                    )}
-                    {podeVerPublicacoesAcademicas && (
-                      <Link
-                        href="/admin/academico/publicacoes"
-                        className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                      >
-                        📚 {tNav("academicPublications")}
-                      </Link>
-                    )}
-                    {podeVerMobilidade && (
-                      <>
-                        <Link
-                          href="/admin/mobilidade"
-                          data-mobile-mobilidade="true"
-                          className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                        >
-                          🌍 {tNav("internationalMobility")}
-                        </Link>
-
-                        <Link
-                          href="/admin/mobilidade/instituicoes-parceiras"
-                          className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                        >
-                          🌐 {tNav("partnerInstitutions")}
-                        </Link>
-
-                        {podeVerConveniosMobilidade && (
-                          <Link
-                            href="/admin/mobilidade/convenios"
-                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                          >
-                            🤝 {tNav("mobilityAgreements")}
-                          </Link>
-                        )}
-
-                        {podeVerProgramasMobilidade && (
-                          <Link
-                            href="/admin/mobilidade/programas"
-                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                          >
-                            🎓 {tNav("mobilityPrograms")}
-                          </Link>
-                        )}
-
-                        {podeVerOfertasMobilidade && (
-                          <Link
-                            href="/admin/mobilidade/ofertas"
-                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                          >
-                            📣 {tNav("mobilityOffers")}
-                          </Link>
-                        )}
-
-                        {podeVerCandidaturasMobilidade && (
-                          <Link
-                            href="/admin/mobilidade/candidaturas"
-                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                          >
-                            📝 {tNav("mobilityApplications")}
-                          </Link>
-                        )}
-                      </>
-                    )}
-
-                    {podeVerBiblioteca && (
-                      <>
-                        <Link
-                          href="/admin/biblioteca"
-                          className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                        >
-                          📚 {tNav("virtualLibrary")}
-                        </Link>
-
-                        {podeVerAcervoBiblioteca && (
-                          <Link
-                            href="/admin/biblioteca/acervo"
-                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                          >
-                            📖 {tNav("collection")}
-                          </Link>
-                        )}
-
-                        {podeVerAcervoBiblioteca && (
-                          <Link
-                            href="/admin/biblioteca/autoridades"
-                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                          >
-                            {String.fromCodePoint(0x1F464)} {tNav("authorities")}
-                          </Link>
-                        )}
-
-                        {podeVerPrateleirasBiblioteca && (
-                          <Link
-                            href="/admin/biblioteca/prateleiras"
-                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                          >
-                            {String.fromCodePoint(0x1F4DA)} {tNav("shelves")}
-                          </Link>
-                        )}
-
-                        {podeGerenciarEmprestimosBiblioteca && (
-                          <Link
-                            href="/admin/biblioteca/emprestimos"
-                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                          >
-                            📖 {tNav("loans")}
-                          </Link>
-                        )}
-
-                        {podeGerenciarReservasBiblioteca && (
-                          <Link
-                            href="/admin/biblioteca/reservas"
-                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                          >
-                            {String.fromCodePoint(0x1F516)} {tNav("reservations")}
-                          </Link>
-                        )}
-                        {podeGerenciarEmprestimosBiblioteca && (
-                          <Link
-                            href="/admin/biblioteca/multas"
-                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                          >
-                            {String.fromCodePoint(0x1F4B8)} {tNav("fines")}
-                          </Link>
-                        )}
-
-                        {podeVerRelatoriosBiblioteca && (
-                          <Link
-                            href="/admin/biblioteca/relatorios"
-                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                          >
-                            {String.fromCodePoint(0x1F4CA)} {tNav("reports")}
-                          </Link>
-                        )}
-
-                        {podeVerLicencasBiblioteca && (
-                          <Link
-                            href="/admin/biblioteca/licencas"
-                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                          >
-                            {String.fromCodePoint(0x1F4DC)} {tNav("licenses")}
-                          </Link>
-                        )}
-
-                        {podeVerOperadoresBiblioteca && (
-                          <Link
-                            href="/admin/biblioteca/operadores"
-                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                          >
-                            {String.fromCodePoint(0x1F465)} {tNav("operators")}
-                          </Link>
-                        )}
-
-                        {podeGerenciarConfiguracoesBiblioteca && (
-                          <Link
-                            href="/admin/biblioteca/configuracoes"
-                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                          >
-                            ⚙️ {tNav("settings")}
-                          </Link>
-                        )}
-                      </>
-                    )}
-                  </div>
-                )}
-
-                {menuMobileAberto === "Comercial" &&
-                  podeVerComercialInstituicao && (
-                    <div className="grid grid-cols-2 gap-2">
-                      {podeVerVisaoGeralComercial && (
-                        <Link
-                          href="/admin/comercial"
-                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                        >
-                          📊 {tNav("overview")}
-                        </Link>
-                      )}
-
-                      {podeVerCentralCaptacao && (
-                        <Link
-                          href="/admin/comercial/captacao"
-                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                        >
-                          🎯 {tNav("leadGenerationCenter")}
-                        </Link>
-                      )}
-
-                      {podeVerFunisComerciais && (
-                        <Link
-                          href="/admin/comercial/funis"
-                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                        >
-                          🧭 {tNav("salesFunnels")}
-                        </Link>
-                      )}
-
-                      {podeVerLeadsComerciais && (
-                        <Link
-                          href="/admin/comercial/pipeline"
-                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                        >
-                          🗂️ {tNav("salesPipeline")}
-                        </Link>
-                      )}
-
-                      {podeVerAgendaComercial && (
-                        <Link
-                          href="/admin/comercial/agenda"
-                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                        >
-                          📅 {tNav("salesAgenda")}
-                        </Link>
-                      )}
-
-                      {podeVerLeadsComerciais && (
-                        <Link
-                          href="/admin/leads"
-                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                        >
-                          🎯 {tNav("leadsAndOpportunities")}
-                        </Link>
-                      )}
-
-                      {podeVerEquipesComerciais && (
-                        <Link
-                          href="/admin/comercial/equipes"
-                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                        >
-                          👥 {tNav("salesTeams")}
-                        </Link>
-                      )}
-
-                      {podeVerMetasComerciais && (
-                        <Link
-                          href="/admin/comercial/metas"
-                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                        >
-                          📈 {tNav("salesTargets")}
-                        </Link>
-                      )}
-
-                      {podeVerRelatoriosComerciais && (
-                        <Link
-                          href="/admin/comercial/relatorios"
-                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                        >
-                          📈 {tNav("reports")}
-                        </Link>
-                      )}
-
-                      {podeGerenciarConfiguracoesComerciais && (
-                        <Link
-                          href="/admin/comercial/configuracoes"
-                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                        >
-                          ⚙️ {tNav("commissionPlans")}
-                        </Link>
-                      )}
-                    </div>
-                  )}
-
-                {menuMobileAberto === "Financeiro" && (
-                  <div className="grid grid-cols-2 gap-2">
-                    <Link
-                      href="/admin/financeiro"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      💰 {tNav("overview")}
-                    </Link>
-                    <Link
-                      href="/admin/financeiro/recebimentos"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      💵 {tNav("receipts")}
-                    </Link>
-                    {podeAcessar(
-                      "financeiro.ver",
-                      "financeiro.recebimentos",
-                      "caixa.receber",
-                    ) && (
-                      <Link
-                        href="/admin/financeiro/boletos"
-                        className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                      >
-                        🧾 {tNav("boletos")}
-                      </Link>
-                    )}
-
-                    <Link
-                      href="/admin/financeiro/taxas"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      🧾 {tNav("oneOffFees")}
-                    </Link>
-                    <Link
-                      href="/admin/financeiro/caixa"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      🏦 {tNav("cashRegister")}
-                    </Link>
-                    <Link
-                      href="/admin/financeiro/relatorios"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      📊 {tNav("reports")}
-                    </Link>
-                    <Link
-                      href="/admin/financeiro/inadimplentes"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      🚨 {tNav("overdueAccounts")}
-                    </Link>
-                    <Link
-                      href="/admin/financeiro/fechamento-geral"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      📦 {tNav("generalClosing")}
-                    </Link>
-                    {ehIbePolos && (
-                      <Link
-                        href="/admin/financeiro/boletos-ibe"
-                        className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                      >
-                        🧾 {tNav("generateInvoiceForProspect")}
-                      </Link>
-                    )}
-                    <Link
-                      href="/admin/financeiro/configuracoes"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      ⚙️ {tNav("settings")}
-                    </Link>
-                  </div>
-                )}
-
-                {menuMobileAberto === "RH" && (
-                  <div className="grid grid-cols-2 gap-2">
-                    <Link
-                      href="/admin/rh"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      👥 {tNav("overview")}
-                    </Link>
-
-                    <Link
-                      href="/admin/funcionarios"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      👤 {tNav("employees")}
-                    </Link>
-
-                    {podeVerProfessoresRH && (
-                      <Link
-                        href="/admin/rh/professores"
-                        className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                      >
-                        👨‍🏫 {tNav("teachers")}
-                      </Link>
-                    )}
-
-                    {podeVerRemuneracaoVariavelRH && (
-                      <Link
-                        href="/admin/rh/remuneracao-variavel"
-                        className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                      >
-                        💰 {tNav("variableCompensation")}
-                      </Link>
-                    )}
-
-                    {podeVerComissoesRH && (
-                      <Link
-                        href="/admin/rh/comissoes"
-                        className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                      >
-                        💵 {tNav("salesCommissions")}
-                      </Link>
-                    )}
-
-                    <Link
-                      href="/admin/rh/ponto"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      ⏱️ {tNav("timeTracking")}
-                    </Link>
-
-                    <Link
-                      href="/admin/rh/ponto/configuracoes"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      ⚙️ {tNav("timeTrackingSettings")}
-                    </Link>
-
-                    {podeVerPontoMobile && (
-                      <Link
-                        href="/admin/rh/ponto/mobile"
-                        className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                      >
-                        📱 {tNav("mobileTimeTracking")}
-                      </Link>
-                    )}
-
-                    <Link
-                      href="/admin/rh/ponto/importacao-afd"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      📥 {tNav("afdImport")}
-                    </Link>
-
-                    <Link
-                      href="/admin/rh/banco-horas"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      📊 {tNav("timeBank")}
-                    </Link>
-
-                    <Link
-                      href="/admin/rh/holerites"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      💵 {tNav("payslips")}
-                    </Link>
-                  </div>
-                )}
-
-                {menuMobileAberto === "Comunicação" && (
-                  <div className="grid grid-cols-1 gap-2">
-                    <Link
-                      href="/admin/reunioes"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      📅 {tNav("meetings")}
-                    </Link>
-
-                    <Link
-                      href="/admin/aniversariantes"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      🎂 {tNav("birthdays")}
-                    </Link>
-
-                    <Link
-                      href="/admin/ouvidoria"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      🧠 {tNav("ombudsman")}
-                    </Link>
-                  </div>
-                )}
-
-                {menuMobileAberto === "Documentos" && (
-                  <div className="grid grid-cols-2 gap-2">
-                    <Link
-                      href="/admin/contratos"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      📄 {tNav("contracts")}
-                    </Link>
-                    <Link
-                      href="/admin/documentos/gerados"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      📚 {tNav("generatedDocuments")}
-                    </Link>
-                    <Link
-                      href="/admin/documentos/gerar"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      ⚡ {tNav("generateDocument")}
-                    </Link>
-                    <Link
-                      href="/admin/validacoes"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      🔐 {tNav("validation")}
-                    </Link>
-                    {podeVerAuditoriaValidacoes && (
-                      <Link
-                        href="/admin/auditoria-validacoes"
-                        className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                      >
-                        🛡️ {tNav("validationAudit")}
-                      </Link>
-                    )}
-                    <Link
-                      href="/admin/crachas"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      🪪 {tNav("badges")}
-                    </Link>
-                  </div>
-                )}
-
-                {menuMobileAberto === "Configurações" && (
-                  <div className="grid grid-cols-1 gap-2">
-                    <Link
-                      href="/admin/configuracoes/instituicao"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      ⚙️ {tNav("institution")}
-                    </Link>
-                    {temPermissao("financeiro.configuracoes") && (
-                      <Link
-                        href="/admin/configuracoes/contas-financeiras"
-                        className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                      >
-                        🏦 {tNav("financialAccounts")}
-                      </Link>
-                    )}
-                    <Link
-                      href="/admin/configuracoes/logos"
-                      className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-                    >
-                      🖼️ {tNav("institutionalLogos")}
-                    </Link>
-                    {podeGerenciarEmailInstitucional && (
-                      <Link
-                        href="/admin/integracoes/email"
-                        className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-                      >
-                        📧 {tNav("institutionalEmail")}
-                      </Link>
-                    )}
-                    {podeGerenciarWhatsappInstitucional && (
-                      <Link
-                        href="/admin/integracoes/whatsapp"
-                        className={getLinkClass("/admin/integracoes/whatsapp")}
-                      >
-                        💬 {tNav("institutionalWhatsapp")}
-                      </Link>
-                    )}
-                    {podeGerenciarPolos && (
-                      <Link
-                        href="/admin/polos"
-                        className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-                      >
-                        🏢 {tNav("campusesAndUnits")}
-                      </Link>
-                    )}
-                    <Link
-                      href="/admin/assinatura"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      💳 {tNav("subscription")}
-                    </Link>
-                    <Link
-                      href="/admin/configuracoes/documentos"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      📄 {tNav("institutionalDocuments")}
-                    </Link>
-                    <Link
-                      href="/admin/configuracoes/portais"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      👁️ {tNav("portalVisibility")}
-                    </Link>
-                    <Link
-                      href="/admin/certificados"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      🏅 {tNav("certificateManagement")}
-                    </Link>
-                    <Link
-                      href="/admin/configuracoes/certificado"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      🎨 {tNav("certificateEditor")}
-                    </Link>
-                    <Link
-                      href="/admin/ouvidoria"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      🧠 {tNav("ombudsman")}
-                    </Link>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div className="fixed right-3 top-20 z-[80] flex w-60 flex-col gap-2 lg:hidden">
-              <PhanyxThemeToggle />
-              <SeletorIdioma exibirRotulo={false} />
-            </div>
-
-            <nav className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
-              <div
-                className={[
-                  "grid gap-1 text-[8px] font-semibold text-slate-600",
-                  podeVerComercialInstituicao ? "grid-cols-8" : "grid-cols-7",
-                ].join(" ")}
-              >
-                <Link
-                  href="/admin"
-                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700"
-                >
-                  <span className="text-lg">📊</span>
-                  {tNav("dashboardShort")}
-                </Link>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setMenuMobileAberto(
-                      menuMobileAberto === "Acadêmico" ? null : "Acadêmico",
-                    )
-                  }
-                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700"
-                >
-                  <span className="text-lg">🎓</span>
-                  {tNav("academicShort")}
-                </button>
-
-                {podeVerComercialInstituicao && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setMenuMobileAberto(
-                        menuMobileAberto === "Comercial" ? null : "Comercial",
-                      )
-                    }
-                    className={[
-                      "flex flex-col items-center justify-center rounded-xl px-1 py-2 transition",
-                      menuMobileAberto === "Comercial"
-                        ? "bg-blue-50 text-blue-700"
-                        : "hover:bg-blue-50 hover:text-blue-700",
-                    ].join(" ")}
-                  >
-                    <span className="text-lg">📈</span>
-                    {tNav("commercialShort")}
-                  </button>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setMenuMobileAberto(
-                      menuMobileAberto === "Financeiro" ? null : "Financeiro",
-                    )
-                  }
-                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700"
-                >
-                  <span className="text-lg">💰</span>
-                  {tNav("financialShort")}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setMenuMobileAberto(menuMobileAberto === "RH" ? null : "RH")
-                  }
-                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700"
-                >
-                  <span className="text-lg">👥</span>
-                  {tNav("hrShort")}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setMenuMobileAberto(
-                      menuMobileAberto === "Documentos" ? null : "Documentos",
-                    )
-                  }
-                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700"
-                >
-                  <span className="text-lg">📄</span>
-                  {tNav("documentsShort")}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setMenuMobileAberto(
-                      menuMobileAberto === "Configurações"
-                        ? null
-                        : "Configurações",
-                    )
-                  }
-                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700"
-                >
-                  <span className="text-lg">⚙️</span>
-                  {tNav("settingsShort")}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setMenuMobileAberto(
-                      menuMobileAberto === "Comunicação" ? null : "Comunicação",
-                    )
-                  }
-                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700"
-                >
-                  <span className="text-lg">💬</span>
-                  {tNav("communicationShort")}
-                </button>
-              </div>
-            </nav>
-          </>
+          </PortalNavigation>
         )}
 
         <main
           className={
             esconderSidebar
               ? "flex-1 p-0"
-              : "flex-1 w-full px-3 py-4 pb-24 lg:ml-72 lg:p-10"
+              : "w-full min-w-0 flex-1 px-3 py-4 lg:ml-72 lg:p-10"
           }
         >
           {!esconderSidebar && (
@@ -3093,6 +2268,8 @@ export default function AdminShell({
                 <button
                   type="button"
                   onClick={() => setNotificacoesAberto((v) => !v)}
+                  aria-label={tNav("notifications")}
+                  aria-expanded={notificacoesAberto}
                   className="relative flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/10 text-xl shadow-lg transition hover:scale-105"
                 >
                   🔔
@@ -3104,7 +2281,7 @@ export default function AdminShell({
                 </button>
 
                 {notificacoesAberto && (
-                  <div className="absolute right-0 z-[9999] mt-3 w-80 overflow-hidden rounded-2xl border border-white/10 bg-slate-950 shadow-2xl">
+                  <div className="absolute right-0 z-[9999] mt-3 w-[min(20rem,calc(100vw-1.5rem))] overflow-hidden rounded-2xl border border-white/10 bg-slate-950 shadow-2xl">
                     <div className="border-b border-white/10 px-4 py-3">
                       <p className="text-sm font-black text-white">
                         {tNav("notifications")}
@@ -3115,7 +2292,7 @@ export default function AdminShell({
                       </p>
                     </div>
 
-                    <div className="max-h-96 overflow-y-auto">
+                    <div className="max-h-[min(24rem,55dvh)] overflow-y-auto">
                       {notificacoesAdmin.map((item) => (
                         <a
                           key={item.id ?? `${item.titulo}-${item.criadoEm}`}
@@ -3177,7 +2354,8 @@ export default function AdminShell({
             </AtualizarAcessoBibliotecaContext.Provider>
           )}
 
-          {recursosSecundariosAtivos ? <ChatGlobalWidget /> : null}
+          {!esconderSidebar && recursosSecundariosAtivos ? <InstallPromptPHANYX /> : null}
+          {esconderSidebar && recursosSecundariosAtivos ? <ChatGlobalWidget /> : null}
         </main>
 
         <PhanyxConfirmModal

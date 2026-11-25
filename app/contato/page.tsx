@@ -1,6 +1,5 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import PhanyxToast from "@/components/ui/PhanyxToast";
 
 const canais = [
   {
@@ -47,19 +46,19 @@ export default function ContatoPage() {
         </section>
 
         <section className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-12">
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {canais.map((canal) => (
               <a
                 key={canal.titulo}
                 href={canal.href}
                 target={canal.href.startsWith("http") ? "_blank" : undefined}
                 rel={canal.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+                className="min-w-0 rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg motion-reduce:transition-none"
               >
                 <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
                   {canal.titulo}
                 </p>
-                <p className="mt-3 text-lg font-bold text-slate-900">{canal.valor}</p>
+                <p className="mt-3 text-lg font-bold wrap-anywhere text-slate-900">{canal.valor}</p>
               </a>
             ))}
           </div>
