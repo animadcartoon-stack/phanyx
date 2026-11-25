@@ -11,6 +11,10 @@ Estado: inventário inicial, não certificado como homologado. Expandir por mód
 | Acadêmico | Matrícula, rematrícula, cursos, turmas, optativas, transferências, cancelamentos | Inventário inicial; ampliar testes ponta a ponta |
 | Financeiro | Planos, descontos, boletos, baixa, contratos e histórico | Inventário inicial; ampliar testes ponta a ponta |
 | Transversal | Cinco idiomas, temas, responsividade, autenticação, permissões e isolamento institucional | Inventário inicial; ampliar testes ponta a ponta |
+| Site público | Contato comercial e suporte abrem opções de e-mail no site, com acesso ao Gmail, Outlook, aplicativo de e-mail e cópia do endereço | Teste de regressão dos destinatários e botões |
+| Documentos institucionais | Links de Política de Privacidade e Termos de Uso abrem páginas públicas com o canal pertinente. Enquanto provisórias, as páginas indicam o estado do documento e ficam fora do índice dos buscadores. | Testes de rotas e destinatários |
+
+O editor administrativo remove linhas vazias no fim do modelo em uma única ação reversível. A limpeza preserva os elementos do documento e o espaçamento entre seções.
 
 ## Campos interativos em documentos
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { linkContatoPhanyx } from "@/lib/contatos-phanyx";
+import ContatoEmailLink from "@/components/marketing/ContatoEmailLink";
 import Header from "@/components/layout/Header";
 import { marketingCopy } from "@/lib/public-marketing";
 
@@ -409,12 +409,12 @@ useEffect(() => {
     Começar {PROMO_DIAS_GRATIS} dias grátis
   </a>
 
-  <a
-    href={linkContatoPhanyx("Falar com especialista sobre o teste gratuito — PHANYX")}
+  <ContatoEmailLink
+    canal="comercial" assunto={"Falar com especialista sobre o teste gratuito — PHANYX"}
     className="inline-flex items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/15"
   >
     Falar com especialista
-  </a>
+  </ContatoEmailLink>
 </div>
 
               <div className="mt-12 grid gap-4 text-left sm:grid-cols-2 xl:grid-cols-4">
@@ -751,19 +751,19 @@ useEffect(() => {
 </p>
 
   <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
-    <a
-      href={linkContatoPhanyx("Solicitação de teste gratuito — PHANYX")}
+    <ContatoEmailLink
+      canal="comercial" assunto={"Solicitação de teste gratuito — PHANYX"}
       className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
     >
       Começar teste gratuito
-    </a>
+    </ContatoEmailLink>
 
-    <a
-      href={linkContatoPhanyx("Falar com especialista — PHANYX")}
+    <ContatoEmailLink
+      canal="comercial" assunto={"Falar com especialista — PHANYX"}
       className="inline-flex items-center justify-center rounded-2xl border border-blue-300 bg-white px-6 py-3 text-sm font-bold text-blue-700 transition hover:bg-blue-100"
     >
       Falar com especialista
-    </a>
+    </ContatoEmailLink>
   </div>
 </div>
 </div>
@@ -837,8 +837,8 @@ useEffect(() => {
   {plano.cta}
 </a>
 
-  <a
-    href={linkContatoPhanyx(`Informações sobre o plano ${plano.nome} — PHANYX`)}
+  <ContatoEmailLink
+    canal="comercial" assunto={`Informações sobre o plano ${plano.nome} — PHANYX`}
     className={`inline-flex w-full items-center justify-center rounded-2xl border px-6 py-4 text-sm font-semibold transition ${
       plano.destaque
         ? "border-white/15 bg-white/10 text-white hover:bg-white/15"
@@ -846,7 +846,7 @@ useEffect(() => {
     }`}
   >
     {plano.descricaoCta}
-  </a>
+  </ContatoEmailLink>
 </div>
 
 <div
@@ -1068,12 +1068,12 @@ useEffect(() => {
               </div>
 
               <div className="flex flex-col gap-4">
-                <a
-                  href={linkContatoPhanyx("Solicitação de apresentação comercial — PHANYX")}
+                <ContatoEmailLink
+                  canal="comercial" assunto={"Solicitação de apresentação comercial — PHANYX"}
                   className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-4 text-sm font-semibold text-white transition hover:bg-blue-500"
                 >
                   Solicitar apresentação comercial
-                </a>
+                </ContatoEmailLink>
 
                 <Link
                   href="/suporte"
@@ -1113,12 +1113,12 @@ useEffect(() => {
               </p>
 
               <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-                <a
-                  href={linkContatoPhanyx("Agendar demonstração do plano Profissional — PHANYX")}
+                <ContatoEmailLink
+                  canal="comercial" assunto={"Agendar demonstração do plano Profissional — PHANYX"}
                   className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-4 text-sm font-semibold text-white transition hover:bg-blue-700"
                 >
                   Agendar demonstração
-                </a>
+                </ContatoEmailLink>
               </div>
             </div>
           </div>

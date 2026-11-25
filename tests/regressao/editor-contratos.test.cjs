@@ -2,6 +2,8 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const vm = require('node:vm');
+const ts = require('typescript');
 const root = path.resolve(__dirname, '../..');
 const read = p => fs.readFileSync(path.join(root,p),'utf8');
 const page = read('app/admin/documentos/templates/page.tsx');
@@ -27,4 +29,58 @@ test('carrega os dados da instituição sem recriar o editor e atualiza a assina
   assert.ok(chaveComponente);
   markers(chaveComponente[1], ['editingId', 'formatoImpressao']);
   assert.doesNotMatch(chaveComponente[1], /certificadoAssinaturaUrl/);
+});
+
+test('retoma a prévia automática pendente ao voltar à aba e recuperar a conexão', () => {
+  const inicio = page.indexOf('  const chavePreviaAutomatica = ');
+  const fim = page.indexOf('  function aplicarModeloInicial()', inicio);
+  const listeners = new Map();
+  const timers = new Map();
+  let contador = 0;
+  let requisicoes = 0;
+  const eventos = {
+    addEventListener: (tipo, handler) => listeners.set(tipo, handler),
+    removeEventListener: (tipo) => listeners.delete(tipo),
+  };
+  const document = { ...eventos, visibilityState: 'visible' };
+  const navigator = { onLine: true };
+  let limpar;
+  vm.runInNewContext(ts.transpileModule(page.slice(inicio, fim), {
+    compilerOptions: { target: ts.ScriptTarget.ES2022 },
+  }).outputText, {
+    editingId: null, locale: 'pt-BR', tipo: 'OUTRO', conteudo: 'Plano de aula',
+    formatoImpressao: 'A4_INTEIRA', camposVisuais: [],
+    previaAutomatica: true, visualizandoPdf: false, erroPreviaPdf: '', saving: false,
+    ultimaPrevia: { current: '' }, ultimaRequisicaoPrevia: { current: 0 },
+    previaEmCurso: { current: false },
+    visualizarPdfTemplate: () => { requisicoes += 1; },
+    useRef: current => ({ current }),
+    useEffect: fn => { limpar = fn(); },
+    document, navigator,
+    window: {
+      ...eventos,
+      setTimeout: fn => { timers.set(++contador, fn); return contador; },
+      clearTimeout: id => timers.delete(id),
+    },
+  });
+  function avancarTempo() {
+    for (const [id, executar] of timers) {
+      timers.delete(id);
+      executar();
+    }
+  }
+  document.visibilityState = 'hidden';
+  avancarTempo();
+  assert.equal(requisicoes, 0);
+  navigator.onLine = false;
+  document.visibilityState = 'visible';
+  listeners.get('visibilitychange')?.();
+  avancarTempo();
+  assert.equal(requisicoes, 0);
+  navigator.onLine = true;
+  listeners.get('online')?.();
+  avancarTempo();
+  assert.equal(requisicoes, 1);
+  limpar();
+  assert.equal(listeners.size, 0);
 });

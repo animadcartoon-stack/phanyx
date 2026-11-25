@@ -12523,7 +12523,10 @@
       "list": "Lista",
       "textColor": "Color del texto",
       "mixedTextColors": "Colores diferentes",
-      "textColorHex": "Color del texto (HEX) — seleccione para copiar"
+      "textColorHex": "Color del texto (HEX) — seleccione para copiar",
+      "cleanEnd": "Quitar líneas vacías del final",
+      "endCleaned": "Se quitaron las líneas vacías del final de la plantilla. Usa Deshacer para recuperarlas.",
+      "endAlreadyClean": "La plantilla ya termina sin líneas vacías."
     },
     "preview": {
       "reservedHeaderLogo": "Área reservada para encabezado y logotipo",

@@ -12523,7 +12523,10 @@
       "list": "Lista",
       "textColor": "Cor do texto",
       "mixedTextColors": "Cores diferentes",
-      "textColorHex": "Cor do texto (HEX) — selecione para copiar"
+      "textColorHex": "Cor do texto (HEX) — selecione para copiar",
+      "cleanEnd": "Limpar linhas vazias do fim",
+      "endCleaned": "Linhas vazias removidas do fim do modelo. Use Desfazer para recuperá-las.",
+      "endAlreadyClean": "O modelo já está sem linhas vazias no fim."
     },
     "preview": {
       "reservedHeaderLogo": "Área reservada para cabeçalho e logo",

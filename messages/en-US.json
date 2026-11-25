@@ -12524,7 +12524,10 @@
       "list": "List",
       "textColor": "Text color",
       "mixedTextColors": "Mixed colors",
-      "textColorHex": "Text color (HEX) — select to copy"
+      "textColorHex": "Text color (HEX) — select to copy",
+      "cleanEnd": "Remove trailing blank lines",
+      "endCleaned": "Trailing blank lines were removed. Use Undo to restore them.",
+      "endAlreadyClean": "The template already ends without blank lines."
     },
     "preview": {
       "reservedHeaderLogo": "Reserved area for header and logo",

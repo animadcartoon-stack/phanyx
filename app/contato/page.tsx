@@ -1,19 +1,18 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { emailContatoPhanyx, emailSuportePhanyx, linkContatoPhanyx, linkSuportePhanyx } from "@/lib/contatos-phanyx";
+import OpcoesEmailPhanyx from "@/components/marketing/OpcoesEmailPhanyx";
+import type { CanalEmailPhanyx } from "@/lib/contatos-phanyx";
 
-const canais = [
+const canais: { canal: CanalEmailPhanyx; titulo: string; descricao: string }[] = [
   {
     titulo: "Contato institucional e comercial",
-    valor: emailContatoPhanyx,
+    canal: "comercial",
     descricao: "Propostas, parcerias e solicitações de demonstração.",
-    href: linkContatoPhanyx(),
   },
   {
     titulo: "Suporte e atendimento",
-    valor: emailSuportePhanyx,
+    canal: "suporte",
     descricao: "Atendimento aos clientes, suporte técnico e Central de Ajuda.",
-    href: linkSuportePhanyx,
   },
 ];
 
@@ -46,17 +45,15 @@ export default function ContatoPage() {
         <section className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-12">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {canais.map((canal) => (
-              <a
-                key={canal.titulo}
-                href={canal.href}
-                className="min-w-0 rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg motion-reduce:transition-none"
+              <article
+                key={canal.canal}
+                id={`email-${canal.canal}`}
+                className="min-w-0 scroll-mt-36 space-y-3 rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm wrap-anywhere dark:border-slate-800 dark:bg-slate-950"
               >
-                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
-                  {canal.titulo}
-                </p>
-                <p className="mt-3 text-lg font-bold wrap-anywhere text-slate-900">{canal.valor}</p>
-                <p className="mt-2 text-slate-600">{canal.descricao}</p>
-              </a>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">{canal.titulo}</h2>
+                <p className="text-slate-600 dark:text-slate-300">{canal.descricao}</p>
+                <OpcoesEmailPhanyx canal={canal.canal} />
+              </article>
             ))}
           </div>
         </section>

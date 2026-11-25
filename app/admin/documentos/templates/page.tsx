@@ -1,7 +1,7 @@
 "use client";
 
 import { abrirVisualizacaoNavegador } from "@/lib/documentos/abrir-visualizacao-navegador";
-import { rotulosNavegador } from "@/lib/documentos/visualizacao-navegador";
+import { mensagemFontesSubstituidas, rotulosNavegador } from "@/lib/documentos/visualizacao-navegador";
 import {
   getInternationalDocumentTag,
 } from "@/lib/documentos/tags-documentos";
@@ -1270,6 +1270,7 @@ function AdminDocumentosTemplatesPage() {
   const [erroPreviaPdf, setErroPreviaPdf] = useState("");
   const [urlPreviaPdf, setUrlPreviaPdf] = useState("");
   const [avisoLogoPrevia, setAvisoLogoPrevia] = useState(false);
+  const [fontesSubstituidas, setFontesSubstituidas] = useState("");
   const avisoLogoTexto = locale.startsWith("pt") ? "Pr\u00e9via parcial: n\u00e3o foi poss\u00edvel processar o logotipo. O original est\u00e1 preservado; esta pr\u00e9via n\u00e3o \u00e9 fiel para impress\u00e3o." : locale.startsWith("es") ? "Vista previa parcial: no se pudo procesar el logotipo. Se conserva el original." : locale.startsWith("fr") ? "Aper\u00e7u partiel : impossible de traiter le logo. L'original est conserv\u00e9." : "Partial preview: the logo could not be processed. The original is preserved.";
   const fecharPdfLabel = locale.startsWith("pt") ? "Fechar" : locale.startsWith("es") ? "Cerrar" : locale.startsWith("fr") ? "Fermer" : "Close";
   const [previaAutomatica, setPreviaAutomatica] = useState(false);
@@ -2056,6 +2057,8 @@ function AdminDocumentosTemplatesPage() {
 
       const url = window.URL.createObjectURL(blob);
       setAvisoLogoPrevia(res.headers.get("X-PHANYX-PDF-Warning") === "LOGO_UNAVAILABLE");
+      const fontes = res.headers.get("X-PHANYX-PDF-Substituted-Fonts") || "";
+      setFontesSubstituidas(fontes.split(",").map(fonte => decodeURIComponent(fonte)).join(", "));
       setUrlPreviaPdf(url);
 
     } catch (error: any) {
@@ -2074,14 +2077,27 @@ function AdminDocumentosTemplatesPage() {
   useEffect(() => {
     if (!previaAutomatica || visualizandoPdf || erroPreviaPdf || saving || !conteudo.trim()) return;
     if (ultimaPrevia.current === chavePreviaAutomatica) return;
-    const espera = Math.max(2500, 12000 - (Date.now() - ultimaRequisicaoPrevia.current));
-    const timer = window.setTimeout(() => {
-      if (previaEmCurso.current || document.visibilityState !== "visible" || !navigator.onLine) return;
-      ultimaPrevia.current = chavePreviaAutomatica;
-      ultimaRequisicaoPrevia.current = Date.now();
-      void gerarPreviaAtual.current(true);
-    }, espera);
-    return () => window.clearTimeout(timer);
+    let timer: number | undefined;
+    const podeAtualizar = () => document.visibilityState === "visible" && navigator.onLine;
+    const agendar = () => {
+      window.clearTimeout(timer);
+      if (!podeAtualizar() || ultimaPrevia.current === chavePreviaAutomatica) return;
+      const espera = Math.max(2500, 12000 - (Date.now() - ultimaRequisicaoPrevia.current));
+      timer = window.setTimeout(() => {
+        if (previaEmCurso.current || !podeAtualizar()) return;
+        ultimaPrevia.current = chavePreviaAutomatica;
+        ultimaRequisicaoPrevia.current = Date.now();
+        void gerarPreviaAtual.current(true);
+      }, espera);
+    };
+    agendar();
+    document.addEventListener("visibilitychange", agendar);
+    window.addEventListener("online", agendar);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener("visibilitychange", agendar);
+      window.removeEventListener("online", agendar);
+    };
   }, [previaAutomatica, chavePreviaAutomatica, visualizandoPdf, erroPreviaPdf, saving, conteudo]);
 
   function aplicarModeloInicial() {
@@ -4724,6 +4740,15 @@ function AdminDocumentosTemplatesPage() {
   }
 
 
+  const avisoFontesPrevia = fontesSubstituidas && (
+    <div className="shrink-0 border border-amber-500 bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100">
+      <p role="status">{mensagemFontesSubstituidas(locale, fontesSubstituidas)}</p>
+      <button type="button" className="mt-2 min-h-8 font-semibold underline" onClick={() => void visualizarNoNavegador()}>
+        {rotulosNavegador(locale)[0]}
+      </button>
+    </div>
+  );
+
   return (
     <div className={`phanyx-doc-templates-page space-y-6 text-slate-900 dark:text-slate-100 ${previaAutomatica ? "xl:pr-[35vw]" : ""}`}>
       {previaAutomatica && (
@@ -4737,6 +4762,7 @@ function AdminDocumentosTemplatesPage() {
           {erroPreviaPdf && <button type="button" className="rounded-lg border px-2 py-1 text-sm" onClick={() => { ultimaPrevia.current = ""; setErroPreviaPdf(""); }}>{textosPrevia[6]}</button>}
           {urlPreviaPdf && <>
             {avisoLogoPrevia && <p role="alert" className="rounded border border-amber-500 bg-amber-50 p-2 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100">{avisoLogoTexto}</p>}
+            {avisoFontesPrevia}
             <a href={urlPreviaPdf} target="_blank" rel="noopener noreferrer" className="text-sm underline">{textosPrevia[4]}</a>
             <iframe src={urlPreviaPdf} title={textosPrevia[0]} className="h-[55vh] min-h-0 w-full rounded border bg-white xl:h-auto xl:flex-1" />
           </>}
@@ -4955,6 +4981,7 @@ function AdminDocumentosTemplatesPage() {
       {urlPreviaPdf && !previaAutomatica && !erroPreviaPdf && (
         <ModalPreviaPdf titulo={t("variables.viewPdf")} fecharLabel={fecharPdfLabel} onFechar={() => setUrlPreviaPdf("")}>
           {avisoLogoPrevia && <p role="alert" className="shrink-0 border-b border-amber-500 bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100">{avisoLogoTexto}</p>}
+          {avisoFontesPrevia}
           <iframe src={urlPreviaPdf} title={t("variables.viewPdf")} className="min-h-0 w-full flex-1 border-0 bg-slate-100" />
         </ModalPreviaPdf>
       )}

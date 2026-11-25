@@ -3,8 +3,12 @@ import camposInterativos from "@/messages/document-interactive-fields.json";
 import type { LocalePhanyx } from "@/i18n/config";
 import {
   substituirVariaveisPreviewDocumento,
+  montarValoresPreviewDocumento,
 } from "@/lib/documentos/variaveis-preview-documento";
+import { preencherIdentidadeDocente } from "@/lib/documentos-docentes/identidade-automatica";
+import { preencherAcademico } from "@/lib/documentos-docentes/academico-automatico";
 import { montarHtmlNavegador } from "@/lib/documentos/visualizacao-navegador";
+import { fontesSubstituidasNaPrevia } from "@/lib/documentos/fontes-previa-pdf";
 import { NextRequest, NextResponse } from "next/server";
 import fs from "node:fs";
 import { lerImagemPdfLimitada, prepararImagemPdf } from "@/lib/pdf/preparar-imagem-pdf";
@@ -160,9 +164,30 @@ function substituirExemplos(
   texto: string,
   config: any
 ) {
+  const valoresIdentidade = montarValoresPreviewDocumento(config);
+  const professoresExemplo: Record<string, string> = {
+    "pt-BR": "Professor Exemplo",
+    "pt-PT": "Professor Exemplo",
+    "en-US": "Example Teacher",
+    "es-ES": "Profesor de ejemplo",
+    "fr-FR": "Enseignant exemple",
+  };
+  const textoComIdentidade = preencherIdentidadeDocente(texto, {
+    professor: professoresExemplo[config?.__documentLocale] || professoresExemplo["pt-BR"],
+    instituicao: valoresIdentidade.nomeInstituicao,
+  });
+  const exemplosAcademicos: Record<string, { courseName: string; className: string; subjectName: string }> = {
+    "pt-BR": { courseName: "curso aqui", className: "turma aqui", subjectName: "disciplina aqui" },
+    "pt-PT": { courseName: "curso aqui", className: "turma aqui", subjectName: "disciplina aqui" },
+    "en-US": { courseName: "course here", className: "class here", subjectName: "subject here" },
+    "es-ES": { courseName: "curso aquí", className: "grupo aquí", subjectName: "asignatura aquí" },
+    "fr-FR": { courseName: "cursus ici", className: "classe ici", subjectName: "matière ici" },
+  };
+  const textoComAcademico = preencherAcademico(textoComIdentidade,
+    exemplosAcademicos[config?.__documentLocale] || exemplosAcademicos["pt-BR"]);
   let final =
     substituirVariaveisPreviewDocumento(
-      texto.replace(/\{\{\s*campo:periodoData\s*\}\}/g, "____/____/________ – ____/____/________"),
+      textoComAcademico.replace(/\{\{\s*campo:periodoData\s*\}\}/g, "____/____/________ – ____/____/________"),
       config
     );
 
@@ -591,6 +616,7 @@ export async function POST(
     }
 
     let pdfBuffer: Uint8Array | undefined;
+    let fontesSubstituidas: string[] = [];
     const inicioTentativas = Date.now();
     for (let tentativa = 1; tentativa <= 2; tentativa++) {
       try {
@@ -680,6 +706,11 @@ export async function POST(
       }
     });
 
+    fontesSubstituidas = await fontesSubstituidasNaPrevia(page).catch((erro: unknown) => {
+      console.warn("[PDF-PREVIEW] font check unavailable", erro instanceof Error ? erro.name : "unknown");
+      return [];
+    });
+
     // Temporary diagnostics: preview deployments only; never log document text.
     if (process.env.VERCEL_ENV === "preview") {
       try {
@@ -756,6 +787,7 @@ export async function POST(
           "Cache-Control":
             "no-store",
           "X-PHANYX-PDF-Warning": logoIndisponivel ? "LOGO_UNAVAILABLE" : "",
+          "X-PHANYX-PDF-Substituted-Fonts": fontesSubstituidas.map(fonte => encodeURIComponent(fonte)).join(","),
         },
       }
     );

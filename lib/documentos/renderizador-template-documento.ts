@@ -1,6 +1,7 @@
 import { renderizarPreviaCamposDocumento } from "@/lib/documentos/campos-interativos";
 import { CSS_LISTAS_PHANYX } from "@/lib/documentos/estilos-listas-editor";
 import { normalizarModeloPapelTimbrado, visualPapelTimbrado } from "@/lib/documentos/modelos-papel-timbrado";
+import { cssTitulosTemplate, FONTE_PADRAO_TEMPLATE } from "@/lib/documentos/tipografia-template";
 export type FormatoImpressaoDocumento =
   | "A4_INTEIRA"
   | "DUAS_VIAS_A4";
@@ -1481,10 +1482,7 @@ function cssCompartilhado(
       padding: 0;
       background: #ffffff;
       color: #000000;
-      font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
+      font-family: ${FONTE_PADRAO_TEMPLATE};
       font-size: 11pt;
       line-height: normal;
       -webkit-print-color-adjust:
@@ -1517,13 +1515,9 @@ function cssCompartilhado(
       overflow-wrap: anywhere;
     }
 
-    .phanyx-conteudo div,
-.phanyx-conteudo h1,
-.phanyx-conteudo h2,
-.phanyx-conteudo h3,
-.phanyx-conteudo h4,
-.phanyx-conteudo h5,
-.phanyx-conteudo h6,
+    ${cssTitulosTemplate(".phanyx-conteudo")}
+
+.phanyx-conteudo div,
 .phanyx-conteudo p {
   margin-top: 0;
   margin-bottom: 0;

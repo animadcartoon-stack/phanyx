@@ -7,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 import { marketingAlternates } from "@/lib/public-marketing";
 import { marketingCopy } from "@/lib/public-marketing";
 import { marketingPath } from "@/lib/public-marketing";
-import { linkContatoPhanyx } from "@/lib/contatos-phanyx";
+import ContatoEmailLink from "@/components/marketing/ContatoEmailLink";
 
 export const metadata = {
   alternates: marketingAlternates("home"),
@@ -279,12 +279,12 @@ export default function HomePage() {
                       Ver planos
                     </Link>
 
-                    <a
-                      href={linkContatoPhanyx()}
+                    <ContatoEmailLink
+                      canal="comercial"
                       className="inline-flex w-full items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-6 py-4 text-sm font-semibold text-white backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:bg-white/15 sm:w-auto sm:py-3.5"
                     >
                       Falar com comercial
-                    </a>
+                    </ContatoEmailLink>
                   </div>
 
                   <div className="mt-5 rounded-3xl border border-white/10 bg-white/10 p-3 backdrop-blur sm:inline-flex sm:rounded-2xl sm:p-2">
