@@ -1,3 +1,7 @@
+import camposInterativos from "@/messages/document-interactive-fields.json";
+import type { LocalePhanyx } from "@/i18n/config";
+import type { PDFPage } from "pdf-lib";
+import { ATRIBUTO_INICIO_ANEXO, type BlocoAssinaturasContrato } from "@/lib/documentos/campos-interativos";
 import { NextResponse } from "next/server";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import fs from "fs";
@@ -691,6 +695,353 @@ export async function GET(req: Request) {
 
     validarVariaveisContrato(contratoFinalCorrigido);
 
+    const rotulosCampos = camposInterativos[localeDocumento as LocalePhanyx];
+
+    async function criarNovaPagina() {
+      const pagina = pdfDoc.addPage([pageWidth, pageHeight]);
+      await desenharCabecalho(pagina);
+      return pagina;
+    }
+
+    let blocoPosicionado = false;
+    async function desenharBlocoAssinaturas(page: PDFPage, y: number, config?: BlocoAssinaturasContrato) {
+      const escalaLargura = (config?.largura ?? 100) / 100;
+      const posicaoX = (x: number) => 50 + (x - 50) * escalaLargura;
+
+      y -= 20;
+
+      if (y < (config?.testemunhas ? 235 : 190)) {
+        page = await criarNovaPagina();
+        y = pageHeight - 170;
+      }
+
+      page.drawText(config ? rotulosCampos.signatures : "Assinaturas", {
+        x: margemX,
+        y,
+        size: 12,
+        font: bold,
+        color: rgb(0.08, 0.08, 0.08),
+      });
+
+      y -= 34;
+      const linhaY = y;
+
+      const assinaturaAlunoBase64 = data?.contrato?.assinatura?.imagem;
+
+      if (assinaturaAlunoBase64) {
+        try {
+          const base64Limpo = String(assinaturaAlunoBase64).includes(",")
+            ? String(assinaturaAlunoBase64).split(",")[1]
+            : String(assinaturaAlunoBase64);
+
+          const assinaturaBytes = Buffer.from(base64Limpo, "base64");
+          const assinaturaImagem = await pdfDoc.embedPng(assinaturaBytes);
+
+          const assinaturaAlunoConfig = {
+            x: posicaoX(65),
+            y: linhaY + 1,
+            width: 100 * escalaLargura,
+            height: 30,
+            opacity: 1,
+          };
+
+          page.drawImage(assinaturaImagem, assinaturaAlunoConfig);
+          page.drawImage(assinaturaImagem, {
+            ...assinaturaAlunoConfig,
+            x: assinaturaAlunoConfig.x + 0.4,
+          });
+          page.drawImage(assinaturaImagem, {
+            ...assinaturaAlunoConfig,
+            y: assinaturaAlunoConfig.y + 0.4,
+          });
+        } catch (e) {
+          console.error("Erro ao desenhar assinatura do aluno no PDF:", e);
+        }
+      }
+
+      const assinaturaSecretariaBase64 =
+        data?.contrato?.assinaturaSecretariaImagem;
+
+      const assinaturaSecretariaNome =
+        data?.contrato?.assinaturaSecretariaNome || null;
+
+      const assinaturaSecretariaEm =
+        data?.contrato?.assinaturaSecretariaEm || null;
+
+      if (assinaturaSecretariaBase64) {
+        try {
+          const base64Completo = String(assinaturaSecretariaBase64);
+          const base64Limpo = base64Completo.includes(",")
+            ? base64Completo.split(",")[1]
+            : base64Completo;
+
+          const assinaturaBytes = Buffer.from(base64Limpo, "base64");
+
+          let assinaturaImagem;
+
+          if (base64Completo.includes("image/jpeg") || base64Completo.includes("image/jpg")) {
+            assinaturaImagem = await pdfDoc.embedJpg(assinaturaBytes);
+          } else {
+            assinaturaImagem = await pdfDoc.embedPng(assinaturaBytes);
+          }
+
+          const assinaturaSecretariaConfig = {
+            x: posicaoX(424),
+            y: linhaY + 1,
+            width: 105 * escalaLargura,
+            height: 30,
+            opacity: 1,
+          };
+
+          page.drawImage(assinaturaImagem, assinaturaSecretariaConfig);
+          page.drawImage(assinaturaImagem, {
+            ...assinaturaSecretariaConfig,
+            x: assinaturaSecretariaConfig.x + 0.4,
+          });
+          page.drawImage(assinaturaImagem, {
+            ...assinaturaSecretariaConfig,
+            y: assinaturaSecretariaConfig.y + 0.4,
+          });
+          page.drawImage(assinaturaImagem, {
+            ...assinaturaSecretariaConfig,
+            x: assinaturaSecretariaConfig.x - 0.4,
+          });
+        } catch (e) {
+          console.error("Erro ao desenhar assinatura da secretaria:", e);
+        }
+      }
+
+      if (!assinaturaSecretariaBase64 && assinaturaSecretariaNome) {
+        page.drawText("Assinado digitalmente por:", {
+          x: posicaoX(428),
+          y: linhaY + 19,
+          size: 7,
+          font,
+          color: rgb(0, 0, 0),
+        });
+
+        page.drawText(String(assinaturaSecretariaNome).slice(0, 34), {
+          x: posicaoX(428),
+          y: linhaY + 10,
+          size: 8,
+          font: bold,
+          color: rgb(0, 0, 0),
+        });
+
+        if (assinaturaSecretariaEm) {
+          page.drawText(
+            `Em ${new Date(assinaturaSecretariaEm).toLocaleDateString("pt-BR")}`,
+            {
+              x: posicaoX(428),
+              y: linhaY + 1,
+              size: 7,
+              font,
+              color: rgb(0, 0, 0),
+            }
+          );
+        }
+      }
+
+      page.drawLine({
+        start: { x: posicaoX(50), y: linhaY },
+        end: { x: posicaoX(190), y: linhaY },
+        thickness: 1,
+        color: rgb(0, 0, 0),
+      });
+
+      page.drawLine({
+        start: { x: posicaoX(228), y: linhaY },
+        end: { x: posicaoX(368), y: linhaY },
+        thickness: 1,
+        color: rgb(0, 0, 0),
+      });
+
+      if (assinaturaDiretorEmbed && (config || !temAssinaturaDiretorVisual)) {
+        const assinaturaDiretorConfig = {
+          x: posicaoX(248),
+          y: linhaY + 1,
+          width: 125 * escalaLargura,
+          height: 32,
+          opacity: 1,
+        };
+
+        page.drawImage(assinaturaDiretorEmbed, assinaturaDiretorConfig);
+        page.drawImage(assinaturaDiretorEmbed, { ...assinaturaDiretorConfig, x: assinaturaDiretorConfig.x + 0.5 });
+        page.drawImage(assinaturaDiretorEmbed, { ...assinaturaDiretorConfig, y: assinaturaDiretorConfig.y + 0.5 });
+        page.drawImage(assinaturaDiretorEmbed, { ...assinaturaDiretorConfig, x: assinaturaDiretorConfig.x - 0.5 });
+        page.drawImage(assinaturaDiretorEmbed, { ...assinaturaDiretorConfig, y: assinaturaDiretorConfig.y - 0.5 });
+      }
+
+      page.drawLine({
+        start: { x: posicaoX(406), y: linhaY },
+        end: { x: posicaoX(545), y: linhaY },
+        thickness: 1,
+        color: rgb(0, 0, 0),
+      });
+
+      y -= 18;
+
+      const nomeTitular = (config && (data?.contrato?.assinatura?.nome || data?.titularContrato?.nome)) || data?.aluno?.nome || "Aluno/Titular";
+      page.drawText(nomeTitular, {
+        x: posicaoX(50),
+        y,
+        ...(config ? { maxWidth: 140 * escalaLargura, lineHeight: 10 } : {}),
+        size: 10,
+        font,
+        color: rgb(0, 0, 0),
+      });
+
+      page.drawText(responsavelNome, {
+        x: posicaoX(228),
+        y,
+        size: 10,
+        font,
+        color: rgb(0, 0, 0),
+      });
+
+      page.drawText(config ? rotulosCampos.secretariat : "Atendente / Secretaria", {
+        x: posicaoX(406),
+        y,
+        size: 10,
+        font,
+        color: rgb(0, 0, 0),
+      });
+
+      y -= 14;
+
+      page.drawText(config ? rotulosCampos.holder : "Titular do contrato", {
+        x: posicaoX(50),
+        y,
+        size: 9,
+        font,
+        color: rgb(0.35, 0.35, 0.35),
+      });
+
+      page.drawText(`${responsavelCargo} • CNPJ: ${cnpj}`, {
+        x: posicaoX(228),
+        y,
+        size: 9,
+        font,
+        color: rgb(0.35, 0.35, 0.35),
+      });
+
+      page.drawText(config ? rotulosCampos.administrativeSignature : "Assinatura administrativa", {
+        x: posicaoX(406),
+        y,
+        size: 9,
+        font,
+        color: rgb(0.35, 0.35, 0.35),
+      });
+
+      if (config?.testemunhas !== false) {
+        y -= 42;
+
+        if (!config && y < 120) {
+          page = await criarNovaPagina();
+          y = pageHeight - 170;
+        }
+
+        page.drawText(config ? rotulosCampos.witnesses : "Testemunhas", {
+          x: margemX,
+          y,
+          size: 12,
+          font: bold,
+          color: rgb(0.08, 0.08, 0.08),
+        });
+
+        y -= 28;
+
+        page.drawLine({
+          start: { x: posicaoX(50), y },
+          end: { x: posicaoX(240), y },
+          thickness: 1,
+          color: rgb(0, 0, 0),
+        });
+
+        page.drawLine({
+          start: { x: posicaoX(305), y },
+          end: { x: posicaoX(495), y },
+          thickness: 1,
+          color: rgb(0, 0, 0),
+        });
+
+        y -= 15;
+
+        page.drawText(config ? rotulosCampos.name : "Nome:", {
+          x: posicaoX(50),
+          y,
+          size: 9,
+          font,
+          color: rgb(0.35, 0.35, 0.35),
+        });
+
+        page.drawText(config ? rotulosCampos.name : "Nome:", {
+          x: posicaoX(305),
+          y,
+          size: 9,
+          font,
+          color: rgb(0.35, 0.35, 0.35),
+        });
+
+        y -= 12;
+
+        page.drawText("CPF:", {
+          x: posicaoX(50),
+          y,
+          size: 9,
+          font,
+          color: rgb(0.35, 0.35, 0.35),
+        });
+
+        page.drawText("CPF:", {
+          x: posicaoX(305),
+          y,
+          size: 9,
+          font,
+          color: rgb(0.35, 0.35, 0.35),
+        });
+
+      }
+
+      if (!config && assinaturaDiretorEmbed && camposAssinaturaDiretor.length > 0) {
+        const paginaDestino = pdfDoc.getPage(pdfDoc.getPageCount() - 1);
+        const campo = camposAssinaturaDiretor[0];
+
+        // Medidas do preview novo em app/admin/documentos/templates/page.tsx
+        const previewLinhaX = 40;
+        const previewLinhaY = 92;
+
+        // Linha REAL do diretor no PDF
+        const pdfLinhaX = 228;
+        const pdfLinhaY = linhaY + 2;
+
+        const escala = 0.34;
+
+        const larguraCampo = Number(campo.largura || 180);
+        const alturaCampo = Number(campo.altura || 55);
+
+        const x =
+          pdfLinhaX + (Number(campo.x || 0) - previewLinhaX) * escala;
+
+        const y =
+          pdfLinhaY +
+          (previewLinhaY - (Number(campo.y || 0) + alturaCampo)) * escala;
+
+        const largura = larguraCampo * escala;
+        const altura = alturaCampo * escala;
+
+        paginaDestino.drawImage(assinaturaDiretorEmbed, {
+          x,
+          y,
+          width: largura,
+          height: altura,
+          opacity: 1,
+        });
+      }
+
+      return { page, y: y - 8 };
+    }
+
     const resultado = await renderizarHtmlTipTapNoPdf({
       html: contratoFinalCorrigido,
       page,
@@ -700,346 +1051,19 @@ export async function GET(req: Request) {
       yInicial: y,
       maxWidth: larguraTexto,
       pageHeight,
-      criarNovaPagina: async () => {
-        const novaPagina = pdfDoc.addPage([pageWidth, pageHeight]);
-
-        await desenharCabecalho(novaPagina);
-
-        page = novaPagina;
-
-        return novaPagina;
+      criarNovaPagina,
+      desenharAssinaturas: async (pagina: PDFPage, posicaoY: number, config: BlocoAssinaturasContrato) => {
+        if (blocoPosicionado) return { page: pagina, y: posicaoY };
+        blocoPosicionado = true;
+        return desenharBlocoAssinaturas(pagina, posicaoY, config);
       },
     });
 
-    page = resultado.page;
-    y = resultado.y;
-
-    y -= 20;
-
-    if (y < 190) {
-      page = pdfDoc.addPage([pageWidth, pageHeight]);
-      await desenharCabecalho(page);
-      y = pageHeight - 170;
-    }
-
-    page.drawText("Assinaturas", {
-      x: margemX,
-      y,
-      size: 12,
-      font: bold,
-      color: rgb(0.08, 0.08, 0.08),
-    });
-
-    y -= 34;
-    const linhaY = y;
-
-    const assinaturaAlunoBase64 = data?.contrato?.assinatura?.imagem;
-
-    if (assinaturaAlunoBase64) {
-      try {
-        const base64Limpo = String(assinaturaAlunoBase64).includes(",")
-          ? String(assinaturaAlunoBase64).split(",")[1]
-          : String(assinaturaAlunoBase64);
-
-        const assinaturaBytes = Buffer.from(base64Limpo, "base64");
-        const assinaturaImagem = await pdfDoc.embedPng(assinaturaBytes);
-
-        const assinaturaAlunoConfig = {
-          x: 65,
-          y: linhaY + 1,
-          width: 100,
-          height: 30,
-          opacity: 1,
-        };
-
-        page.drawImage(assinaturaImagem, assinaturaAlunoConfig);
-        page.drawImage(assinaturaImagem, {
-          ...assinaturaAlunoConfig,
-          x: assinaturaAlunoConfig.x + 0.4,
-        });
-        page.drawImage(assinaturaImagem, {
-          ...assinaturaAlunoConfig,
-          y: assinaturaAlunoConfig.y + 0.4,
-        });
-      } catch (e) {
-        console.error("Erro ao desenhar assinatura do aluno no PDF:", e);
-      }
-    }
-
-    const assinaturaSecretariaBase64 =
-      data?.contrato?.assinaturaSecretariaImagem;
-
-    const assinaturaSecretariaNome =
-      data?.contrato?.assinaturaSecretariaNome || null;
-
-    const assinaturaSecretariaEm =
-      data?.contrato?.assinaturaSecretariaEm || null;
-
-    if (assinaturaSecretariaBase64) {
-      try {
-        const base64Completo = String(assinaturaSecretariaBase64);
-        const base64Limpo = base64Completo.includes(",")
-          ? base64Completo.split(",")[1]
-          : base64Completo;
-
-        const assinaturaBytes = Buffer.from(base64Limpo, "base64");
-
-        let assinaturaImagem;
-
-        if (base64Completo.includes("image/jpeg") || base64Completo.includes("image/jpg")) {
-          assinaturaImagem = await pdfDoc.embedJpg(assinaturaBytes);
-        } else {
-          assinaturaImagem = await pdfDoc.embedPng(assinaturaBytes);
-        }
-
-        const assinaturaSecretariaConfig = {
-          x: 424,
-          y: linhaY + 1,
-          width: 105,
-          height: 30,
-          opacity: 1,
-        };
-
-        page.drawImage(assinaturaImagem, assinaturaSecretariaConfig);
-        page.drawImage(assinaturaImagem, {
-          ...assinaturaSecretariaConfig,
-          x: assinaturaSecretariaConfig.x + 0.4,
-        });
-        page.drawImage(assinaturaImagem, {
-          ...assinaturaSecretariaConfig,
-          y: assinaturaSecretariaConfig.y + 0.4,
-        });
-        page.drawImage(assinaturaImagem, {
-          ...assinaturaSecretariaConfig,
-          x: assinaturaSecretariaConfig.x - 0.4,
-        });
-      } catch (e) {
-        console.error("Erro ao desenhar assinatura da secretaria:", e);
-      }
-    }
-
-    if (!assinaturaSecretariaBase64 && assinaturaSecretariaNome) {
-      page.drawText("Assinado digitalmente por:", {
-        x: 428,
-        y: linhaY + 19,
-        size: 7,
-        font,
-        color: rgb(0, 0, 0),
-      });
-
-      page.drawText(String(assinaturaSecretariaNome).slice(0, 34), {
-        x: 428,
-        y: linhaY + 10,
-        size: 8,
-        font: bold,
-        color: rgb(0, 0, 0),
-      });
-
-      if (assinaturaSecretariaEm) {
-        page.drawText(
-          `Em ${new Date(assinaturaSecretariaEm).toLocaleDateString("pt-BR")}`,
-          {
-            x: 428,
-            y: linhaY + 1,
-            size: 7,
-            font,
-            color: rgb(0, 0, 0),
-          }
-        );
-      }
-    }
-
-    page.drawLine({
-      start: { x: 50, y: linhaY },
-      end: { x: 190, y: linhaY },
-      thickness: 1,
-      color: rgb(0, 0, 0),
-    });
-
-    page.drawLine({
-      start: { x: 228, y: linhaY },
-      end: { x: 368, y: linhaY },
-      thickness: 1,
-      color: rgb(0, 0, 0),
-    });
-
-    if (assinaturaDiretorEmbed && !temAssinaturaDiretorVisual) {
-      const assinaturaDiretorConfig = {
-        x: 248,
-        y: linhaY + 1,
-        width: 125,
-        height: 32,
-        opacity: 1,
-      };
-
-      page.drawImage(assinaturaDiretorEmbed, assinaturaDiretorConfig);
-      page.drawImage(assinaturaDiretorEmbed, { ...assinaturaDiretorConfig, x: assinaturaDiretorConfig.x + 0.5 });
-      page.drawImage(assinaturaDiretorEmbed, { ...assinaturaDiretorConfig, y: assinaturaDiretorConfig.y + 0.5 });
-      page.drawImage(assinaturaDiretorEmbed, { ...assinaturaDiretorConfig, x: assinaturaDiretorConfig.x - 0.5 });
-      page.drawImage(assinaturaDiretorEmbed, { ...assinaturaDiretorConfig, y: assinaturaDiretorConfig.y - 0.5 });
-    }
-
-    page.drawLine({
-      start: { x: 406, y: linhaY },
-      end: { x: 545, y: linhaY },
-      thickness: 1,
-      color: rgb(0, 0, 0),
-    });
-
-    y -= 18;
-
-    page.drawText(data?.aluno?.nome || "Aluno/Titular", {
-      x: 50,
-      y,
-      size: 10,
-      font,
-      color: rgb(0, 0, 0),
-    });
-
-    page.drawText(responsavelNome, {
-      x: 228,
-      y,
-      size: 10,
-      font,
-      color: rgb(0, 0, 0),
-    });
-
-    page.drawText("Atendente / Secretaria", {
-      x: 406,
-      y,
-      size: 10,
-      font,
-      color: rgb(0, 0, 0),
-    });
-
-    y -= 14;
-
-    page.drawText("Titular do contrato", {
-      x: 50,
-      y,
-      size: 9,
-      font,
-      color: rgb(0.35, 0.35, 0.35),
-    });
-
-    page.drawText(`${responsavelCargo} • CNPJ: ${cnpj}`, {
-      x: 228,
-      y,
-      size: 9,
-      font,
-      color: rgb(0.35, 0.35, 0.35),
-    });
-
-    page.drawText("Assinatura administrativa", {
-      x: 406,
-      y,
-      size: 9,
-      font,
-      color: rgb(0.35, 0.35, 0.35),
-    });
-
-    y -= 42;
-
-    if (y < 120) {
-      page = pdfDoc.addPage([pageWidth, pageHeight]);
-      await desenharCabecalho(page);
-      y = pageHeight - 170;
-    }
-
-    page.drawText("Testemunhas", {
-      x: margemX,
-      y,
-      size: 12,
-      font: bold,
-      color: rgb(0.08, 0.08, 0.08),
-    });
-
-    y -= 28;
-
-    page.drawLine({
-      start: { x: 50, y },
-      end: { x: 240, y },
-      thickness: 1,
-      color: rgb(0, 0, 0),
-    });
-
-    page.drawLine({
-      start: { x: 305, y },
-      end: { x: 495, y },
-      thickness: 1,
-      color: rgb(0, 0, 0),
-    });
-
-    y -= 15;
-
-    page.drawText("Nome:", {
-      x: 50,
-      y,
-      size: 9,
-      font,
-      color: rgb(0.35, 0.35, 0.35),
-    });
-
-    page.drawText("Nome:", {
-      x: 305,
-      y,
-      size: 9,
-      font,
-      color: rgb(0.35, 0.35, 0.35),
-    });
-
-    y -= 12;
-
-    page.drawText("CPF:", {
-      x: 50,
-      y,
-      size: 9,
-      font,
-      color: rgb(0.35, 0.35, 0.35),
-    });
-
-    page.drawText("CPF:", {
-      x: 305,
-      y,
-      size: 9,
-      font,
-      color: rgb(0.35, 0.35, 0.35),
-    });
-
-    if (assinaturaDiretorEmbed && camposAssinaturaDiretor.length > 0) {
-      const paginaDestino = pdfDoc.getPage(pdfDoc.getPageCount() - 1);
-      const campo = camposAssinaturaDiretor[0];
-
-      // Medidas do preview novo em app/admin/documentos/templates/page.tsx
-      const previewLinhaX = 40;
-      const previewLinhaY = 92;
-
-      // Linha REAL do diretor no PDF
-      const pdfLinhaX = 228;
-      const pdfLinhaY = linhaY + 2;
-
-      const escala = 0.34;
-
-      const larguraCampo = Number(campo.largura || 180);
-      const alturaCampo = Number(campo.altura || 55);
-
-      const x =
-        pdfLinhaX + (Number(campo.x || 0) - previewLinhaX) * escala;
-
-      const y =
-        pdfLinhaY +
-        (previewLinhaY - (Number(campo.y || 0) + alturaCampo)) * escala;
-
-      const largura = larguraCampo * escala;
-      const altura = alturaCampo * escala;
-
-      paginaDestino.drawImage(assinaturaDiretorEmbed, {
-        x,
-        y,
-        width: largura,
-        height: altura,
-        opacity: 1,
-      });
+    const final = blocoPosicionado ? resultado : await desenharBlocoAssinaturas(resultado.page, resultado.y);
+    page = final.page;
+    y = final.y;
+    if ((blocoPosicionado || contratoFinalCorrigido.includes(ATRIBUTO_INICIO_ANEXO)) && y < 190) {
+      page = await criarNovaPagina();
     }
 
     const totalPaginas = pdfDoc.getPageCount();

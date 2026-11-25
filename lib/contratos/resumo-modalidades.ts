@@ -1,3 +1,4 @@
+import { inserirAntesDoAnexo } from "@/lib/documentos/campos-interativos";
 import { getTranslations } from "next-intl/server";
 import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
 
@@ -60,7 +61,5 @@ export async function anexarResumoModalidades(
     ? `<br>Antecipação abatida: ${escapar(moeda(antecipacao))}<br>Saldo nominal da primeira parcela: ${escapar(moeda(s.finais.mensalidadeCentavos - antecipacao))}`
     : "";
   const quadro = `<section data-phanyx-modalidades="1" style="margin-top:20px;color:#0f172a"><h2>${escapar(t("summary"))}: ${escapar(nome)}</h2><table style="width:100%;border-collapse:collapse"><thead><tr><th>${escapar(t("courses"))}</th><th>${escapar(t("class"))}</th><th>${escapar(t("selectedSchedule"))}</th></tr></thead><tbody>${linhas}</tbody></table>${s.finais ? `<p>${escapar(t("enrollmentFee"))}: ${escapar(moeda(s.finais.matriculaCentavos))}<br>${escapar(t("monthly"))}: ${escapar(moeda(s.finais.mensalidadeCentavos))}<br>${escapar(t("installments"))}: ${s.finais.quantidadeParcelas}<br>${escapar(t("total"))}: ${escapar(moeda(s.finais.matriculaCentavos - antecipacao + s.finais.mensalidadeCentavos * s.finais.quantidadeParcelas))}${primeira}</p>` : ""}</section>`;
-  return /<\/body>/i.test(html)
-    ? html.replace(/<\/body>/i, `${quadro}</body>`)
-    : html + quadro;
+  return inserirAntesDoAnexo(html, quadro);
 }

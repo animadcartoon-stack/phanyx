@@ -40,6 +40,8 @@ import { Table,
   TableCell,
   TableHeader } from "@tiptap/extension-table";
 import { createPortal } from "react-dom";
+import { AssinaturasContratoPHANYX, CampoEscolhaPHANYX, InicioAnexoPHANYX } from "@/components/documentos/CamposInterativosEditor";
+import { CONFIG_ASSINATURAS_PADRAO, ATRIBUTO_ASSINATURAS_CONTRATO } from "@/lib/documentos/campos-interativos";
 import { useTranslations, useLocale } from "next-intl";
 import { ESTILOS_LISTA, estiloListaValido, nomeFonteValido, CSS_LISTAS_PHANYX, type EstiloLista } from "@/lib/documentos/estilos-listas-editor";
 import {
@@ -2883,6 +2885,8 @@ type Props = {
     html: string
   ) => void;
 
+  contratoAcademico?: boolean;
+
   inserirTextoRef?: { current: ((texto: string) => boolean) | null };
 
   formatoImpressao?:
@@ -3414,6 +3418,7 @@ export default function EditorTemplatePHANYX({
   value,
   onChange,
   inserirTextoRef,
+  contratoAcademico = false,
 
   formatoImpressao =
   "A4_INTEIRA",
@@ -3444,6 +3449,7 @@ export default function EditorTemplatePHANYX({
   configPreview =
   null,
 }: Props) {
+  const tCampos = useTranslations("DocumentInteractiveFields");
   const tToolbar =
     useTranslations(
       "AdminDocumentsEditorToolbar"
@@ -3689,6 +3695,9 @@ export default function EditorTemplatePHANYX({
     extensions: [
       StarterKit,
       EstilosListaPHANYX,
+      CampoEscolhaPHANYX,
+      AssinaturasContratoPHANYX,
+      InicioAnexoPHANYX,
 
       PageBreakPHANYX.configure({
         textoRodape:
@@ -4690,9 +4699,8 @@ export default function EditorTemplatePHANYX({
 
           if (
             alturaPaginaAtual > 0 &&
-            alturaPaginaAtual +
-            alturaElemento >
-            alturaUtilPx
+            (node.type.name === InicioAnexoPHANYX.name ||
+              alturaPaginaAtual + alturaElemento > alturaUtilPx)
           ) {
             quebrasDesejadas.push({
               posicao:
@@ -5903,6 +5911,39 @@ export default function EditorTemplatePHANYX({
               {tToolbar("main.title")}
             </div>
             <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                  <button type="button" className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold dark:border-slate-600"
+                    onClick={() => editor.chain().focus().insertContent({
+                      type: CampoEscolhaPHANYX.name,
+                      attrs: { config: {
+                        id: crypto.randomUUID(),
+                        pergunta: tCampos("question"),
+                        opcoes: [tCampos("allow"), tCampos("decline")],
+                        obrigatoria: true,
+                        estilo: "parenteses",
+                      } },
+                    }).run()}>
+                    {tCampos("addChoice")}
+                  </button>
+                  <button type="button" className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold dark:border-slate-600"
+                    disabled={duasVias}
+                    onClick={() => editor.chain().focus().insertContent([
+                      { type: InicioAnexoPHANYX.name },
+                      { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: tCampos("annexTitle") }] },
+                      { type: "paragraph" },
+                    ]).run()}>
+                    {tCampos("addAnnex")}
+                  </button>
+                  {contratoAcademico && <button type="button" className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold disabled:opacity-50 dark:border-slate-600"
+                    disabled={value.includes(ATRIBUTO_ASSINATURAS_CONTRATO)}
+                    onClick={() => editor.chain().focus().insertContent({
+                      type: AssinaturasContratoPHANYX.name,
+                      attrs: { config: CONFIG_ASSINATURAS_PADRAO },
+                    }).run()}>
+                    {tCampos("signatureBlock")}
+                  </button>}
+              </div>
+
               <div className="relative min-w-[180px]">
                 <div className="flex max-w-full items-center rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950">
                   <input ref={campoFonteRef} type="text" value={fonteDigitada ?? fonteAtual} placeholder={tToolbar("main.font")}

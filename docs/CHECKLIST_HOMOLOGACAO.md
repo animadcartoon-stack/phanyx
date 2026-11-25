@@ -9,3 +9,10 @@
 - [ ] PDF: comparar editor, prévia e documento final; conferir fonte efetiva (CDP ou fontes incorporadas), tamanho, cor, peso, estilo, paginação e timbrado. Usar dados fictícios em ambiente isolado.
 - [ ] Registrar falhas conhecidas, evidências, riscos e procedimento de reversão. Não mascarar regressão preexistente como sucesso.
 - [ ] Aprovação explícita antes de merge; CI obrigatório configurado no GitHub.
+
+## Campos interativos e anexos
+
+- [ ] Adicionar três escolhas ao Anexo IV de um contrato fictício. Conferir a quebra entre contrato e anexo e imprimir com todas as opções em branco.
+- [ ] Tentar assinar com pergunta obrigatória em branco. Assinar depois com respostas mistas e conferir a marcação no PDF. Reabrir o link e a via administrativa.
+- [ ] Arrastar o bloco automático para antes e depois do anexo. Conferir as três assinaturas, a largura, a opção de testemunhas e a ausência de duplicação.
+- [ ] Aplicar a migração de respostas no banco de Preview, com dados fictícios, antes de testar o fluxo completo.

@@ -1,3 +1,5 @@
+import { calcularIdadeContrato } from "@/lib/contratos/contrato-matricula";
+import { lerCamposEscolha } from "@/lib/documentos/campos-interativos";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getUserFromToken } from "@/lib/server-auth";
@@ -33,16 +35,21 @@ const contratoPendente = await prisma.contrato.findFirst({
   select: {
     id: true,
     tokenAssinatura: true,
+    conteudo: true,
   },
 });
 
 if (contratoPendente) {
+  const idade = calcularIdadeContrato(aluno.dataNascimento);
+  const assinaturaDoResponsavel = idade !== null && idade < 18 &&
+    lerCamposEscolha(contratoPendente.conteudo).length > 0;
   return NextResponse.json(
     {
       bloqueadoPorContrato: true,
-      error:
-        "Você precisa assinar seu contrato de matrícula antes de acessar as aulas.",
-      assinaturaUrl: `/assinatura/${contratoPendente.tokenAssinatura}`,
+      error: assinaturaDoResponsavel
+        ? "O responsável deve assinar o contrato pelo link enviado ao e-mail cadastrado."
+        : "Você precisa assinar seu contrato de matrícula antes de acessar as aulas.",
+      ...(assinaturaDoResponsavel ? {} : { assinaturaUrl: `/assinatura/${contratoPendente.tokenAssinatura}` }),
     },
     { status: 403 }
   );

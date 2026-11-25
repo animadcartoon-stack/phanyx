@@ -4,6 +4,7 @@ import { valoresEtapaDocumento } from "@/lib/academico/organizacao";
 import { resumoCursosDocumento } from "@/lib/documentos/cursos-contratados";
 import { anexarResumoModalidades } from "@/lib/contratos/resumo-modalidades";
 import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
+import { posicionarAssinaturasAntesDoAnexo, renderizarCamposEscolha, selecionarConteudoContrato } from "@/lib/documentos/campos-interativos";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
@@ -1022,7 +1023,10 @@ E por estarem de pleno acordo, firmam o presente contrato.
       }
     }
 
-    const contratoFinal = contratoGerado;
+    const contratoFinal = renderizarCamposEscolha(
+      posicionarAssinaturasAntesDoAnexo(selecionarConteudoContrato(contratoExistente.conteudo, contratoGerado)),
+      contratoExistente.assinatura?.respostasCampos as Record<string, number> | null ?? {},
+    );
     return NextResponse.json({
       matricula: {
         id: matricula.id,
@@ -1109,6 +1113,7 @@ E por estarem de pleno acordo, firmam o presente contrato.
       disciplinas: disciplinasLista,
       valorContrato,
       contratoFinal,
+      titularContrato: { nome: titularContrato.nome },
 
       template: templateContrato
         ? {

@@ -1,3 +1,4 @@
+import { validarCamposModelo } from "@/lib/documentos/campos-interativos";
 import { VARIAVEIS_ANUIDADE_CONTRATO } from "@/lib/contratos/anuidade-contrato";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -638,6 +639,11 @@ export async function POST(req: Request) {
         { error: "Conteúdo do template é obrigatório" },
         { status: 400 }
       );
+    }
+
+    const erroCampos = validarCamposModelo(conteudo ?? "");
+    if (erroCampos) {
+      return NextResponse.json({ codigo: erroCampos }, { status: 422 });
     }
 
     const template = await prisma.documentoTemplate.create({

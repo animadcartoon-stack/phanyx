@@ -1,3 +1,4 @@
+import { validarCamposModelo } from "@/lib/documentos/campos-interativos";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
@@ -121,6 +122,11 @@ export async function PATCH(
       ? body.camposVisuais
       : []
     : undefined;
+
+    const erroCampos = validarCamposModelo(conteudo ?? "");
+    if (erroCampos) {
+      return NextResponse.json({ codigo: erroCampos }, { status: 422 });
+    }
 
     const atualizado = await prisma.documentoTemplate.update({
       where: { id },

@@ -17,6 +17,7 @@ import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import EditorTemplatePHANYX from "@/components/documentos/EditorTemplatePHANYX";
 import ConfiguradorLinhasDocente from "@/components/documentos-docentes/ConfiguradorLinhasDocente";
 import HistoricoTemplateEditorPHANYX from "@/components/documentos/HistoricoTemplateEditorPHANYX";
+import { validarCamposModelo } from "@/lib/documentos/campos-interativos";
 import { useLocale, useTranslations } from "next-intl";
 
 // Native dialog uses the browser top layer, above sticky editor and floating controls.
@@ -1169,6 +1170,7 @@ function AdminDocumentosTemplatesPage() {
       "AdminDocuments"
     );
 
+  const tCampos = useTranslations("DocumentInteractiveFields");
   const tVisual =
     useTranslations(
       "AdminDocumentsTemplatesVisualFields"
@@ -1606,6 +1608,12 @@ function AdminDocumentosTemplatesPage() {
   }
 
   async function salvarTemplate() {
+    const erroCampos = validarCamposModelo(conteudo);
+    if (erroCampos) {
+      setMensagem(tCampos(erroCampos));
+      return;
+    }
+
     try {
       setSaving(true);
       setMensagem("");
@@ -5379,6 +5387,7 @@ function AdminDocumentosTemplatesPage() {
                         "sem-assinatura",
                       ].join("-")}
                       value={conteudo}
+                      contratoAcademico={tipo === "CONTRATO"}
                       onChange={setConteudo}
                       formatoImpressao={
                         formatoImpressao

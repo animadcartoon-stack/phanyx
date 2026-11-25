@@ -1,3 +1,8 @@
+import {
+  ATRIBUTO_INICIO_ANEXO,
+  lerBlocoAssinaturas,
+  type BlocoAssinaturasContrato,
+} from "../documentos/campos-interativos";
 import { rgb } from "pdf-lib";
 
 type Align = "left" | "center" | "right";
@@ -22,8 +27,10 @@ type BlocoPdf = {
   | "texto"
   | "hr"
   | "table"
-  | "pageBreak";
+  | "pageBreak"
+  | "assinaturas";
   htmlOriginal?: string;
+  assinaturas?: BlocoAssinaturasContrato;
 };
 
 const TAMANHO_PADRAO = 11;
@@ -37,11 +44,10 @@ const ESPACO_LINHA_VAZIA =
 const ESPACO_TITULO = 5;
 
 function decode(texto: string) {
-  return String(texto || "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
+  const entidades: Record<string, string> = {
+    nbsp: " ", amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'",
+  };
+  return String(texto || "").replace(/&(nbsp|amp|lt|gt|quot|#39);/g, (_entidade, chave) => entidades[chave]);
 }
 
 function extrairStyle(valor: string, propriedade: string) {
@@ -299,6 +305,18 @@ function extrairBlocosTipTap(html: string): BlocoPdf[] {
     const tag = match[1].toLowerCase();
     const attrs = match[2] || "";
     const bruto = match[3] || "";
+
+    if (tag === "div") {
+      const assinaturas = lerBlocoAssinaturas(attrs);
+      if (assinaturas) {
+        blocos.push({ tokens: [], align: "left", vazio: false, titulo: false, tipo: "assinaturas", assinaturas });
+        continue;
+      }
+      if (attrs.includes(ATRIBUTO_INICIO_ANEXO)) {
+        blocos.push({ tokens: [], align: "left", vazio: false, titulo: false, tipo: "pageBreak" });
+        continue;
+      }
+    }
 
     const style =
       attrs.match(/style="([^"]*)"/i)?.[1] ||
@@ -684,6 +702,7 @@ export async function renderizarHtmlTipTapNoPdf({
   maxWidth,
   pageHeight,
   criarNovaPagina,
+  desenharAssinaturas,
 }: any) {
   let pagina = page;
   let y = yInicial;
@@ -716,6 +735,16 @@ export async function renderizarHtmlTipTapNoPdf({
           false;
       }
 
+      continue;
+    }
+
+    if (bloco.tipo === "assinaturas") {
+      if (desenharAssinaturas) {
+        const resultado = await desenharAssinaturas(pagina, y, bloco.assinaturas);
+        pagina = resultado.page;
+        y = resultado.y;
+        paginaTemConteudo = true;
+      }
       continue;
     }
 

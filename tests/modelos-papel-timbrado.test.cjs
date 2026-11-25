@@ -11,7 +11,8 @@ function load(file, imports = {}) {
   return exports;
 }
 const models=load('lib/documentos/modelos-papel-timbrado.ts');
-const renderer=load('lib/documentos/renderizador-template-documento.ts',{'@/lib/documentos/modelos-papel-timbrado':models,'@/lib/documentos/estilos-listas-editor':{CSS_LISTAS_PHANYX:''}});
+const campos=load('lib/documentos/campos-interativos.ts');
+const renderer=load('lib/documentos/renderizador-template-documento.ts',{'@/lib/documentos/campos-interativos':campos,'@/lib/documentos/modelos-papel-timbrado':models,'@/lib/documentos/estilos-listas-editor':{CSS_LISTAS_PHANYX:''}});
 const styles=['PHANYX_CLASSICO','PHANYX_MODERNO','PHANYX_ACADEMICO','PERSONALIZADO_CLASSICO','PERSONALIZADO_MODERNO','PERSONALIZADO_MARCA'];
 const logo='data:image/png;base64,AA==';
 const render=(estilo,extra={})=>renderer.montarRenderizacaoDocumento({conteudo:'<p>Teste</p>',formatoImpressao:'A4_INTEIRA',instituicao:{nome:'Instituicao Teste',cnpj:'123',logoDataUri:logo,logoUrl:logo,estiloPapelTimbrado:estilo,...extra},mostrarValidacao:false});

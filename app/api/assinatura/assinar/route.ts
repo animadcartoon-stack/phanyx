@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { calcularIdadeContrato } from "@/lib/contratos/contrato-matricula";
+import { lerCamposEscolha, validarCamposModelo, validarRespostasCampos } from "@/lib/documentos/campos-interativos";
 
 export async function POST(req: Request) {
   try {
@@ -42,6 +44,8 @@ export async function POST(req: Request) {
         aluno: {
           select: {
             userId: true,
+            dataNascimento: true,
+            cpfResponsavel: true,
           },
         },
       },
@@ -53,6 +57,13 @@ export async function POST(req: Request) {
         { status: 404 }
       );
     }
+
+    if (validarCamposModelo(contrato.conteudo)) {
+      return NextResponse.json({ codigo: "campoInvalido" }, { status: 422 });
+    }
+    const campos = lerCamposEscolha(contrato.conteudo);
+    const idade = calcularIdadeContrato(contrato.aluno.dataNascimento);
+    const responsavelAssina = campos.length > 0 && idade !== null && idade < 18;
 
     /*
      * O link por e-mail continua publico por token.
@@ -75,7 +86,7 @@ export async function POST(req: Request) {
         Number(usuarioSessao.id) ===
           Number(contrato.aluno.userId);
 
-      if (!ehProprioAluno) {
+      if (responsavelAssina || !ehProprioAluno) {
         return NextResponse.json(
           {
             error:
@@ -95,6 +106,21 @@ export async function POST(req: Request) {
       );
     }
 
+    if (campos.length && body?.aceitouTermos !== true) {
+      return NextResponse.json({ codigo: "acceptTerms" }, { status: 422 });
+    }
+    if (responsavelAssina) {
+      const cpfResponsavel = contrato.aluno.cpfResponsavel?.replace(/\D/g, "");
+      if (!cpfResponsavel || cpf.replace(/\D/g, "") !== cpfResponsavel) {
+        return NextResponse.json({ codigo: "holderCpf" }, { status: 422 });
+      }
+    }
+    const resultadoRespostas = validarRespostasCampos(campos, body?.respostasCampos);
+    if (resultadoRespostas.erro) {
+      return NextResponse.json({ codigo: resultadoRespostas.erro }, { status: 422 });
+    }
+    const dadosCampos = campos.length ? { respostasCampos: resultadoRespostas.respostas } : {};
+
     const ipBruto =
       req.headers.get("x-forwarded-for") ||
       req.headers.get("x-real-ip") ||
@@ -105,7 +131,7 @@ export async function POST(req: Request) {
 
     const assinado = await prisma.$transaction(async (tx) => {
       const atualizado = await tx.contrato.updateMany({
-        where: { id: contrato.id, tokenAssinatura: token, status: "PENDENTE", dataAssinatura: null },
+        where: { id: contrato.id, tokenAssinatura: token, status: "PENDENTE", dataAssinatura: null, conteudo: contrato.conteudo },
         data: { status: "ASSINADO", dataAssinatura: new Date(), ipAssinatura, userAgent },
       });
       if (!atualizado.count) return false;
@@ -117,6 +143,7 @@ export async function POST(req: Request) {
           nome,
           cpf,
           imagem: assinaturaBase64,
+          ...dadosCampos,
           data: new Date(),
         },
         create: {
@@ -124,6 +151,7 @@ export async function POST(req: Request) {
           nome,
           cpf,
           imagem: assinaturaBase64,
+          ...dadosCampos,
         },
       });
 
