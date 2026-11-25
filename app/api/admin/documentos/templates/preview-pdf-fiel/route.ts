@@ -1,6 +1,8 @@
 import {
   substituirVariaveisPreviewDocumento,
+  montarValoresPreviewDocumento,
 } from "@/lib/documentos/variaveis-preview-documento";
+import { preencherIdentidadeDocente } from "@/lib/documentos-docentes/identidade-automatica";
 import { montarHtmlNavegador } from "@/lib/documentos/visualizacao-navegador";
 import { NextRequest, NextResponse } from "next/server";
 import fs from "node:fs";
@@ -157,9 +159,21 @@ function substituirExemplos(
   texto: string,
   config: any
 ) {
+  const valoresIdentidade = montarValoresPreviewDocumento(config);
+  const professoresExemplo: Record<string, string> = {
+    "pt-BR": "Professor Exemplo",
+    "pt-PT": "Professor Exemplo",
+    "en-US": "Example Teacher",
+    "es-ES": "Profesor de ejemplo",
+    "fr-FR": "Enseignant exemple",
+  };
+  const textoComIdentidade = preencherIdentidadeDocente(texto, {
+    professor: professoresExemplo[config?.__documentLocale] || professoresExemplo["pt-BR"],
+    instituicao: valoresIdentidade.nomeInstituicao,
+  });
   let final =
     substituirVariaveisPreviewDocumento(
-      texto.replace(/\{\{\s*campo:periodoData\s*\}\}/g, "____/____/________ – ____/____/________"),
+      textoComIdentidade.replace(/\{\{\s*campo:periodoData\s*\}\}/g, "____/____/________ – ____/____/________"),
       config
     );
 
