@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { linkContatoPhanyx } from "@/lib/contatos-phanyx";
 import Header from "@/components/layout/Header";
 import { marketingCopy } from "@/lib/public-marketing";
 
@@ -335,15 +336,7 @@ const depoimentos = [
   },
 ];
 
-const whatsappBase = "https://wa.me/5548988101240?text=";
 const PROMO_DIAS_GRATIS = 60;
-
-function montarLinkComercial(plano: string) {
-  const mensagem = encodeURIComponent(
-    `Olá! Quero saber mais sobre o plano ${plano} do PHANYX.`
-  );
-  return `${whatsappBase}${mensagem}`;
-}
 
 export default function PlanosPage() {
   const [alunosSimulacao, setAlunosSimulacao] = useState(250);
@@ -417,9 +410,7 @@ useEffect(() => {
   </a>
 
   <a
-    href={montarLinkComercial("PHANYX - 60 dias grátis")}
-    target="_blank"
-    rel="noreferrer"
+    href={linkContatoPhanyx("Falar com especialista sobre o teste gratuito — PHANYX")}
     className="inline-flex items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/15"
   >
     Falar com especialista
@@ -761,18 +752,14 @@ useEffect(() => {
 
   <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
     <a
-      href={montarLinkComercial("Demonstração PHANYX")}
-      target="_blank"
-      rel="noreferrer"
+      href={linkContatoPhanyx("Solicitação de teste gratuito — PHANYX")}
       className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
     >
       Começar teste gratuito
     </a>
 
     <a
-      href={montarLinkComercial("Especialista PHANYX")}
-      target="_blank"
-      rel="noreferrer"
+      href={linkContatoPhanyx("Falar com especialista — PHANYX")}
       className="inline-flex items-center justify-center rounded-2xl border border-blue-300 bg-white px-6 py-3 text-sm font-bold text-blue-700 transition hover:bg-blue-100"
     >
       Falar com especialista
@@ -851,9 +838,7 @@ useEffect(() => {
 </a>
 
   <a
-    href={montarLinkComercial(plano.nome)}
-    target="_blank"
-    rel="noreferrer"
+    href={linkContatoPhanyx(`Informações sobre o plano ${plano.nome} — PHANYX`)}
     className={`inline-flex w-full items-center justify-center rounded-2xl border px-6 py-4 text-sm font-semibold transition ${
       plano.destaque
         ? "border-white/15 bg-white/10 text-white hover:bg-white/15"
@@ -1084,9 +1069,7 @@ useEffect(() => {
 
               <div className="flex flex-col gap-4">
                 <a
-                  href={montarLinkComercial("PHANYX")}
-                  target="_blank"
-                  rel="noreferrer"
+                  href={linkContatoPhanyx("Solicitação de apresentação comercial — PHANYX")}
                   className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-4 text-sm font-semibold text-white transition hover:bg-blue-500"
                 >
                   Solicitar apresentação comercial
@@ -1131,22 +1114,11 @@ useEffect(() => {
 
               <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
                 <a
-                  href={montarLinkComercial("Profissional")}
-                  target="_blank"
-                  rel="noreferrer"
+                  href={linkContatoPhanyx("Agendar demonstração do plano Profissional — PHANYX")}
                   className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-4 text-sm font-semibold text-white transition hover:bg-blue-700"
                 >
                   Agendar demonstração
                 </a>
-
-                <Link
-                  href="/ibe/matricula"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-6 py-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-100"
-                >
-                  Ver matrícula do IBE
-                </Link>
               </div>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { linkContatoPhanyx } from "@/lib/contatos-phanyx";
 import FreeToolsPromo from "@/components/marketing/FreeToolsPromo";
 import LocalizedHeader from "@/components/marketing/LocalizedHeader";
 import type { ForeignLocale } from "@/lib/localized-plans";
@@ -12,7 +13,7 @@ export default function LocalizedMarketingPage({ locale, section }: { locale: Fo
   const t = localizedHome[locale];
   const copy = marketingCopy[locale];
   const plans = marketingPath(locale, "plans");
-  const whatsapp = `https://wa.me/5548988101240?text=${encodeURIComponent(`${copy.contact} — PHANYX (${locale})`)}`;
+  const contactUrl = linkContatoPhanyx(`${copy.contact} — PHANYX (${locale})`);
 
   return (
     <div lang={locale} className="min-h-screen bg-white text-slate-900">
@@ -43,10 +44,9 @@ export default function LocalizedMarketingPage({ locale, section }: { locale: Fo
                   <span className="mt-2 block bg-gradient-to-r from-blue-300 via-blue-200 to-blue-400 bg-clip-text text-transparent">{section === "home" ? t.homeAccent : t.accent}</span>
                 </h1>
                 <p className="mt-5 max-w-xl text-sm leading-7 text-slate-300 md:text-base">{section === "academic" ? copy.intro : t.intro}</p>
-                <p className="mt-6 text-slate-300">{t.theologyLead} <a href="/ibe/matricula" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">{t.theologyLink}</a> {t.theologyEnd}</p>
                 <div className="mt-8 flex flex-wrap gap-4">
                   <Link href={plans} className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-4 text-sm font-semibold !text-white shadow-lg hover:bg-blue-500">{copy.navPlans}</Link>
-                  <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-6 py-4 text-sm font-semibold text-white hover:bg-white/15">{copy.contact}</a>
+                  <a href={contactUrl} className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-6 py-4 text-sm font-semibold text-white hover:bg-white/15">{copy.contact}</a>
                 </div>
                 <div className="mt-5 rounded-2xl border border-white/10 bg-white/10 p-3 sm:inline-flex">
                   <div className="flex flex-wrap gap-2">{t.portals.map((portal, index) => <Link key={portal} href={`/login?portal=${["aluno", "professor", "admin"][index]}&lang=${locale}`} className="rounded-xl border border-blue-200/40 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700">{["👨‍🎓", "👨‍🏫", "🛡️"][index]} {portal}</Link>)}</div>
@@ -89,7 +89,7 @@ export default function LocalizedMarketingPage({ locale, section }: { locale: Fo
 
         <section className="mx-auto max-w-5xl px-6 py-20 md:px-10 lg:px-12"><div className="text-center"><p className="text-sm font-semibold tracking-[0.2em] text-blue-700">{t.faqsKicker}</p><h2 className="mt-3 text-3xl font-bold md:text-4xl">{t.faqsTitle}</h2></div><div className="mt-12 space-y-4">{t.faqs.map((faq) => <article key={faq.question} className="rounded-[24px] border border-gray-200 bg-white p-6 shadow-sm"><h3 className="text-lg font-bold">{faq.question}</h3><p className="mt-3 text-slate-600">{faq.answer}</p></article>)}</div></section>
 
-        <section className="bg-slate-950"><div className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-12"><div className="rounded-[28px] border border-white/10 bg-white/5 p-8 text-white md:p-10"><p className="text-sm font-semibold tracking-[0.2em] text-blue-200">{t.ctaKicker}</p><h2 className="mt-3 text-3xl font-bold md:text-4xl">{t.ctaTitle}</h2><p className="mt-4 max-w-3xl text-blue-100">{t.ctaDescription}</p><div className="mt-7 flex flex-wrap gap-3"><Link href={plans} className="rounded-xl bg-blue-600 px-6 py-3 font-bold !text-white">{copy.navPlans}</Link><a href={whatsapp} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-white/20 px-6 py-3 font-bold text-white">{copy.contact}</a></div></div></div></section>
+        <section className="bg-slate-950"><div className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-12"><div className="rounded-[28px] border border-white/10 bg-white/5 p-8 text-white md:p-10"><p className="text-sm font-semibold tracking-[0.2em] text-blue-200">{t.ctaKicker}</p><h2 className="mt-3 text-3xl font-bold md:text-4xl">{t.ctaTitle}</h2><p className="mt-4 max-w-3xl text-blue-100">{t.ctaDescription}</p><div className="mt-7 flex flex-wrap gap-3"><Link href={plans} className="rounded-xl bg-blue-600 px-6 py-3 font-bold !text-white">{copy.navPlans}</Link><a href={contactUrl} className="rounded-xl border border-white/20 px-6 py-3 font-bold text-white">{copy.contact}</a></div></div></div></section>
       </main>
     </div>
   );
