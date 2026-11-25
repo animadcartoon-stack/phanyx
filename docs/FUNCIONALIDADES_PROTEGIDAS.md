@@ -14,3 +14,9 @@ Estado: inventário inicial, não certificado como homologado. Expandir por mód
 
 ## Defeito aberto
 A Segoe Script solicitada no editor é substituída por Open Sans no Chromium do Preview atual. Não tratar como resolvido até verificar a fonte efetiva e o PDF. Não copiar fontes proprietárias nem alterar o catálogo silenciosamente.
+
+## Central de Ajuda — navegação (25/11/2026)
+
+Preservar os guias dos três perfis, os cinco idiomas, as imagens já existentes e o visualizador com zoom. A seção inicial de cada artigo informa o menu e seus rótulos, os botões dentro das páginas e o acesso por celular quando disponível. Os mapas são representações visuais, sem dados de clientes. Acesso direto é indicado quando não há caminho completo identificado no menu. A cobertura por artigo está em `central-ajuda-caminhos-auditoria.md`.
+
+Cobertura: 10 testes de navegação, incluindo 1.045 versões dos artigos e checagem das rotas nos arquivos de origem. Verificação visual no navegador e novas capturas reais dos menus permanecem pendentes; os mapas não substituem a homologação de cada tela protegida.

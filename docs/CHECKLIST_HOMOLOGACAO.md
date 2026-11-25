@@ -9,3 +9,16 @@
 - [ ] PDF: comparar editor, prévia e documento final; conferir fonte efetiva (CDP ou fontes incorporadas), tamanho, cor, peso, estilo, paginação e timbrado. Usar dados fictícios em ambiente isolado.
 - [ ] Registrar falhas conhecidas, evidências, riscos e procedimento de reversão. Não mascarar regressão preexistente como sucesso.
 - [ ] Aprovação explícita antes de merge; CI obrigatório configurado no GitHub.
+
+## Central de Ajuda — revisão de caminhos (25/11/2026)
+
+- [x] Branch atualizada a partir da main `80703c0`; alterações restritas à ajuda, auditoria e testes.
+- [x] Teste do defeito falha na base sem a correção (primeiro acesso à instituição não explica o menu).
+- [x] Dez testes específicos aprovados; 209 artigos em cinco idiomas, rotas de origem e assets conferidos.
+- [x] `npm run lint` aprovado com avisos já presentes no repositório.
+- [ ] `npm run test:regressao` integral verde: 811 aprovados, cinco falhas e um ignorado. As mesmas cinco falhas se reproduzem nos arquivos da main sem esta alteração.
+- [ ] `npm run typecheck`: processo encerrado pelo ambiente (`Killed`); resultado não certificado.
+- [ ] Build externo e teste visual de Preview. O navegador de testes não concluiu o carregamento da prévia; nenhuma nova captura de menu foi certificada.
+- [ ] Revisão do responsável e aprovação antes de merge/publicação.
+
+As cinco falhas preexistentes ficam em `academico-grade-ofertas`, `avulsos-sem-grade-rotas-legadas`, `certificados-logo-qr-validacao`, `desconto-pontualidade` e `matricula-mesma-tela-fonte`. Esta alteração não modifica esses fluxos nem enfraquece seus testes. Usar `docs/central-ajuda-navegacao-previa.html` como prévia local, sem tratá-la como evidência de homologação visual.
