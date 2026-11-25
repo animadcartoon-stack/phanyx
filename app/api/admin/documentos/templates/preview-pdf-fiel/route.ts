@@ -3,6 +3,7 @@ import {
   montarValoresPreviewDocumento,
 } from "@/lib/documentos/variaveis-preview-documento";
 import { preencherIdentidadeDocente } from "@/lib/documentos-docentes/identidade-automatica";
+import { preencherAcademico } from "@/lib/documentos-docentes/academico-automatico";
 import { montarHtmlNavegador } from "@/lib/documentos/visualizacao-navegador";
 import { NextRequest, NextResponse } from "next/server";
 import fs from "node:fs";
@@ -171,9 +172,18 @@ function substituirExemplos(
     professor: professoresExemplo[config?.__documentLocale] || professoresExemplo["pt-BR"],
     instituicao: valoresIdentidade.nomeInstituicao,
   });
+  const exemplosAcademicos: Record<string, { courseName: string; className: string; subjectName: string }> = {
+    "pt-BR": { courseName: "curso aqui", className: "turma aqui", subjectName: "disciplina aqui" },
+    "pt-PT": { courseName: "curso aqui", className: "turma aqui", subjectName: "disciplina aqui" },
+    "en-US": { courseName: "course here", className: "class here", subjectName: "subject here" },
+    "es-ES": { courseName: "curso aquí", className: "grupo aquí", subjectName: "asignatura aquí" },
+    "fr-FR": { courseName: "cursus ici", className: "classe ici", subjectName: "matière ici" },
+  };
+  const textoComAcademico = preencherAcademico(textoComIdentidade,
+    exemplosAcademicos[config?.__documentLocale] || exemplosAcademicos["pt-BR"]);
   let final =
     substituirVariaveisPreviewDocumento(
-      textoComIdentidade.replace(/\{\{\s*campo:periodoData\s*\}\}/g, "____/____/________ – ____/____/________"),
+      textoComAcademico.replace(/\{\{\s*campo:periodoData\s*\}\}/g, "____/____/________ – ____/____/________"),
       config
     );
 
