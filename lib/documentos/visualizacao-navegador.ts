@@ -15,7 +15,25 @@ export function montarHtmlNavegador(r: Render, locale: string, avisoLogo = false
   const [titulo, imprimir, aviso] = rotulosNavegador(locale);
   const m = r.pdfOptions.margin;
   const medida = (v:string) => /^(?:0|[0-9]+(?:\.[0-9]+)?mm)$/.test(v) ? v : '0';
-  const css = '<style>@page{size:A4;margin:'+medida(m.top)+' '+medida(m.right)+' '+medida(m.bottom)+' '+medida(m.left)+'} .phanyx-local-tools{position:relative;z-index:1000;padding:12px;background:#eef2ff;color:#111;font:14px Arial,sans-serif} .phanyx-local-tools button{padding:8px;cursor:pointer} .phanyx-local-band{position:relative;z-index:2} @media screen{body{max-width:210mm;margin:0 auto!important;padding:12px!important}} @media print{.phanyx-local-tools{display:none!important}.phanyx-local-band{break-inside:avoid}}</style>';
+  const css = `<style>
+    @page { size: A4; margin: ${medida(m.top)} ${medida(m.right)} ${medida(m.bottom)} ${medida(m.left)}; }
+    .phanyx-local-tools { position: relative; z-index: 1000; padding: 12px; background: #eef2ff; color: #111; font: 14px Arial, sans-serif; }
+    .phanyx-local-tools button { padding: 8px; cursor: pointer; }
+    .phanyx-local-band { position: relative; z-index: 2; }
+    @media screen {
+      body { max-width: 210mm; margin: 0 auto !important; padding: 12px !important; }
+      body:has(> main.phanyx-conteudo) { padding-inline: 0 !important; }
+      body > main.phanyx-conteudo {
+        width: auto;
+        margin-left: min(${medida(m.left)}, 9%);
+        margin-right: min(${medida(m.right)}, 9%);
+      }
+    }
+    @media print {
+      .phanyx-local-tools { display: none !important; }
+      .phanyx-local-band { break-inside: avoid; }
+    }
+  </style>`;
   const csp = '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'sha256-7COemBQXj2QaobdeK1nwM/7QsyuuHf/7kO8cjXPwZKE=\'; style-src \'unsafe-inline\'; img-src data: blob:; font-src data:; base-uri \'none\'; form-action \'none\'; connect-src \'none\'">';
   const tools = '<div class="phanyx-local-tools"><button type="button" id="phanyx-local-print">'+escapar(imprimir)+'</button><p>'+escapar(aviso)+'</p>'+(avisoLogo?'<p>LOGO UNAVAILABLE / LOGOTIPO INDISPONÍVEL</p>':'')+'</div>';
   // Puppeteer header/footer templates are separate documents; include them once in this experimental browser view.

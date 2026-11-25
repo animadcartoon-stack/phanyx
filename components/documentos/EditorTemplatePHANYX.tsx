@@ -1,6 +1,7 @@
 "use client";
 
 import { obterCorTextoSelecionado } from "@/lib/documentos/cor-selecao-editor";
+import { cssTitulosTemplate, FONTE_PADRAO_TEMPLATE } from "@/lib/documentos/tipografia-template";
 
 import {
   expandDocumentTagValues,
@@ -7208,6 +7209,8 @@ export default function EditorTemplatePHANYX({
         )}
 
       <style jsx global>{`
+        ${cssTitulosTemplate(".editor-template-phanyx")}
+
         /*
          * Na barra flutuante, a ferramenta de tabela
          * ganha sua propria area de rolagem.
@@ -7322,6 +7325,10 @@ export default function EditorTemplatePHANYX({
         .phanyx-document-paper .editor-template-phanyx,
         .phanyx-document-paper .editor-template-phanyx * {
           -webkit-text-fill-color: currentColor !important;
+        }
+
+        .phanyx-document-paper .editor-template-phanyx {
+          font-family: ${FONTE_PADRAO_TEMPLATE};
         }
 
         .phanyx-a4-guia-cabecalho,

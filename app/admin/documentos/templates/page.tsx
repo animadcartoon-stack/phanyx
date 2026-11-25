@@ -2066,14 +2066,27 @@ function AdminDocumentosTemplatesPage() {
   useEffect(() => {
     if (!previaAutomatica || visualizandoPdf || erroPreviaPdf || saving || !conteudo.trim()) return;
     if (ultimaPrevia.current === chavePreviaAutomatica) return;
-    const espera = Math.max(2500, 12000 - (Date.now() - ultimaRequisicaoPrevia.current));
-    const timer = window.setTimeout(() => {
-      if (previaEmCurso.current || document.visibilityState !== "visible" || !navigator.onLine) return;
-      ultimaPrevia.current = chavePreviaAutomatica;
-      ultimaRequisicaoPrevia.current = Date.now();
-      void gerarPreviaAtual.current(true);
-    }, espera);
-    return () => window.clearTimeout(timer);
+    let timer: number | undefined;
+    const podeAtualizar = () => document.visibilityState === "visible" && navigator.onLine;
+    const agendar = () => {
+      window.clearTimeout(timer);
+      if (!podeAtualizar() || ultimaPrevia.current === chavePreviaAutomatica) return;
+      const espera = Math.max(2500, 12000 - (Date.now() - ultimaRequisicaoPrevia.current));
+      timer = window.setTimeout(() => {
+        if (previaEmCurso.current || !podeAtualizar()) return;
+        ultimaPrevia.current = chavePreviaAutomatica;
+        ultimaRequisicaoPrevia.current = Date.now();
+        void gerarPreviaAtual.current(true);
+      }, espera);
+    };
+    agendar();
+    document.addEventListener("visibilitychange", agendar);
+    window.addEventListener("online", agendar);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener("visibilitychange", agendar);
+      window.removeEventListener("online", agendar);
+    };
   }, [previaAutomatica, chavePreviaAutomatica, visualizandoPdf, erroPreviaPdf, saving, conteudo]);
 
   function aplicarModeloInicial() {
