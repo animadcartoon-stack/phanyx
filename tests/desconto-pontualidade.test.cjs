@@ -143,22 +143,18 @@ test("baixa manual grava valor recebido, desconto e status de quitação no caix
   };
   const movimentos = [];
   const historico = [];
-  let baixasTradicionais = 0;
-  let baixasComPontualidade = 0;
+  const valoresGravados = [];
   const salvar = async ({ data }) => movimentos.push(data);
   const db = {
     configuracaoFinanceiraInstituicao: { findUnique: async () => ({ permitirPagamentoParcial: false }) },
     configuracaoInstituicao: { findUnique: async () => null },
     lancamentoFinanceiro: {
       findFirst: async ({ where }) => where.instituicaoId === 7 ? dados : null,
-      update: async ({ data, where }) => {
-        assert.equal(where.id, 42);
-        baixasTradicionais++;
-        Object.assign(dados, data);
-      },
       updateMany: async ({ data, where }) => {
+        assert.equal(where.id, 42);
         assert.equal(where.instituicaoId, 7);
-        baixasComPontualidade++;
+        assert.equal(where.updatedAt, dados.updatedAt);
+        valoresGravados.push(data.valorPago);
         Object.assign(dados, data);
         return { count: 1 };
       },
@@ -187,8 +183,7 @@ test("baixa manual grava valor recebido, desconto e status de quitação no caix
   assert.equal(historico[0].metadata.pontualidade.desconto, 15);
   assert.equal((await PATCH(req)).status, 409);
   assert.equal(movimentos.length, 1);
-  assert.equal(baixasComPontualidade, 1);
-  assert.equal(baixasTradicionais, 0);
+  assert.deepEqual(valoresGravados, [285]);
 
   Object.assign(dados, {
     status: "PENDENTE", valorOriginal: 360, valorFinal: 360, valorPago: 0,
@@ -201,8 +196,7 @@ test("baixa manual grava valor recebido, desconto e status de quitação no caix
   assert.equal(dados.descontoValor, 0);
   assert.equal(movimentos[1].valor, 360);
   assert.equal(Object.hasOwn(historico[1].metadata, "pontualidade"), false);
-  assert.equal(baixasComPontualidade, 1);
-  assert.equal(baixasTradicionais, 1);
+  assert.deepEqual(valoresGravados, [285, 360]);
 
   Object.assign(dados, {
     status: "PENDENTE", valorOriginal: 936, valorFinal: 837.5, valorPago: 0,
@@ -213,6 +207,7 @@ test("baixa manual grava valor recebido, desconto e status de quitação no caix
   assert.equal((await PATCH(primeira)).status, 200);
   assert.equal(dados.valorFinal, 743.9);
   assert.equal(movimentos[2].valor, 743.9);
+  assert.deepEqual(valoresGravados, [285, 360, 743.9]);
 });
 
 
