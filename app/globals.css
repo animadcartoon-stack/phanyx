@@ -35985,3 +35985,18 @@ html[data-theme] .phanyx-editor-toolbar-portal .phanyx-editor-toolbar button.pha
 html[data-theme] .phanyx-editor-toolbar-portal .phanyx-editor-toolbar :is(button, input, select):disabled {
   opacity: 0.5 !important;
 }
+/* Portal do Aluno - contraste do menu lateral no tema claro */
+html[data-theme="light"] .phanyx-aluno-sidebar,
+html[data-theme="light"] .phanyx-aluno-sidebar div,
+html[data-theme="light"] .phanyx-aluno-sidebar p,
+html[data-theme="light"] .phanyx-aluno-sidebar a,
+html[data-theme="light"] .phanyx-aluno-sidebar span,
+html[data-theme="light"] .phanyx-aluno-sidebar .phanyx-aluno-perfil-tipo,
+html[data-theme="light"] .phanyx-aluno-sidebar .phanyx-aluno-menu-item,
+html[data-theme="light"] .phanyx-aluno-sidebar .phanyx-aluno-menu-texto {
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .phanyx-aluno-sidebar .phanyx-aluno-menu-item:hover {
+  color: #ffffff !important;
+}
