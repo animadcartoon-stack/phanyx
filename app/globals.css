@@ -35914,3 +35914,74 @@ html[data-theme="dark"] .phanyx-transporte-segment [class*="pill"] {
   }
 }
 /* PHANYX_TRANSPORTE_SYSTEM_NEUTRO_END */
+
+
+/* PHANYX - Contraste da barra flutuante de documentos */
+
+html[data-theme="light"] .phanyx-editor-toolbar-portal {
+  --toolbar-bg: #f8fafc;
+  --toolbar-control: #ffffff;
+  --toolbar-text: #0f172a;
+  --toolbar-border: #cbd5e1;
+  --toolbar-hover: #e2e8f0;
+  color-scheme: light;
+}
+
+html[data-theme="dark"] .phanyx-editor-toolbar-portal {
+  --toolbar-bg: #1e293b;
+  --toolbar-control: #0f172a;
+  --toolbar-text: #f1f5f9;
+  --toolbar-border: #475569;
+  --toolbar-hover: #334155;
+  color-scheme: dark;
+}
+
+html[data-theme="system"] .phanyx-editor-toolbar-portal {
+  --toolbar-bg: #262626;
+  --toolbar-control: #171717;
+  --toolbar-text: #f8fafc;
+  --toolbar-border: #525252;
+  --toolbar-hover: #404040;
+  color-scheme: dark;
+}
+
+html[data-theme] .phanyx-editor-toolbar-portal,
+html[data-theme] .phanyx-editor-toolbar-portal .phanyx-editor-toolbar {
+  background-color: var(--toolbar-bg) !important;
+  color: var(--toolbar-text) !important;
+  border-color: var(--toolbar-border) !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+html[data-theme] .phanyx-editor-toolbar-portal .phanyx-editor-toolbar :is(p, label, .phanyx-editor-toolbar-title) {
+  color: var(--toolbar-text) !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+html[data-theme] .phanyx-editor-toolbar-portal .phanyx-editor-toolbar :is(button:not([style*="background"]):not(.phanyx-toolbar-ativo), select, option, input:not([type="color"])) {
+  background-color: var(--toolbar-control) !important;
+  color: var(--toolbar-text) !important;
+  border-color: var(--toolbar-border) !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+html[data-theme] .phanyx-editor-toolbar-portal .phanyx-editor-toolbar :is(button:not([style*="background"]):not(.phanyx-toolbar-ativo), select):not(:disabled):hover {
+  background-color: var(--toolbar-hover) !important;
+  color: var(--toolbar-text) !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+html[data-theme] .phanyx-editor-toolbar-portal .phanyx-editor-toolbar button.phanyx-toolbar-ativo {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #1d4ed8 !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme] .phanyx-editor-toolbar-portal .phanyx-editor-toolbar button.phanyx-toolbar-ativo:hover {
+  background-color: #1d4ed8 !important;
+}
+
+html[data-theme] .phanyx-editor-toolbar-portal .phanyx-editor-toolbar :is(button, input, select):disabled {
+  opacity: 0.5 !important;
+}
