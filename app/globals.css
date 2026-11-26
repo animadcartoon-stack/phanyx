@@ -28782,15 +28782,15 @@ html[data-theme="light"]
 /* Menu nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â£o selecionado */
 html[data-theme="light"]
   .phanyx-aluno-menu-item:not(.phanyx-aluno-menu-item-ativo) {
-  color: #0f172a !important;
-  -webkit-text-fill-color: #0f172a !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
 html[data-theme="light"]
   .phanyx-aluno-menu-item:not(.phanyx-aluno-menu-item-ativo)
   .phanyx-aluno-menu-texto {
-  color: #0f172a !important;
-  -webkit-text-fill-color: #0f172a !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
 /* Seletor de idioma */
@@ -28879,8 +28879,8 @@ html[data-theme="light"]
   .phanyx-aluno-perfil-tipo,
 html[data-theme-choice="light"]
   .phanyx-aluno-perfil-tipo {
-  color: #1e3a8a !important;
-  -webkit-text-fill-color: #1e3a8a !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
   opacity: 1 !important;
 }
 
@@ -35986,17 +35986,19 @@ html[data-theme] .phanyx-editor-toolbar-portal .phanyx-editor-toolbar :is(button
   opacity: 0.5 !important;
 }
 /* Portal do Aluno - contraste do menu lateral no tema claro */
-html[data-theme="light"] .phanyx-aluno-sidebar,
-html[data-theme="light"] .phanyx-aluno-sidebar div,
-html[data-theme="light"] .phanyx-aluno-sidebar p,
-html[data-theme="light"] .phanyx-aluno-sidebar a,
-html[data-theme="light"] .phanyx-aluno-sidebar span,
-html[data-theme="light"] .phanyx-aluno-sidebar .phanyx-aluno-perfil-tipo,
-html[data-theme="light"] .phanyx-aluno-sidebar .phanyx-aluno-menu-item,
-html[data-theme="light"] .phanyx-aluno-sidebar .phanyx-aluno-menu-texto {
+html[data-theme="light"] body aside.phanyx-aluno-sidebar,
+html[data-theme="light"] body aside.phanyx-aluno-sidebar div,
+html[data-theme="light"] body aside.phanyx-aluno-sidebar p,
+html[data-theme="light"] body aside.phanyx-aluno-sidebar a.phanyx-aluno-menu-item,
+html[data-theme="light"] body aside.phanyx-aluno-sidebar .phanyx-aluno-menu-texto,
+html[data-theme="light"] body aside.phanyx-aluno-sidebar .phanyx-aluno-perfil-tipo {
   color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
 }
 
-html[data-theme="light"] .phanyx-aluno-sidebar .phanyx-aluno-menu-item:hover {
+html[data-theme="light"] body aside.phanyx-aluno-sidebar .phanyx-aluno-menu-item:hover,
+html[data-theme="light"] body aside.phanyx-aluno-sidebar .phanyx-aluno-menu-item:hover .phanyx-aluno-menu-texto {
   color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
