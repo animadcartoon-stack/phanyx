@@ -191,7 +191,7 @@ export default function AlunoSidebar({
   ].filter(Boolean) as ItemMenuAluno[];
 
   return (
-      <aside className="min-w-0 border-r border-blue-800 bg-blue-950 text-white shadow-xl dark:border-slate-800 dark:bg-slate-950 lg:fixed lg:min-h-screen lg:w-64">
+      <aside className="phanyx-aluno-sidebar min-w-0 border-r border-blue-800 bg-blue-950 text-white shadow-xl dark:border-slate-800 dark:bg-slate-950 lg:fixed lg:min-h-screen lg:w-64">
         <div data-portal-preferences className="p-4 lg:p-6">
           <div className="hidden text-lg font-bold text-white lg:block">
             🎓 {t("areaTitle")}
