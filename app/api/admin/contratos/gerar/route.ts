@@ -151,7 +151,7 @@ function obterTitularContrato(aluno: any) {
   };
 }
 
-export async function GET(req: Request) {
+async function processarContrato(req: Request, atualizar = false) {
   try {
     const user = await getUserFromToken();
 
@@ -1023,6 +1023,36 @@ E por estarem de pleno acordo, firmam o presente contrato.
       }
     }
 
+    if (atualizar) {
+      const atualizado = await prisma.contrato.updateMany({
+        where: {
+          id: contratoExistente.id,
+          instituicaoId: user.instituicaoId,
+          status: "PENDENTE",
+          dataAssinatura: null,
+          assinaturaSecretariaEm: null,
+          assinatura: { is: null },
+          conteudo: contratoExistente.conteudo,
+          tokenAssinatura: contratoExistente.tokenAssinatura,
+        },
+        data: {
+          conteudo: contratoGerado,
+          tokenAssinatura: crypto.randomUUID(),
+        },
+      });
+
+      if (atualizado.count !== 1) {
+        return NextResponse.json({
+          error: "Contrato assinado ou alterado. Atualizacao nao permitida."
+        }, { status: 409 });
+      }
+
+      contratoExistente = await prisma.contrato.findUniqueOrThrow({
+        where: { id: contratoExistente.id },
+        include: { assinatura: true },
+      });
+    }
+
     const contratoFinal = renderizarCamposEscolha(
       posicionarAssinaturasAntesDoAnexo(selecionarConteudoContrato(contratoExistente.conteudo, contratoGerado)),
       contratoExistente.assinatura?.respostasCampos as Record<string, number> | null ?? {},
@@ -1137,4 +1167,13 @@ E por estarem de pleno acordo, firmam o presente contrato.
       { status: 500 }
     );
   }
+}
+
+
+export async function GET(req: Request) {
+  return processarContrato(req);
+}
+
+export async function POST(req: Request) {
+  return processarContrato(req, true);
 }

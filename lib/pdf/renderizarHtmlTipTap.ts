@@ -622,6 +622,54 @@ async function renderizarTabelaSimplesNoPdf({
       };
     });
 
+    maiorAlturaCelula = alturaLinha;
+
+    for (const celula of celulasPreparadas) {
+      const largura = celula.widthPercent
+        ? (maxWidth * celula.widthPercent) / 100
+        : larguraCelula;
+
+      const limite = Math.max(1, largura - 10);
+
+      celula.linhasTexto = celula.linhasTexto.flatMap((texto) => {
+        const linhas: string[] = [];
+        let atual = "";
+
+        for (const palavra of texto.split(/\s+/)) {
+          const candidata = atual ? `${atual} ${palavra}` : palavra;
+
+          if (Math.max(
+            font.widthOfTextAtSize(candidata, tamanhoFonte),
+            bold.widthOfTextAtSize(candidata, tamanhoFonte)
+          ) <= limite) {
+            atual = candidata;
+          } else {
+            if (atual) linhas.push(atual);
+            atual = "";
+
+            for (const caractere of palavra) {
+              if (atual && Math.max(
+                font.widthOfTextAtSize(atual + caractere, tamanhoFonte),
+                bold.widthOfTextAtSize(atual + caractere, tamanhoFonte)
+              ) > limite) {
+                linhas.push(atual);
+                atual = "";
+              }
+              atual += caractere;
+            }
+          }
+        }
+
+        if (atual) linhas.push(atual);
+        return linhas;
+      });
+
+      maiorAlturaCelula = Math.max(
+        maiorAlturaCelula,
+        celula.linhasTexto.length * alturaLinha
+      );
+    }
+
     const linhaContemAssinatura = celulasPreparadas.some((celula) =>
       celula.linhasTexto.some(ehLinhaAssinatura)
     );

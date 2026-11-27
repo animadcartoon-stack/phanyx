@@ -10695,6 +10695,12 @@
     }
   },
   "AdminContracts": {
+    "refresh": {
+      "button": "Update contract from current template",
+      "title": "Update contract?",
+      "message": "The contract will be updated using the current template, including its attachments. The previous signing link will be invalidated. Enrollment and payments will remain unchanged.",
+      "cancel": "Cancel"
+    },
     "header": {
       "title": "Contracts",
       "description": "Generate contracts automatically using institution, student, course, and subject data."

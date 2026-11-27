@@ -10694,6 +10694,12 @@
     }
   },
   "AdminContracts": {
+    "refresh": {
+      "button": "Actualizar contrato con el modelo actual",
+      "title": "Actualizar contrato?",
+      "message": "El contrato se actualizará con el modelo vigente, incluidos sus anexos. El enlace anterior de firma quedará invalidado. La matrícula y los pagos no cambiarán.",
+      "cancel": "Cancelar"
+    },
     "header": {
       "title": "Contratos",
       "description": "Genere contratos automáticamente con datos de la institución, el estudiante, el curso y las asignaturas."
