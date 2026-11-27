@@ -881,7 +881,7 @@ export async function GET(req: Request) {
 
       y -= 18;
 
-      const nomeTitular = (config && (data?.contrato?.assinatura?.nome || data?.titularContrato?.nome)) || data?.aluno?.nome || "Aluno/Titular";
+      const nomeTitular = (data?.contrato?.assinatura?.nome || data?.titularContrato?.nome) || data?.aluno?.nome || "Aluno/Titular";
       page.drawText(nomeTitular, {
         x: posicaoX(50),
         y,

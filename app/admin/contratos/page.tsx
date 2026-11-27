@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import { useLocale, useTranslations } from "next-intl";
 
 type AlunoOption = {
@@ -56,6 +57,8 @@ export default function AdminContratosPage() {
   const t = useTranslations("AdminContracts");
   const locale = useLocale();
 
+  const [confirmarAtualizacao, setConfirmarAtualizacao] = useState(false);
+
   const [busca, setBusca] = useState("");
   const [alunos, setAlunos] = useState<AlunoOption[]>([]);
   const [alunoId, setAlunoId] = useState("");
@@ -96,7 +99,7 @@ export default function AdminContratosPage() {
     }
   }
 
-  async function carregarContrato(id: string) {
+  async function carregarContrato(id: string, atualizar = false) {
     if (!id) {
       setContrato(null);
       return;
@@ -107,6 +110,7 @@ export default function AdminContratosPage() {
       setMensagem("");
 
       const res = await fetch(`/api/admin/contratos/gerar?alunoId=${id}&locale=${encodeURIComponent(locale)}`, {
+        method: atualizar ? "POST" : "GET",
         cache: "no-store",
       });
 
@@ -423,6 +427,17 @@ export default function AdminContratosPage() {
               </div>
 
               <div className="mt-6">
+                {contrato?.contrato?.status === "PENDENTE" &&
+                  !contrato.contrato.dataAssinatura && (
+                  <button
+                    type="button"
+                    disabled={loadingContrato || enviandoAssinatura}
+                    onClick={() => setConfirmarAtualizacao(true)}
+                    className="phanyx-doc-primary-action mb-3 w-full disabled:opacity-50"
+                  >
+                    {t("refresh.button")}
+                  </button>
+                )}
                 <button
                   type="button"
                   className="phanyx-doc-primary-action w-full"
@@ -476,7 +491,20 @@ export default function AdminContratosPage() {
           </div>
         </>
       ) : null}
-      <style jsx global>{`
+      <PhanyxConfirmModal
+        aberto={confirmarAtualizacao}
+        titulo={t("refresh.title")}
+        mensagem={t("refresh.message")}
+        textoConfirmar={t("refresh.button")}
+        textoCancelar={t("refresh.cancel")}
+        carregando={loadingContrato}
+        onCancelar={() => setConfirmarAtualizacao(false)}
+        onConfirmar={async () => {
+          await carregarContrato(alunoId, true);
+          setConfirmarAtualizacao(false);
+        }}
+      />
+<style jsx global>{`
   /* Select de aluno — tema Sistema */
 
   html[data-theme-choice="system"][data-theme="dark"]

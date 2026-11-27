@@ -83,3 +83,31 @@ test("PDF inicia o anexo em nova página e chama o bloco de assinaturas no lugar
   assert.ok(resultado.y < chamadas[0].y - 70);
   assert.ok((await pdf.save()).length > 500);
 });
+
+test("atualizacao de contrato exige POST e protege documentos assinados", () => {
+  const fs = require("node:fs");
+  const rota = fs.readFileSync(
+    "app/api/admin/contratos/gerar/route.ts", "utf8"
+  );
+
+  assert.match(rota, /export async function POST/);
+  assert.match(rota, /processarContrato\(req, true\)/);
+  assert.match(rota, /status: "PENDENTE"/);
+  assert.match(rota, /dataAssinatura: null/);
+  assert.match(rota, /assinaturaSecretariaEm: null/);
+  assert.match(rota, /assinatura: \{ is: null \}/);
+  assert.match(rota, /conteudo: contratoExistente\.conteudo/);
+  assert.match(rota, /conteudo: contratoGerado/);
+  assert.match(rota, /tokenAssinatura: crypto\.randomUUID\(\)/);
+});
+
+test("PDF prioriza o titular legal mesmo sem bloco personalizado", () => {
+  const fs = require("node:fs");
+  const rota = fs.readFileSync(
+    "app/api/admin/contratos/pdf/route.ts", "utf8"
+  );
+
+  assert.ok(rota.includes(
+    "const nomeTitular = (data?.contrato?.assinatura?.nome || data?.titularContrato?.nome)"
+  ));
+});

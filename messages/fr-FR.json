@@ -10694,6 +10694,12 @@
     }
   },
   "AdminContracts": {
+    "refresh": {
+      "button": "Actualiser le contrat selon le modèle actuel",
+      "title": "Actualiser le contrat ?",
+      "message": "Le contrat sera actualisé selon le modèle en vigueur, annexes comprises. Le lien de signature précédent sera invalidé. L'inscription et les paiements resteront inchangés.",
+      "cancel": "Annuler"
+    },
     "header": {
       "title": "Contrats",
       "description": "Générez automatiquement des contrats à partir des données de l’établissement, de l’étudiant, du cursus et des matières."
